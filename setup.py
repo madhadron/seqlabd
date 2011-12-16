@@ -9,4 +9,5 @@ setup(name='seqlabd',
       author_email='fredross@uw.edu',
       url='',
       packages=[],
+      install_requires=['pydaemonize','pyinotify'],
      )
