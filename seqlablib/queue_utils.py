@@ -19,7 +19,7 @@ def queue_events(queue, path, mask, exit_event, fun=lambda x:x.pathname, exclude
             queue.put(fun(event))
     wm = pyinotify.WatchManager()
     notifier = pyinotify.ThreadedNotifier(wm, Handler())
-    wm.add_watch(path, mask, rec=True, exclude_filter=pyinotify.ExcludeFilter(exclude_list))
+    wm.add_watch(path, mask, rec=True)
     notifier.start()
     def monitor_exit():
         exit_event.wait()
@@ -58,11 +58,16 @@ def intermittently(fun, delay_ref, exit_event):
             timer.start()
     timer.cancel()
 
-def enqueue_files(queue, path_ref):
+def enqueue_files(queue, path_ref, exclude_list):
     path = path_ref.get()
     filenames = os.listdir(path)
-    for f in filenames:
-        queue.put(os.path.join(path, f))
+    def f(filename):
+        for p in exclude_list:
+            if re.match(p, filename):
+                return
+        queue.put(os.path.join(path, filename))
+    for filename in filenames:
+        f(filename)
         
 
     

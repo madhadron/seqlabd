@@ -41,7 +41,7 @@ def test_batched_unique():
 
 def test_intermittently():
     delay_ref = seqlablib.refs.Ref()
-    delay_ref.put(0.05)
+    delay_ref.put(0.5)
     d = []
     evt = threading.Event()
     exit_evt = threading.Event()
@@ -64,12 +64,12 @@ def test_enqueue_files():
     q = Queue.Queue()
     path_ref = seqlablib.refs.Ref()
     path_ref.put('data/to_enqueue')
-    seqlablib.queue_utils.enqueue_files(q, path_ref)
+    seqlablib.queue_utils.enqueue_files(q, path_ref, exclude_list=[r'.*?beta$'])
     d = []
     while not(q.empty()):
         x = q.get()
         n = os.path.split(x)[1]
         d.append(n)
-    assert d == ['alpha','beta','gamma']
+    assert d == ['alpha','gamma']
 
-test_queue_events()
+test_enqueue_files()

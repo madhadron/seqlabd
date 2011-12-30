@@ -2,10 +2,10 @@ import collections
 import locks
 
 class Ref(object):
-    def __init__(self):
-        self.initialized = False
+    def __init__(self, val=None):
+        self.initialized = (val != None)
         self.lock = locks.ReadWriteLock()
-        self.value = None
+        self.value = val
     def put(self, val):
         try:
             old_val = self.value

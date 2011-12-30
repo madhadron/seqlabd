@@ -44,13 +44,15 @@ seqlablib.signals:
 * TODO MDX database interface
 Provides a lookup and an update_path function. The lookup should return a named tuple with all necessary fields. The named tuple should have the fields: path, filename, accession, workup, pat_name, amp_name
 
-The two methods are lookup and update_path. Update should set the path from None to something.
+lookup_by_sequence_key
+lookup_by_workup
+update_by_sequence_key
 
-** TODO Mock MDX interface for testing purposes created
+** DONE Mock MDX interface for testing purposes created
 Fake filenames set up with their data in a dictionary, and two functions provided that read and write the dictionary.
 In test code, write MockMDX object with a set of workups for files and lookup and update functions.
-*** TODO 30min Generate some example file information and the files to use with them
-*** TODO 30min Implement the mock
+*** DONE 30min 14h05-14h12 Generate some example file information and the files to use with them
+*** DONE 30min Implement the mock
 ** TODO Real MDX interface created and tested
 Two queries (from https://web.labmed.washington.edu/micro/PathsAndIDsForFiles):
 SELECT mdx.`Accession` as accession,
@@ -75,8 +77,8 @@ Be sure it releases event on any error in update or lookup
 Check for liveness of the connection.
 * TODO Regeneration of HTML daily work summary
 Order by the creation time of the report in the directories.
-** TODO 30min Function to assemble list of subdirs along with the creation time of *report.html inside and the workup information from the database, and whether it was a strandwise or assembled report.
-** TODO 90min Mock up the display of a set of patient records for a given day in HTML
+** DONE 30min 14h15-14h50 Function to assemble list of subdirs along with the creation time of *report.html inside and the workup information from the database, and whether it was a strandwise or assembled report.
+** DONE 90min 14h50-15h14 Mock up the display of a set of patient records for a given day in HTML
 ** TODO 20min Turn mockup into templet function
 ** TODO 20min Write function that takes a path, does lookups, and writes summary into daily_summary.html in that path (including tests)
 generate_summary_report(path, lookup_fun=id, format_fun=id, summary_filename=None)
@@ -186,30 +188,48 @@ notifier.stop()
 Need to switch to Linux with winpdb to figure out what's going on
 *** DONE 10min Replace n_batches with exit event in batched_unique
 ** DONE 15min 11h46-12h05 Add 'filter' argument to queue_events (and test for it)
-** TODO 30min Tests set up for queue_events
+** DONE 30min Tests set up for queue_events
 Use a directory in test/data
 Check that files are properly enqueued on creation
 Check that filter works
 ** TODO 10min Add command to daemon to enqueue only files ending in .ab1 on their creation
 ** TODO Generic process function written
+process(pair_by, unmatched_fun, pair_fun)
+
+pair_by needs to look up from the mock object. The key it returns is returned, so the key should be just the workup information.
+
 process(lookup_fun,pairing_key_fun, unmatched_file_path_ref, unmatched_queue, share_path_ref, workup_path_ref, pair_queue, post_enqueue_fun)(filepaths_set):
     if any of the filepaths don't exist, syslog a warning and drop them
     look up files with lookup_fun to get full data
     try to pair the files with pairing_key_fun
     for each unpaired file, if its n_retries = 0, move it to unmatched_file_path and delete it from n_retries dict; else reenqueue it and decrement its n_retries.
     for each pair, ensure that its target directory exists, move the files there, and queue the pair on analysis_queue. Run post_enqueue_fun
-*** TODO 30min Set up test framework for process
+*** DONE 30min 12h08-12h21 Set up test framework for process
 lookup_fun = id, pairing_key_fun = id, unmatched_file_path_ref = test/data/unmatched, unmatched_queue = a queue, share_path_ref = test/data/process_share, workup_path_ref = workup, pair_queue = a queue, post_enqueue_fun = set an event
 Write a skeleton of process that does nothing and fails
 Create files to process in test/data/to_process, set up queues and event, call process on them, check that files go in the right places and that the queues have the correct values.
-*** TODO 30min Write pair_up
+*** DONE 30min 12h21-12h25 Write pair_up
 Takes a key function and an iterable and produces a list of all pairs that it can, and a list of the unpaired items. It's groupby plus a filter
-*** TODO 15min Write ensure_isdir
+*** DONE 15min 12h25-12h29 Write ensure_isdir
 Takes a path and:
 if path is a directory -> do nothing
 if path does not exist -> create directory
 else -> raise an error
-*** TODO 1.5h Write guts of process
+*** TODO 1.5h 12h29-12h57 13h35-13h56 Write guts of process
+Most of the behavior has been moved to the functions unmatched_fun and pair_fun.
+
+unmatched_fun should be something like
+requeue_n_times(unmatched_queue, n_retries_ref, function to move file to unmatched on final failure)
+
+pair_fun(mdx_obj, share_path_ref, workup_path_ref, pair_queue)(file1, file2)
+pair_fun should:
+Set up the target directory
+Move the files thence
+Enqueue the pair on a given queue
+Call update on the MDX object
+
+Tests aren't passing...
+
 Catch any errors and syslog them. Drop the file the error occurred for.
 process(lookup_fun,pairing_key_fun, unmatched_file_path_ref, unmatched_queue, share_path_ref, workup_path_ref, pair_queue, post_enqueue_fun)(filepaths_set):
     if any of the filepaths don't exist, syslog a warning and drop them
@@ -220,8 +240,8 @@ process(lookup_fun,pairing_key_fun, unmatched_file_path_ref, unmatched_queue, sh
 
 * TODO Intermittent enqueuing of all files
 intermittently and enqueue_files
-** TODO 15min Add filter to enqueue_files to match filenames with a regex
-** TODO 30min Write intermittently function and tests
+** DONE 15min 13h56-14h05 Add filter to enqueue_files to match filenames with a regex
+** DONE 30min Write intermittently function and tests
 intermittently(fun, delay_ref, exit_event) runs fun with a fixed delay between runs.
  * fun - function to run
  * delay - Ref-like to the delay in seconds between runs.
