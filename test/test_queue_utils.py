@@ -3,13 +3,23 @@ import os
 import threading
 import time
 import Queue
+import pyinotify
 
 import seqlablib.refs
 import seqlablib.queue_utils
 
 def test_queue_events():
-    # ensure that target dir exists, make a queue, start up the queue_events, touch a couple files in target dir, check that they are queued properly
-    pass
+    q = Queue.Queue()
+    exit_event = threading.Event()
+    seqlablib.queue_utils.queue_events(q, 'data', pyinotify.IN_CREATE, exit_event, exclude_list=['.*beta$'])
+    for i in ['data/alpha','data/beta','data/gamma']:
+        with open(i, 'w') as h:
+            print >>h, 'Hello'
+        os.unlink(i)
+    exit_event.set()
+    assert os.path.split(q.get())[1] == 'alpha'
+    assert os.path.split(q.get())[1] == 'gamma'
+
 
 def test_batched_unique():
     q = Queue.Queue()
@@ -25,8 +35,9 @@ def test_batched_unique():
     t.start()
     q.put(1); q.put(2); q.put(3)
     batchedevt.wait()
-    assert d==[1,2,3]
     exitevt.set()
+    assert d==[1,2,3]
+
 
 def test_intermittently():
     delay_ref = seqlablib.refs.Ref()
@@ -60,3 +71,5 @@ def test_enqueue_files():
         n = os.path.split(x)[1]
         d.append(n)
     assert d == ['alpha','beta','gamma']
+
+test_queue_events()

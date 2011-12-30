@@ -1,23 +1,30 @@
+import re
 import os
 import sets
 import threading
-#import pyinotify
+import pyinotify
 import Queue
 import refs
 
-def queue_events(queue, path, mask, fun=lambda x:x.path):
+def queue_events(queue, path, mask, exit_event, fun=lambda x:x.pathname, exclude_list=[]):
     class Handler(pyinotify.ProcessEvent):
         def process_IN_UNMOUNT(self, event):
             syslog.syslog(syslog.LOG_NOTICE, ("Backing filesystem of %s was unmounted."
-                                              "Exiting.") % event.path)
+                                              "Exiting.") % event.pathname)
             exit(1)
         def process_default(self, event):
+            for p in exclude_list:
+                if re.match(p, event.pathname):
+                    return
             queue.put(fun(event))
-
     wm = pyinotify.WatchManager()
-    notifier = pyinotify.Notifier(wm, Handler())
-    wm.add_watch(path, mask, rec=True)
-    notifier.loop()
+    notifier = pyinotify.ThreadedNotifier(wm, Handler())
+    wm.add_watch(path, mask, rec=True, exclude_filter=pyinotify.ExcludeFilter(exclude_list))
+    notifier.start()
+    def monitor_exit():
+        exit_event.wait()
+        notifier.stop()
+    threading.Thread(target=monitor_exit).start()
 
 
 def batched_unique(queue, fun, timeout_ref, exit_event):
