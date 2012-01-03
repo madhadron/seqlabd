@@ -58,7 +58,7 @@ def test_render_blast():
     import cPickle
     with open('data/blast.pickle') as input, open('data/blast_render.html', 'w') as output:
         b = cPickle.load(input)
-        print >>output, "<html><head><style>" + seqlablib.report.blast_css() + "</style>"
+        print >>output, "<html><head><style>" + seqlablib.report.blast_css() + seqlablib.report.pprint_seq_css() + "</style>"
         print >>output, """<script type="text/javascript">\n""" + seqlablib.report.blast_javascript() + "</script>"
         print >>output, "</head><body>"
         print >>output, seqlablib.report.render_blast(b)

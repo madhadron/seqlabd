@@ -128,11 +128,11 @@ def alignment_css():
     return tracks.stylesheet
 
 @templet.stringfunction
-def pprint_seq(seq):
+def pprint_seq(seq, container=True):
     """
-    <div class="pprint_seq">
+    ${container and '<div class="pprint_seq">' or ""}
     ${['<span class="%s">%s</span>' % (x,x) for x in seq]}    
-    </div>
+    ${container and '</div>' or ''}
     """
 
 @templet.stringfunction
@@ -177,7 +177,7 @@ def render_alignment(assembly, ab1dict1, ab1dict2):
 
 # NCBI BLAST returns a closed interval for start and end, not a half open one, so end-start = length-1
 def overlap_bar(hsp, query_length):
-    template = """<div style="background-color: %s; width: %s%%; margin-left: %s%%;">&nbsp;</div>"""
+    template = """<div style="background-color: %s; width: %s%%; margin-left: %s%%;">%s</div>"""
     if hsp.score >= 200:
         color = "#f00"
     elif hsp.score >= 80 and hsp.score < 200:
@@ -188,13 +188,14 @@ def overlap_bar(hsp, query_length):
         color = "#00f"
     else: # hsp.XSscore < 40:
         color = "#000"
+    percid = hsp.identities / float(hsp.align_length)
     # NCBI BLAST returns a closed interval for start and end, not a
     # half open one, so end-start = length-1
     sbjct_right = hsp.query_end
     sbjct_left = hsp.query_start
     width = 100*(sbjct_right - sbjct_left + 1)/float(query_length) # in percent
     offset = 100*sbjct_left / float(query_length)
-    return template % (color, width, offset)
+    return template % (color, width, offset, pprint_percent(percid))
 
 def pprint_int(n):
     locale.setlocale(locale.LC_ALL, '')
@@ -218,11 +219,11 @@ def render_hsp(hsp, query_length):
       <li><span class="label">Identities</span><span class="value">${str(hsp.identities)}/${str(hsp.align_length)} (${pprint_percent(hsp.identities/float(hsp.align_length))}%)</span></li>
       <li><span class="label">Gaps</span><span class="value">${hsp.gaps}/${hsp.align_length} (${pprint_percent(hsp.gaps/float(hsp.align_length))}%)</span></li>
     </ul>
-    <div class="alignment">
-      <p><span class="label">Query (${hsp.query_start}-${hsp.query_end})</span><span class="sequence">${hsp.query}</span></p>
+    <span><div class="alignment">
+      <p><span class="label">Query (${hsp.query_start}-${hsp.query_end})</span><span class="sequence">${pprint_seq(hsp.query, False)}</span></p>
       <p><span class="label">&nbsp;</span><span class="sequence">${hsp.match}</span></p>
-      <p><span class="label">Sbjct (${hsp.sbjct_start}-${hsp.sbjct_end})</span><span class="sequence">${hsp.sbjct}</span></p>
-    </div>
+      <p><span class="label">Sbjct (${hsp.sbjct_start}-${hsp.sbjct_end})</span><span class="sequence">${pprint_seq(hsp.sbjct, False)}</span></p>
+    </div></span>
     """
     
 @templet.stringfunction
@@ -233,7 +234,7 @@ def render_blast_alignment(alignment, position, query_length):
         ${[overlap_bar(h, query_length) for h in alignment.hsps]}</div>
         <tt>${alignment.hit_id}</tt> ${alignment.hit_def} (&gt;gb|AE000511.1|</tt> Helicobacter pylori 26695, complete genome (${pprint_int(alignment.length)}bp)
       </h3>
-      <div id="inner$position" class="inner">
+      <div id="inner$position" class="hidden" onclick="toggle_visible('inner$position')">
         ${[render_hsp(h, query_length) for h in alignment.hsps]}
       </div>
     </div>
@@ -255,13 +256,15 @@ def blast_css():
     ul.stats span.label { display: inline-block; width: 34%; text-align: right; font-weight: bold; margin-right: 2%; background-color: #eee; }
     ul.stats span.value { display: inline-block; width: 62%; text-align: left; text-align: left; }
 
-    div.overlap_bars { display: inline-block; width: 15%; margin-right: 1em; background-color: #bbb; }
-    div.overlap_bars div { display: block; float: left; height: 100XO%; }
-    div.alignment { white-space: nowrap; overflow-x: scroll; }
+    div.overlap_bars { display: inline-block; width: 15%; height: 1em; margin-right: 1em; background-color: #bbb; }
+    div.overlap_bars div { display: block; float: left; font-size: 0.9em; line-height: 1.11; vertical-align: middle; height: 100%; text-align: center; color: #fff; }
+    div.alignment { white-space: nowrap; overflow-x: scroll; overflow-y: hidden; }
     div.alignment span.label { display: block; width: 10em; float: left; text-align: right; margin-right: 0.5em; background-color: #eee; }
     div.alignment span.sequence { font-family: monospace; font-size: 1.5em; }
     div.alignment p { margin: 0; padding: 0; line-height: 1; }
-    div.inner { display: none; margin-bottom: 1em; }
+    div.hidden { display: none; }
+    div.shown { display: block; margin-bottom: 1em; margin: 0.25em; }
+    a { text-decoration: inherit; color: inherit; }
     """
 
 @templet.stringfunction
@@ -269,7 +272,7 @@ def blast_javascript():
     """
     function toggle_visible(tgt_id) {
         var t = document.getElementById(tgt_id);
-        t.style.display = t.style.display=='none' ? 'block' : 'none';
+        t.className = t.className=='hidden' ? 'shown' : 'hidden';
     }
     """
 
