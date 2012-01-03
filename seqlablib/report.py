@@ -1,6 +1,10 @@
 import templet
 import os
 import time
+import locale
+import math
+
+import tracks
 
 @templet.stringfunction
 def tab_li(i, text):
@@ -102,4 +106,171 @@ def daily_summary(date, entries):
     ${[summary_entry(x) for x in entries]}
     </body></html>
     """
+
+def generate_daily_summary(path, mdx):
+    date = os.path.split(path)[1]
+    entries = subdirs_for_summary(path, mdx)
+    text = daily_summary(date, entries)
+    with open(os.path.join(path,'summary.html'), 'w') as h:
+        print >>h, text
+
+
+def render_ab1(ab1_dict):
+    """*ab1_dict* should be a dict containing keys ``'sequence'``, ``'traces'``, and ``'confidences'``."""
+    t = tracks.TrackSet()
+    t.extend([tracks.TrackEntry('traces', 0, ab1_dict['traces']),
+              tracks.TrackEntry('confidences', 0, ab1_dict['confidences']),
+              tracks.TrackEntry('sequence', 0, ab1_dict['sequence'])])
+    return tracks.render(t)
+
+
+def alignment_css():
+    return tracks.stylesheet
+
+@templet.stringfunction
+def pprint_seq(seq):
+    """
+    <div class="pprint_seq">
+    ${['<span class="%s">%s</span>' % (x,x) for x in seq]}    
+    </div>
+    """
+
+@templet.stringfunction
+def pprint_seq_css():
+    """
+    div.pprint_seq {
+    margin: 1em 3em;
+    border: 1px solid black;
+    word-wrap: break-word;
+    padding: 0.25em;
+    }
+
+    span.A { color: green; }
+    span.T { color: red; }
+    span.G { color: black; }
+    span.C { color: blue; }
+    """
+
+def render_alignment(assembly, ab1dict1, ab1dict2):
+    t = tracks.TrackSet()
+
+    read1_offset, read1_sequence = assembly['read1']
+    read2_offset, read2_sequence = assembly['read2']
+    read1_confs = tracks.regap(read1_sequence, ab1dict1['confidences'])
+    read2_confs = tracks.regap(read2_sequence, tracks.revcomp(ab1dict2['confidences']))
+    read1_traces = tracks.regap(read1_sequence, ab1dict1['traces'])
+    read2_traces = tracks.regap(read2_sequence, tracks.revcomp(ab1dict2['traces']))
+
+    t.extend([
+              tracks.TrackEntry('read 1 traces', read1_offset, read1_traces),
+              tracks.TrackEntry('read 1 confidences', read1_offset, read1_confs),
+              tracks.TrackEntry('read 1 bases', read1_offset, read1_sequence),
+              tracks.TrackEntry('read 2 traces', read2_offset, read2_traces),
+              tracks.TrackEntry('read 2 confidences', read2_offset, read2_confs),
+              tracks.TrackEntry('read 2 bases', read2_offset, read2_sequence)])
+
+    assert assembly['reference'] != None
+    reference_offset, reference_sequence = assembly['reference']
+    t.append(tracks.TrackEntry('reference', reference_offset, reference_sequence))
+
+    return tracks.render(t)
+
+# NCBI BLAST returns a closed interval for start and end, not a half open one, so end-start = length-1
+def overlap_bar(hsp, query_length):
+    template = """<div style="background-color: %s; width: %s%%; margin-left: %s%%;">&nbsp;</div>"""
+    if hsp.score >= 200:
+        color = "#f00"
+    elif hsp.score >= 80 and hsp.score < 200:
+        color = "#f0f"
+    elif hsp.score >= 50 and hsp.score < 80:
+        color = "#0f0"
+    elif hsp.score >= 40 and hsp.score < 50:
+        color = "#00f"
+    else: # hsp.XSscore < 40:
+        color = "#000"
+    # NCBI BLAST returns a closed interval for start and end, not a
+    # half open one, so end-start = length-1
+    sbjct_right = hsp.query_end
+    sbjct_left = hsp.query_start
+    width = 100*(sbjct_right - sbjct_left + 1)/float(query_length) # in percent
+    offset = 100*sbjct_left / float(query_length)
+    return template % (color, width, offset)
+
+def pprint_int(n):
+    locale.setlocale(locale.LC_ALL, '')
+    return locale.format("%d", n, grouping=True)
+
+def pprint_sci(x):
+    locale.setlocale(locale.LC_ALL, '')
+    exponent = math.floor(math.log10(x))
+    radix = x * 10**(-exponent)
+    return "%1.1f" % radix + "&times;10<sup>" + "%d"%exponent + "</sup>"
+
+def pprint_percent(x):
+    return "%.1f" % (100*x)
+
+@templet.stringfunction
+def render_hsp(hsp, query_length):
+    """
+    <ul class="stats">
+      <li><span class="label">Score</span><span class="value">${str(hsp.score)} (E=${pprint_sci(hsp.expect)})</span></li>
+      <li><span class="label">Coverage</span><span class="value">${str(hsp.align_length)}/${str(query_length)} query bases</span></li>
+      <li><span class="label">Identities</span><span class="value">${str(hsp.identities)}/${str(hsp.align_length)} (${pprint_percent(hsp.identities/float(hsp.align_length))}%)</span></li>
+      <li><span class="label">Gaps</span><span class="value">${hsp.gaps}/${hsp.align_length} (${pprint_percent(hsp.gaps/float(hsp.align_length))}%)</span></li>
+    </ul>
+    <div class="alignment">
+      <p><span class="label">Query (${hsp.query_start}-${hsp.query_end})</span><span class="sequence">${hsp.query}</span></p>
+      <p><span class="label">&nbsp;</span><span class="sequence">${hsp.match}</span></p>
+      <p><span class="label">Sbjct (${hsp.sbjct_start}-${hsp.sbjct_end})</span><span class="sequence">${hsp.sbjct}</span></p>
+    </div>
+    """
+    
+@templet.stringfunction
+def render_blast_alignment(alignment, position, query_length):
+    """
+    <div class="blast_result">
+      <h3 onclick="toggle_visible('inner$position')"><div class="overlap_bars"><div></div>
+        ${[overlap_bar(h, query_length) for h in alignment.hsps]}</div>
+        <tt>${alignment.hit_id}</tt> ${alignment.hit_def} (&gt;gb|AE000511.1|</tt> Helicobacter pylori 26695, complete genome (${pprint_int(alignment.length)}bp)
+      </h3>
+      <div id="inner$position" class="inner">
+        ${[render_hsp(h, query_length) for h in alignment.hsps]}
+      </div>
+    </div>
+    """
+
+def render_blast(blast_result):
+    txt = ""
+    for i,a in enumerate(blast_result.alignments):
+        txt += render_blast_alignment(a, i, blast_result.query_length)
+    return txt
+
+@templet.stringfunction
+def blast_css():
+    """
+    div.blast_result h3 { font-size: 100%; margin: 0; padding: 0; font-family: "Times New Roman", serif; white-space: nowrap; }
+    tt { font-size: 140%; }
+    ul.stats { display: block; width: 100%; list-style: none; margin: 0.25em; padding: 0; font-size: 1em; max-width: 60em; }
+    ul.stats li { display: inline-block; width: 30%; }
+    ul.stats span.label { display: inline-block; width: 34%; text-align: right; font-weight: bold; margin-right: 2%; background-color: #eee; }
+    ul.stats span.value { display: inline-block; width: 62%; text-align: left; text-align: left; }
+
+    div.overlap_bars { display: inline-block; width: 15%; margin-right: 1em; background-color: #bbb; }
+    div.overlap_bars div { display: block; float: left; height: 100XO%; }
+    div.alignment { white-space: nowrap; overflow-x: scroll; }
+    div.alignment span.label { display: block; width: 10em; float: left; text-align: right; margin-right: 0.5em; background-color: #eee; }
+    div.alignment span.sequence { font-family: monospace; font-size: 1.5em; }
+    div.alignment p { margin: 0; padding: 0; line-height: 1; }
+    div.inner { display: none; margin-bottom: 1em; }
+    """
+
+@templet.stringfunction
+def blast_javascript():
+    """
+    function toggle_visible(tgt_id) {
+        var t = document.getElementById(tgt_id);
+        t.style.display = t.style.display=='none' ? 'block' : 'none';
+    }
+    """
+
 

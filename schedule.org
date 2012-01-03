@@ -79,22 +79,26 @@ Check for liveness of the connection.
 Order by the creation time of the report in the directories.
 ** DONE 30min 14h15-14h50 Function to assemble list of subdirs along with the creation time of *report.html inside and the workup information from the database, and whether it was a strandwise or assembled report.
 ** DONE 90min 14h50-15h14 Mock up the display of a set of patient records for a given day in HTML
-** TODO 20min Turn mockup into templet function
-** TODO 20min Write function that takes a path, does lookups, and writes summary into daily_summary.html in that path (including tests)
+** DONE 20min Turn mockup into templet function
+** DONE 20min 15h14-15h29 Write function that takes a path, does lookups, and writes summary into daily_summary.html in that path (including tests)
 generate_summary_report(path, lookup_fun=id, format_fun=id, summary_filename=None)
 For each folder in *path*, runs *path_key* to get a key and lookup_fun to get info for that key. Then calls format_fun on the list of all such keys to produce a string. If summary_filename == None, return a string. Otherwise, write the results there.
-** TODO 30min Write map_queue (and tests)
+** DONE 30min 15h29-15h40 Write map_queue (and tests)
 map_queue(queue, fun, exit_event) - pops something off the queue and runs fun on it. When fun returns, repeats. Blocks while queue is empty. Handle exit_event.
 ** TODO 10min Add map_queue of generate_summary_report to daemon
 * TODO Processing pairs of AB1 files into reports
-** TODO 15min Integrate AB1 reading and tests from seqviewer
-** TODO 15min Integrate contig construction from seqviewer, and tests
-** TODO 15min Integrate seqviewer's alignment rendering code
-** TODO 30min Function to BLAST and write XML to disk, and parse it in memory
+** DONE 15min 15h40-15h44 Integrate AB1 reading and tests from seqviewer
+** DONE 15min 15h44-15h46 Integrate contig construction from seqviewer, and tests
+** DONE 15min Integrate seqviewer's alignment rendering code
+** DONE 30min 8h35-8h58 Function to BLAST and write XML to disk, and parse it in memory
 blast_seq(seq, xml_path, ncbi_db='nr')
 Takes a string or SeqRecord (seq), returns the path to the XML it writes (in 'xml_path') and the parsed BLAST results.
-** TODO 15min Get a pair of AB1 files and extract their sequences
+** DONE 15min 8h58-9h01 Get a pair of AB1 files and extract their sequences
+tmpzRpKiy-1.ab1:
+'CAGGGGCATCTATAATGCAGTCGAGCGAACAGATAAGGAGCTTGCTCCTTTGACGTTAGCGGCGGACGGGTGAGTAACACGTGGGTAACCTACCTATAAGACTGGGACAACTTCGGGAAACCGGAGCTAATACCGGATAATATGTTGAACCGCATGGTTCAATAGTGAAAGATGGTTTTGCTATCACTTATAGATGGACCCGCGCCGTATTAGCTAGTTGGTGAGGTAATGGCTCACCAAGGCAACGATACGTAGCCGACCTGAGAGGGTGATCGGCCACACTGGAACTGAGACACGGTCCAGACTCCTACGGCGGGCAGCAGA'
 
+tmpzRpKiy-2.ab1
+'CGTCGTTCGATGTGGCCGATCACCCTCTCAGGGTCGGCTACGTATCGTTGCCTAGGTGAACCATTACCTCACCAACTAGCTAATACGGCGCGGGTCCATCTATAAGTGATAGCAAAACCATCTTTCACTATTGAACCATGCGGTTCAACATATTATCCGGTATTAGCTCCGGTTTCCCGAAGTTGTCCCAGTCTTATAGGTAGGTTACCCACGTGTTACTCACCCGTCCGCCGCTAACGTCAAAGGAGCAAGCTCCTTATCTGTTCGCTCGACTTGCATGTATTAGGCACGCCGCCAGCGTTCATCCTGAGCCAAATCCAAACTCAAAACGAAGGTATTCTAAAATTTGAAGTCGAGAGAACAGATAAGGAGCTTGCTCCTTTGACGTTTGCGGCGGAGGGGTGAGTAACGCATGGGTTACCTACTAATAATACGGGAACAATTGCGAAATTTGATTTTTGGATAAAAAAAAA'
 ** TODO 45min generate_report written and tested
 generate_report(workup_info, ab1_file1, ab1_file2, lookup_fun, assembled_render, strandwise_render)
 workup_info is a named tuple as described in the MDX database section
@@ -104,39 +108,30 @@ If success, lookup_fun the assembly in contig and pass the workup_info, the full
 If failure, lookup_fun the two strands and pass the workup_info, the results and the AB1 tracks to strandwise_render
 assembled_render and strandwise_render return strings of data, which are returned by generate_report
 For testing, use a pair of AB1 files, just a nop as lookup_fun, and assembled_render and strandwise_render return just the first 10 characters of sequences from the AB1 files.
-** TODO 15min Blast a sequence from BioPython, and pickle the parsed result for testing purposes
+** DONE 15min 9h01-9h03 Blast a sequence from BioPython, and pickle the parsed result for testing purposes
 Use the sequence
 TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT
 Goes to H. Pylori
+It's in data/blast.pickle. XML is data/pylori_blast.xml
 ** DONE 10min 15h48-15h49 Add templet to codebase
-** TODO 25min Write a function to render an AB1 file as alignment (no offsets)
+** DONE 25min 9h03-9h13 Write a function to render an AB1 file as alignment (no offsets)
 render_ab1(seq, conf, trace) -> HTML that can be embedded in a page
 Call the seqviewer stuff
-** TODO 15min Write a function to pretty print DNA in an easily copyable way
+** DONE 15min 9h13-9h26 Write a function to pretty print DNA in an easily copyable way
 pprint_seq(seq) -> HTML that can be embedded in a page
 pprint_seq_css() -> <style></style> block
 Handle gaps and IUPAC codes
 *** TODO Mock up in basic HTML with a multiline sequence
 *** TODO Write a templet function to return CSS required for this
 *** TODO Write a templet function to return the HTML for a sequence
-** TODO 5min Write a templet function to return seqviewer alignment CSS block
-** TODO 30min Write a function to render two AB1s and the result of contig to HTML
-render_alignment(...run info..., contig, seq1, conf1, trace1, seq2, conf2, trace2) -> HTML that can be embedded in a page
+** DONE 5min Write a templet function to return seqviewer alignment CSS block
+** DONE 30min 9h26-9h38 Write a function to render two AB1s and the result of contig to HTML
+render_alignment(contig, seq1, conf1, trace1, seq2, conf2, trace2) -> HTML that can be embedded in a page
 Take from the assemble function in seqviewer
-** TODO Formatting of BLAST results as templet function
-*** TODO 90min Use example BLAST in project dir and make a mockup of results in raw HTML
-*** TODO 45min Convert raw mockup to a templet function using the pickled BLAST results
-You can do the dropdown stuff with only CSS, as in
-<html><head><style>
-div#inner { display: none; }
-div#outer:active div#inner { display: block; }
-</style></head>
-<body>
-<div id="outer"><p>Hi!</p>
-                <div id="inner"><p>Eee!</p></div>
-</div>
-</body></html>
-*** TODO 5min Write a BLAST CSS block function
+** DONE Formatting of BLAST results as templet function
+*** DONE 90min 9h38-10h35 Use example BLAST in project dir and make a mockup of results in raw HTML
+*** DONE 45min 10h35-11h49 Convert raw mockup to a templet function using the pickled BLAST results
+*** DONE 5min Write a BLAST CSS block and BLAST JavaScript block function
 ** TODO Tabs in raw JavaScript and CSS in Firefox set up as a template
 *** DONE 20min 15h49-15h55 Look up how to set CSS properties on a div by name in Firefox
 <html><head>

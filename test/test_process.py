@@ -7,6 +7,8 @@ import sets
 import common
 import seqlablib.process
 import seqlablib.refs
+import seqlablib.tracks
+import seqlablib.ab1
 
 def test_pair_up():
     pairs, singles = seqlablib.process.pair_up(['alpha.1','beta.1','gamma.1','alpha.2','gamma.2'],
@@ -50,4 +52,13 @@ def test_ensure_paths_exist():
 #     assert [os.path.split(x)[1] for x in pair_queue.get_nowait()] == ['gamma.1','gamma.2']
 #     assert [os.path.split(x)[1] for x in pair_queue.get_nowait()] == ['alpha.1','alpha.2']
 
+@common.slow
+def test_blast_seq():
+    # H. pylori 16S fragment
+    s = "TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT"
+    path = 'data/pylori_blast.xml'
+    results = seqlablib.process.blast_seq(s, path)
+    r = results.alignments[0]
+    assert r.title.find('pylori') != -1
     
+

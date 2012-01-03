@@ -2,6 +2,10 @@ import collections
 import syslog
 import os
 import shutil
+import Bio.Blast.NCBIWWW
+import Bio.Blast.NCBIXML
+
+import tracks
 
 def pair_up(it, key_fun):
     unpaired = {}
@@ -62,3 +66,17 @@ def process(pair_by, unmatched_fun, pair_fun):
                 syslog.syslog(syslog.LOG_ERR, 'There was an error in processing pair %s:(%s, %s): %s' % \
                                   (k,a,b,str(e)))
     return f
+
+def blast_seq(seq, xml_path, ncbi_db='nr'):
+    h = Bio.Blast.NCBIWWW.qblast("blastn", ncbi_db, seq)
+    res = h.read()
+    h.close()
+    with open(xml_path, 'w') as xh:
+        xh.write(res)
+    with open(xml_path, 'r') as xh:
+        records = list(Bio.Blast.NCBIXML.parse(xh))
+        return records[0]
+
+
+    
+             

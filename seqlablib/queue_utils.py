@@ -69,6 +69,13 @@ def enqueue_files(queue, path_ref, exclude_list):
     for filename in filenames:
         f(filename)
         
+def map_queue(queue, fun, exit_event):
+    while not(exit_event.is_set()):
+        try:
+            v = queue.get_nowait()
+            fun(v)
+        except Queue.Empty:
+            pass
 
     
 

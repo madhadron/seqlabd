@@ -1,0 +1,1445 @@
+<?xml version="1.0"?>
+<!DOCTYPE BlastOutput PUBLIC "-//NCBI//NCBI BlastOutput/EN" "NCBI_BlastOutput.dtd">
+<BlastOutput>
+  <BlastOutput_program>blastn</BlastOutput_program>
+  <BlastOutput_version>BLASTN 2.2.26+</BlastOutput_version>
+  <BlastOutput_reference>Stephen F. Altschul, Thomas L. Madden, Alejandro A. Sch&amp;auml;ffer, Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), &quot;Gapped BLAST and PSI-BLAST: a new generation of protein database search programs&quot;, Nucleic Acids Res. 25:3389-3402.</BlastOutput_reference>
+  <BlastOutput_db>nr</BlastOutput_db>
+  <BlastOutput_query-ID>38945</BlastOutput_query-ID>
+  <BlastOutput_query-def>No definition line</BlastOutput_query-def>
+  <BlastOutput_query-len>173</BlastOutput_query-len>
+  <BlastOutput_param>
+    <Parameters>
+      <Parameters_expect>10</Parameters_expect>
+      <Parameters_sc-match>2</Parameters_sc-match>
+      <Parameters_sc-mismatch>-3</Parameters_sc-mismatch>
+      <Parameters_gap-open>5</Parameters_gap-open>
+      <Parameters_gap-extend>2</Parameters_gap-extend>
+      <Parameters_filter>L;m;</Parameters_filter>
+    </Parameters>
+  </BlastOutput_param>
+<BlastOutput_iterations>
+<Iteration>
+  <Iteration_iter-num>1</Iteration_iter-num>
+  <Iteration_query-ID>38945</Iteration_query-ID>
+  <Iteration_query-def>No definition line</Iteration_query-def>
+  <Iteration_query-len>173</Iteration_query-len>
+<Iteration_hits>
+<Hit>
+  <Hit_num>1</Hit_num>
+  <Hit_id>gi|6626253|gb|AE000511.1|</Hit_id>
+  <Hit_def>Helicobacter pylori 26695, complete genome</Hit_def>
+  <Hit_accession>AE000511</Hit_accession>
+  <Hit_len>1667867</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>313.269</Hsp_bit-score>
+      <Hsp_score>346</Hsp_score>
+      <Hsp_evalue>2.71629e-82</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1207</Hsp_hit-from>
+      <Hsp_hit-to>1379</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>173</Hsp_identity>
+      <Hsp_positive>173</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>2</Hit_num>
+  <Hit_id>gi|317176808|dbj|AP011940.1|</Hit_id>
+  <Hit_def>Helicobacter pylori F16 DNA, complete genome</Hit_def>
+  <Hit_accession>AP011940</Hit_accession>
+  <Hit_len>1575399</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>289.825</Hsp_bit-score>
+      <Hsp_score>320</Hsp_score>
+      <Hsp_evalue>3.09929e-75</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1001</Hsp_hit-from>
+      <Hsp_hit-to>1173</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>168</Hsp_identity>
+      <Hsp_positive>168</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAACATGCGTTTCAGCGAACAACCCATCAATCCCCACCGCCGCCGCCGCTCTGGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGAGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||| ||||||||||||||||||||||||||||| ||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>3</Hit_num>
+  <Hit_id>gi|317011857|gb|CP002334.1|</Hit_id>
+  <Hit_def>Helicobacter pylori Lithuania75, complete genome</Hit_def>
+  <Hit_accession>CP002334</Hit_accession>
+  <Hit_len>1624644</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>289.825</Hsp_bit-score>
+      <Hsp_score>320</Hsp_score>
+      <Hsp_evalue>3.09929e-75</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1001</Hsp_hit-from>
+      <Hsp_hit-to>1173</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>168</Hsp_identity>
+      <Hsp_positive>168</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAACATGCGTTTCAGCGAATAGACCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||| || |  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>4</Hit_num>
+  <Hit_id>gi|317008680|gb|CP002331.1|</Hit_id>
+  <Hit_def>Helicobacter pylori India7, complete genome</Hit_def>
+  <Hit_accession>CP002331</Hit_accession>
+  <Hit_len>1675918</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>289.825</Hsp_bit-score>
+      <Hsp_score>320</Hsp_score>
+      <Hsp_evalue>3.09929e-75</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1001</Hsp_hit-from>
+      <Hsp_hit-to>1173</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>168</Hsp_identity>
+      <Hsp_positive>168</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAATATGCGTTTCAGCGAACAACCCATCAATCCCCACCGCCGCCGCCGCTCTGGCTAAAATGGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>||||||||| |||||||||||| ||||||||||||||||||||||||||||| ||||| |||||||| |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>5</Hit_num>
+  <Hit_id>gi|332672788|gb|CP002605.1|</Hit_id>
+  <Hit_def>Helicobacter pylori 83, complete genome</Hit_def>
+  <Hit_accession>CP002605</Hit_accession>
+  <Hit_len>1617426</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>286.219</Hsp_bit-score>
+      <Hsp_score>316</Hsp_score>
+      <Hsp_evalue>3.77571e-74</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1003</Hsp_hit-from>
+      <Hsp_hit-to>1175</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>167</Hsp_identity>
+      <Hsp_positive>167</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAATATGCGTTTCAGCGAACAACCCATCAATCCCCACCGCAGCCGCAGCTCTGGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGAGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>||||||||| |||||||||||| ||||||||||||||||||||||| ||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>6</Hit_num>
+  <Hit_id>gi|317178309|dbj|AP011941.1|</Hit_id>
+  <Hit_def>Helicobacter pylori F30 DNA, complete genome</Hit_def>
+  <Hit_accession>AP011941</Hit_accession>
+  <Hit_len>1570564</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>286.219</Hsp_bit-score>
+      <Hsp_score>316</Hsp_score>
+      <Hsp_evalue>3.77571e-74</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1001</Hsp_hit-from>
+      <Hsp_hit-to>1173</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>167</Hsp_identity>
+      <Hsp_positive>167</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAACATGCGTTTCAGCGAACAGCCCATCAATCCCCACCGCAGCCGCAGCTCTGGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGAGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||| |||| |||||||||||||||||| ||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>7</Hit_num>
+  <Hit_id>gi|315585794|gb|CP002096.1|</Hit_id>
+  <Hit_def>Helicobacter pylori 35A, complete genome</Hit_def>
+  <Hit_accession>CP002096</Hit_accession>
+  <Hit_len>1566655</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>286.219</Hsp_bit-score>
+      <Hsp_score>316</Hsp_score>
+      <Hsp_evalue>3.77571e-74</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>205594</Hsp_hit-from>
+      <Hsp_hit-to>205766</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>167</Hsp_identity>
+      <Hsp_positive>167</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAACATGCGTTTCAGCGAATAACCCATCAATCCCCACCGCCGCCGCCGCTCTGGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGAGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||| || |||||||||||||||||||||||||| ||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>8</Hit_num>
+  <Hit_id>gi|254000649|emb|FM991728.1|</Hit_id>
+  <Hit_def>Helicobacter pylori B38 complete genome, strain B38</Hit_def>
+  <Hit_accession>FM991728</Hit_accession>
+  <Hit_len>1576758</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>286.219</Hsp_bit-score>
+      <Hsp_score>316</Hsp_score>
+      <Hsp_evalue>3.77571e-74</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1095</Hsp_hit-from>
+      <Hsp_hit-to>1267</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>167</Hsp_identity>
+      <Hsp_positive>167</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAATATGCGTTTCAGCGAACAACCCATCAATCCCCACCGCCGCCGCCGCTTTGGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>||||||||| |||||||||||| ||||||||||||||||||||||||||||| ||| | |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>9</Hit_num>
+  <Hit_id>gi|344335753|gb|CP002982.1|</Hit_id>
+  <Hit_def>Helicobacter pylori Puno135, complete genome</Hit_def>
+  <Hit_accession>CP002982</Hit_accession>
+  <Hit_len>1646139</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>280.808</Hsp_bit-score>
+      <Hsp_score>310</Hsp_score>
+      <Hsp_evalue>1.60547e-72</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1001</Hsp_hit-from>
+      <Hsp_hit-to>1173</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>166</Hsp_identity>
+      <Hsp_positive>166</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAACATGCGTTTCAGCGAACAACCCATCAATCCCCACCGCCGCCGCCGCTCTGGCTAAAATAGGGGCAAAAGAGCTATCGCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGAGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||| ||||||||||||||||||||||||||||| ||||| ||||||||||||||||||||||| || |||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>10</Hit_num>
+  <Hit_id>gi|344334211|gb|CP002980.1|</Hit_id>
+  <Hit_def>Helicobacter pylori Puno120, complete genome</Hit_def>
+  <Hit_accession>CP002980</Hit_accession>
+  <Hit_len>1624979</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>280.808</Hsp_bit-score>
+      <Hsp_score>310</Hsp_score>
+      <Hsp_evalue>1.60547e-72</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1001</Hsp_hit-from>
+      <Hsp_hit-to>1173</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>166</Hsp_identity>
+      <Hsp_positive>166</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAACATGCGTTTCAGCGAACAACCCATCAATCCCCACCGCCGCCGCCGCTCTGGCTAAAATAGGGGCAAAAGAGCTATCGCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGAGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||| ||||||||||||||||||||||||||||| ||||| ||||||||||||||||||||||| || |||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>11</Hit_num>
+  <Hit_id>gi|325996870|gb|CP002571.1|</Hit_id>
+  <Hit_def>Helicobacter pylori 2017, complete genome</Hit_def>
+  <Hit_accession>CP002571</Hit_accession>
+  <Hit_len>1548238</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>280.808</Hsp_bit-score>
+      <Hsp_score>310</Hsp_score>
+      <Hsp_evalue>1.60547e-72</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1045</Hsp_hit-from>
+      <Hsp_hit-to>1217</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>166</Hsp_identity>
+      <Hsp_positive>166</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAATGTGTGTTTCAGCGAACAACCCATCAATCCCCACCGCAGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGAGTGGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||  || |||||||| ||||||||||||||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| || |||||||||||||||||||||||||||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>12</Hit_num>
+  <Hit_id>gi|325995266|gb|CP002572.1|</Hit_id>
+  <Hit_def>Helicobacter pylori 2018, complete genome</Hit_def>
+  <Hit_accession>CP002572</Hit_accession>
+  <Hit_len>1562832</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>280.808</Hsp_bit-score>
+      <Hsp_score>310</Hsp_score>
+      <Hsp_evalue>1.60547e-72</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1045</Hsp_hit-from>
+      <Hsp_hit-to>1217</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>166</Hsp_identity>
+      <Hsp_positive>166</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAATGTGTGTTTCAGCGAACAACCCATCAATCCCCACCGCAGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGAGTGGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||  || |||||||| ||||||||||||||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| || |||||||||||||||||||||||||||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>13</Hit_num>
+  <Hit_id>gi|317181290|dbj|AP011945.1|</Hit_id>
+  <Hit_def>Helicobacter pylori F57 DNA, complete genome</Hit_def>
+  <Hit_accession>AP011945</Hit_accession>
+  <Hit_len>1609006</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>280.808</Hsp_bit-score>
+      <Hsp_score>310</Hsp_score>
+      <Hsp_evalue>1.60547e-72</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1003</Hsp_hit-from>
+      <Hsp_hit-to>1175</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>166</Hsp_identity>
+      <Hsp_positive>166</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAACATGCGTTTCAGCGAACAACCCATCAATCCCCACCGCCGCCGCCGCTCTGGCTAAAATAGGGGCAAAAGAGCTATCGCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGAGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||| ||||||||||||||||||||||||||||| ||||| ||||||||||||||||||||||| || |||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>14</Hit_num>
+  <Hit_id>gi|317179796|dbj|AP011943.1|</Hit_id>
+  <Hit_def>Helicobacter pylori F32 DNA, complete genome</Hit_def>
+  <Hit_accession>AP011943</Hit_accession>
+  <Hit_len>1578824</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>280.808</Hsp_bit-score>
+      <Hsp_score>310</Hsp_score>
+      <Hsp_evalue>1.60547e-72</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1001</Hsp_hit-from>
+      <Hsp_hit-to>1173</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>166</Hsp_identity>
+      <Hsp_positive>166</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAACATGCGTTTCAGCGAACAACCCATCAATCCCCACCGCCGTTGCTGCTCTGGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCATTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||| |||||||||||||||||||||||||  || ||||| ||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>15</Hit_num>
+  <Hit_id>gi|307636682|gb|CP002184.1|</Hit_id>
+  <Hit_def>Helicobacter pylori 908, complete genome</Hit_def>
+  <Hit_accession>CP002184</Hit_accession>
+  <Hit_len>1549666</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>280.808</Hsp_bit-score>
+      <Hsp_score>310</Hsp_score>
+      <Hsp_evalue>1.60547e-72</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1045</Hsp_hit-from>
+      <Hsp_hit-to>1217</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>166</Hsp_identity>
+      <Hsp_positive>166</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAATGTGTGTTTCAGCGAACAACCCATCAATCCCCACCGCAGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGAGTGGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||  || |||||||| ||||||||||||||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| || |||||||||||||||||||||||||||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>16</Hit_num>
+  <Hit_id>gi|210132169|gb|CP001217.1|</Hit_id>
+  <Hit_def>Helicobacter pylori P12, complete genome</Hit_def>
+  <Hit_accession>CP001217</Hit_accession>
+  <Hit_len>1673813</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>280.808</Hsp_bit-score>
+      <Hsp_score>310</Hsp_score>
+      <Hsp_evalue>1.60547e-72</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1003</Hsp_hit-from>
+      <Hsp_hit-to>1175</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>166</Hsp_identity>
+      <Hsp_positive>166</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAACATGCGTTTCAGCGAACAACCCATCAATCCCCACCGCCGCCGCTGCTCTGGCTAAAATAGGGGCAAAAGAGCTGTCGCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGAGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTGTT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||| ||||||||||||||||||||||||||||| ||||| |||||||||||||||||||||||||| |||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||| |||||||||||| ||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>17</Hit_num>
+  <Hit_id>gi|189491895|gb|CP001072.2|</Hit_id>
+  <Hit_def>Helicobacter pylori Shi470, complete genome</Hit_def>
+  <Hit_accession>CP001072</Hit_accession>
+  <Hit_len>1608548</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>280.808</Hsp_bit-score>
+      <Hsp_score>310</Hsp_score>
+      <Hsp_evalue>1.60547e-72</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1001</Hsp_hit-from>
+      <Hsp_hit-to>1173</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>166</Hsp_identity>
+      <Hsp_positive>166</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAACATGCGTTTCAGCGAACAACCCATCAATCCCCACCGCCGCCGCCGCTCTGGCTAAAATAGGGGCAAAAGAGCTATCGCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGAGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||| ||||||||||||||||||||||||||||| ||||| ||||||||||||||||||||||| || |||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>18</Hit_num>
+  <Hit_id>gi|12057207|gb|AE001439.1|</Hit_id>
+  <Hit_def>Helicobacter pylori J99, complete genome</Hit_def>
+  <Hit_accession>AE001439</Hit_accession>
+  <Hit_len>1643831</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>280.808</Hsp_bit-score>
+      <Hsp_score>310</Hsp_score>
+      <Hsp_evalue>1.60547e-72</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1041</Hsp_hit-from>
+      <Hsp_hit-to>1213</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>166</Hsp_identity>
+      <Hsp_positive>166</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAATATGCGTTTCAGCGAACAGCCCATCAATCCCCACCGCCGCCGCCGCTCTGGGTAAAATAGGGGGAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>||||||||| |||||||||||| |||| |||||||||||||||||||||||| ||||| | ||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>19</Hit_num>
+  <Hit_id>gi|344331165|gb|CP002983.1|</Hit_id>
+  <Hit_def>Helicobacter pylori SNT49, complete genome</Hit_def>
+  <Hit_accession>CP002983</Hit_accession>
+  <Hit_len>1607577</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>277.202</Hsp_bit-score>
+      <Hsp_score>306</Hsp_score>
+      <Hsp_evalue>1.95586e-71</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1001</Hsp_hit-from>
+      <Hsp_hit-to>1173</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>165</Hsp_identity>
+      <Hsp_positive>165</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAATATGCGTTTCAGCGAACAACCCATCAATCCCCACCGCAGCCGCCGCTCTGGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCATTCGCTCCCCCTGGCATTTGCACGCTGTGAGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>||||||||| |||||||||||| ||||||||||||||||||||||| ||||| ||||| ||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||| || ||||||||||||||||||||||||||||||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>20</Hit_num>
+  <Hit_id>gi|308061305|gb|CP002076.1|</Hit_id>
+  <Hit_def>Helicobacter pylori Cuz20, complete genome</Hit_def>
+  <Hit_accession>CP002076</Hit_accession>
+  <Hit_len>1635449</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>277.202</Hsp_bit-score>
+      <Hsp_score>306</Hsp_score>
+      <Hsp_evalue>1.95586e-71</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1001</Hsp_hit-from>
+      <Hsp_hit-to>1173</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>165</Hsp_identity>
+      <Hsp_positive>165</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAACATGCGTTTCAGCGAACAACCCATCAATCCCCACCGCTGCCGCCGCTCTGGCTAAAATAGGGGCAAAAGAGCTATCGCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGAGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||| ||||||||||||||||||||||| ||||| ||||| ||||||||||||||||||||||| || |||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>21</Hit_num>
+  <Hit_id>gi|298354685|emb|FN598874.1|</Hit_id>
+  <Hit_def>Helicobacter pylori B8 complete genome</Hit_def>
+  <Hit_accession>FN598874</Hit_accession>
+  <Hit_len>1673997</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>277.202</Hsp_bit-score>
+      <Hsp_score>306</Hsp_score>
+      <Hsp_evalue>1.95586e-71</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1590795</Hsp_hit-from>
+      <Hsp_hit-to>1590623</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>165</Hsp_identity>
+      <Hsp_positive>165</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAACATGCGTTTCAGCGAATAACCCATCAATCCCCACCGCCGCCGCCGCTCTGGCTAAAATAGGGGCAAAAGAACTATCGCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||| || |||||||||||||||||||||||||| ||||| |||||||||||||||||||| || || ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>22</Hit_num>
+  <Hit_id>gi|308062870|gb|CP002071.1|</Hit_id>
+  <Hit_def>Helicobacter pylori Sat464, complete genome</Hit_def>
+  <Hit_accession>CP002071</Hit_accession>
+  <Hit_len>1560342</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>271.792</Hsp_bit-score>
+      <Hsp_score>300</Hsp_score>
+      <Hsp_evalue>8.31654e-70</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1001</Hsp_hit-from>
+      <Hsp_hit-to>1173</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>164</Hsp_identity>
+      <Hsp_positive>164</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAACATGCGTTTCAGCGAACAACCCATCAATCCCCACCGCCGCCGCCGCTTTGGCTAAAATAGGGGCAAAAGAGCTATCGCCTGAACTTTTCCCATTCGCTCCCCCTGGCATTTGCACGCTATGAGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||| ||||||||||||||||||||||||||||| ||| | ||||||||||||||||||||||| || |||||||||||||| ||||||||||||||||||||||||||||| |||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>23</Hit_num>
+  <Hit_id>gi|297379223|gb|CP001582.1|</Hit_id>
+  <Hit_def>Helicobacter pylori v225d, complete genome</Hit_def>
+  <Hit_accession>CP001582</Hit_accession>
+  <Hit_len>1588278</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>271.792</Hsp_bit-score>
+      <Hsp_score>300</Hsp_score>
+      <Hsp_evalue>8.31654e-70</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>991</Hsp_hit-from>
+      <Hsp_hit-to>1163</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>164</Hsp_identity>
+      <Hsp_positive>164</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAACATGCGTCTCAGCGAACAACCCATCAATCCCAACCGCCGCCGCCGCTCTGGCTAAAATAGGGGCAAAAGAGCTATCGCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGAGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||| ||||| ||||||||||||||||| ||||||||||| ||||| ||||||||||||||||||||||| || |||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>24</Hit_num>
+  <Hit_id>gi|261838873|gb|CP001680.1|</Hit_id>
+  <Hit_def>Helicobacter pylori 52, complete genome</Hit_def>
+  <Hit_accession>CP001680</Hit_accession>
+  <Hit_len>1568826</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>271.792</Hsp_bit-score>
+      <Hsp_score>300</Hsp_score>
+      <Hsp_evalue>8.31654e-70</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1041</Hsp_hit-from>
+      <Hsp_hit-to>1213</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>164</Hsp_identity>
+      <Hsp_positive>164</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAATATGCGTTTCAGCGAATAGTCCATCAATCCCCACCGCCGCCGCAGCTCTGGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCATTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACCGGTGCAAATTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>||||||||| |||||||||||| || |  ||||||||||||||||||||||||||||| ||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||| || |||||||||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>25</Hit_num>
+  <Hit_id>gi|261837457|gb|CP000012.1|</Hit_id>
+  <Hit_def>Helicobacter pylori 51, complete genome</Hit_def>
+  <Hit_accession>CP000012</Hit_accession>
+  <Hit_len>1589954</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>271.792</Hsp_bit-score>
+      <Hsp_score>300</Hsp_score>
+      <Hsp_evalue>8.31654e-70</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1041</Hsp_hit-from>
+      <Hsp_hit-to>1213</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>164</Hsp_identity>
+      <Hsp_positive>164</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAATATGCGTTTCAGCGAACAACCCATCAATCCCCACTGCAGCCGCAGCTCTGGCTAAAATAGGGGCAAAAGAGCTTTCTCCTGAACTTTTCCCGTTCGCTCCTCCTGGCATTTGCACGCTATGAGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>||||||||| |||||||||||| |||||||||||||||||||| || ||||||||||| ||||||||||||||||||||||| |||||||||||||||||||||||||| |||||||||||||||||||| |||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>26</Hit_num>
+  <Hit_id>gi|308059716|gb|CP002073.1|</Hit_id>
+  <Hit_def>Helicobacter pylori SJM180, complete genome</Hit_def>
+  <Hit_accession>CP002073</Hit_accession>
+  <Hit_len>1658051</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>268.185</Hsp_bit-score>
+      <Hsp_score>296</Hsp_score>
+      <Hsp_evalue>1.01316e-68</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1001</Hsp_hit-from>
+      <Hsp_hit-to>1173</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>163</Hsp_identity>
+      <Hsp_positive>163</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAATGTGCGTTTCAGCGAACAACCCATCAATCCCCACCGCCGCCGCCGCTCTGGCTAAAATAGGGGCAAAAGAGCTATCGCCTGAACTTTTCCCATTCGCTCCCCCTGGCATTTGCACGCTATGAGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||  ||||||||||| ||||||||||||||||||||||||||||| ||||| ||||||||||||||||||||||| || |||||||||||||| ||||||||||||||||||||||||||||| |||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>27</Hit_num>
+  <Hit_id>gi|208431905|gb|CP001173.1|</Hit_id>
+  <Hit_def>Helicobacter pylori G27, complete genome</Hit_def>
+  <Hit_accession>CP001173</Hit_accession>
+  <Hit_len>1652982</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>268.185</Hsp_bit-score>
+      <Hsp_score>296</Hsp_score>
+      <Hsp_evalue>1.01316e-68</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>991</Hsp_hit-from>
+      <Hsp_hit-to>1163</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>163</Hsp_identity>
+      <Hsp_positive>163</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAATATGCGTTTCAGCGAATAGCCCATCAATCCCCACCGCCGCCGCCGCTCTGGCTAAAATGGGAGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTGTGGGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>||||||||| |||||||||||| || | |||||||||||||||||||||||| ||||| |||||||| || |||||||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||||||||||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>28</Hit_num>
+  <Hit_id>gi|107836197|gb|CP000241.1|</Hit_id>
+  <Hit_def>Helicobacter pylori HPAG1, complete genome</Hit_def>
+  <Hit_accession>CP000241</Hit_accession>
+  <Hit_len>1596366</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>268.185</Hsp_bit-score>
+      <Hsp_score>296</Hsp_score>
+      <Hsp_evalue>1.01316e-68</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>2519</Hsp_hit-from>
+      <Hsp_hit-to>2691</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>163</Hsp_identity>
+      <Hsp_positive>163</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAACATGCGTTTCAGCGAATAACCCATCAATCCCTACCGCCGCCGCCGCTCTGGCTAAAATAGGGGCAAAAGAACTATCGCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAACTCTCGCATGATTGTT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||| || |||||||||||||| ||||||||||| ||||| |||||||||||||||||||| || || ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||| ||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>29</Hit_num>
+  <Hit_id>gi|317013424|gb|CP002332.1|</Hit_id>
+  <Hit_def>Helicobacter pylori Gambia94/24, complete genome</Hit_def>
+  <Hit_accession>CP002332</Hit_accession>
+  <Hit_len>1709911</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>262.775</Hsp_bit-score>
+      <Hsp_score>290</Hsp_score>
+      <Hsp_evalue>4.30808e-67</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1001</Hsp_hit-from>
+      <Hsp_hit-to>1173</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>162</Hsp_identity>
+      <Hsp_positive>162</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAATGTGCGTTTCAGCGAACAGCCCATCAATCCCCACCGCAGCTGCGGCTCTGGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCATTCGCTCCCCCTGGCATTTGCACGCTATGAGTGGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||||||  ||||||||||| |||| |||||||||||||||||| || || ||||| ||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||||||||||||||| || |||||||||||||||||||||||||||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>30</Hit_num>
+  <Hit_id>gi|308064373|gb|CP002074.1|</Hit_id>
+  <Hit_def>Helicobacter pylori PeCan4, complete genome</Hit_def>
+  <Hit_accession>CP002074</Hit_accession>
+  <Hit_len>1629557</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>262.775</Hsp_bit-score>
+      <Hsp_score>290</Hsp_score>
+      <Hsp_evalue>4.30808e-67</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1001</Hsp_hit-from>
+      <Hsp_hit-to>1173</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>162</Hsp_identity>
+      <Hsp_positive>162</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATTAATGTGCGTTTCAGCGAATAACCCATCAATCCCCACCGCAGCCGCCGCTCTGGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCATTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACCGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>|||||| ||  ||||||||||| || |||||||||||||||||||| ||||| ||||| ||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||| |||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>31</Hit_num>
+  <Hit_id>gi|317010283|gb|CP002336.1|</Hit_id>
+  <Hit_def>Helicobacter pylori SouthAfrica7, complete genome</Hit_def>
+  <Hit_accession>CP002336</Hit_accession>
+  <Hit_len>1653913</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>244.741</Hsp_bit-score>
+      <Hsp_score>270</Hsp_score>
+      <Hsp_evalue>1.15602e-61</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>1001</Hsp_hit-from>
+      <Hsp_hit-to>1173</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>158</Hsp_identity>
+      <Hsp_positive>158</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCGATATGCGTTTCTGCGAACAATCCATCAATGCCCACCGCAGCTGCGGCTCTGGCTAAAATAGGGGCAAAAGAGCTTTCTCCTGAGCTTTTCCCGTTCGCACCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACCGGGGCAAACTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>||||||| | ||||||||| || ||||| |||||||| |||||||| || || ||||| ||||||||||||||||||||||| |||||||| |||||||||||||| ||||||||||||||||||||||||||||||||||||||||| |||||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>32</Hit_num>
+  <Hit_id>gi|109713861|emb|AM260522.1|</Hit_id>
+  <Hit_def>Helicobacter acinonychis str. Sheeba complete genome, strain Sheeba</Hit_def>
+  <Hit_accession>AM260522</Hit_accession>
+  <Hit_len>1553927</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>244.741</Hsp_bit-score>
+      <Hsp_score>270</Hsp_score>
+      <Hsp_evalue>1.15602e-61</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>173</Hsp_query-to>
+      <Hsp_hit-from>211304</Hsp_hit-from>
+      <Hsp_hit-to>211476</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>158</Hsp_identity>
+      <Hsp_positive>158</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAATATGCGTTTCTGCAAATAGCCCATCAACACCCACCGCAGCCGCCGCTCTGGCTAAAATAGGGGCAAAAGAGCTTTCTCCTGAACTTTTCCCATTCGCACCCCCTGGCATTTGCACGCTATGAGTGGCGTCAAAAATCACCGGGGCAAATTCTCGCATGATTTTT</Hsp_hseq>
+      <Hsp_midline>||||||||| ||||||||| ||||| | ||||||||  |||||||| ||||| ||||| ||||||||||||||||||||||| ||||||||||||||||| ||||| ||||||||||||||||||||||| || |||||||||||||| ||||||||||||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>33</Hit_num>
+  <Hit_id>gi|32263428|gb|AE017125.1|</Hit_id>
+  <Hit_def>Helicobacter hepaticus ATCC 51449, complete genome</Hit_def>
+  <Hit_accession>AE017125</Hit_accession>
+  <Hit_len>1799146</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>113.095</Hsp_bit-score>
+      <Hsp_score>124</Hsp_score>
+      <Hsp_evalue>4.9242e-22</Hsp_evalue>
+      <Hsp_query-from>3</Hsp_query-from>
+      <Hsp_query-to>157</Hsp_query-to>
+      <Hsp_hit-from>43804</Hsp_hit-from>
+      <Hsp_hit-to>43958</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>118</Hsp_identity>
+      <Hsp_positive>118</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>155</Hsp_align-len>
+      <Hsp_qseq>GGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAA</Hsp_qseq>
+      <Hsp_hseq>GGATTTAGATGTGTTTCCATAAAAAATCCATCTACACCTACTGCAGCCGCAGCTCTAGCGAGATAAGGCACAAATGAGCTGTCTCCTCCACTTTTACCTCCTGCTGCACCGGGCATTTGCACACTATGCGTAGCATCAAAAATCACAGGTGCAAA</Hsp_hseq>
+      <Hsp_midline>||||  | ||| |||||   ||| || ||||| |  || || || ||||||||||| || | |  |||  |||| ||||||||||||  |||||| ||    ||| | || ||||||||||| ||||| ||||| |||||||||||||| |||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>34</Hit_num>
+  <Hit_id>gi|335332259|emb|FR871757.1|</Hit_id>
+  <Hit_def>Helicobacter bizzozeronii CIII-1 main chromosome, complete genome</Hit_def>
+  <Hit_accession>FR871757</Hit_accession>
+  <Hit_len>1755458</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>107.685</Hsp_bit-score>
+      <Hsp_score>118</Hsp_score>
+      <Hsp_evalue>2.09382e-20</Hsp_evalue>
+      <Hsp_query-from>3</Hsp_query-from>
+      <Hsp_query-to>169</Hsp_query-to>
+      <Hsp_hit-from>693952</Hsp_hit-from>
+      <Hsp_hit-to>693786</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>126</Hsp_identity>
+      <Hsp_positive>126</Hsp_positive>
+      <Hsp_gaps>2</Hsp_gaps>
+      <Hsp_align-len>168</Hsp_align-len>
+      <Hsp_qseq>GGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGG-CAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGAT</Hsp_qseq>
+      <Hsp_hseq>GGATCAATGTGGGTTTCCATAAAAAACCCATCCACACCCACTACCGCCCCAGCCTTTGCCAAG-TAGGGCACAAAGGAGCTATCCCCTGCGCTCTTACCCCCCGCCCCCCCGGGCATTTGCACGCTGTGGGTAACATCAAAGATCACGGGCGCAAAGGCGCGCATGAT</Hsp_hseq>
+      <Hsp_midline>|||||||  || |||||   ||| |||||||| |  |||||  ||||| ||||  | || ||  |||||  |||| ||||| || ||||  || || ||   ||| ||||| |||||||||||||| |||||| | ||||| ||||| || |||||  | ||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>35</Hit_num>
+  <Hit_id>gi|290963437|emb|FN555004.1|</Hit_id>
+  <Hit_def>Helicobacter mustelae 12198 complete genome</Hit_def>
+  <Hit_accession>FN555004</Hit_accession>
+  <Hit_len>1578097</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>105.882</Hsp_bit-score>
+      <Hsp_score>116</Hsp_score>
+      <Hsp_evalue>7.30817e-20</Hsp_evalue>
+      <Hsp_query-from>1</Hsp_query-from>
+      <Hsp_query-to>170</Hsp_query-to>
+      <Hsp_hit-from>204059</Hsp_hit-from>
+      <Hsp_hit-to>203890</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>130</Hsp_identity>
+      <Hsp_positive>130</Hsp_positive>
+      <Hsp_gaps>6</Hsp_gaps>
+      <Hsp_align-len>173</Hsp_align-len>
+      <Hsp_qseq>TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTG---TCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATT</Hsp_qseq>
+      <Hsp_hseq>TAGGATCAAAATGCGTCTCTGCAAAAATCCCATCAATTCCCACGCTTGTTGCTGCGCGCGC-AAGATAGGG-CACAA-AGCTCACATCCCCCGTGCTTTTGCCCCCAGCACCTCCTGGCATCTGCACGCTATGGGTTGCATCAAAAATCACTGGAGCAAAATTACGCATGATT</Hsp_hseq>
+      <Hsp_midline>||||||||| |||||| || ||||| | ||||||||| |||||    |  || || | ||| || |||||| || || ||||    || || |  ||||| ||    || || |||||||| |||||||||||||| || ||||||||||| || ||||| |  |||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>36</Hit_num>
+  <Hit_id>gi|326319845|emb|FQ670179.2|</Hit_id>
+  <Hit_def>Helicobacter felis ATCC 49179 genome</Hit_def>
+  <Hit_accession>FQ670179</Hit_accession>
+  <Hit_len>1672681</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>104.078</Hsp_bit-score>
+      <Hsp_score>114</Hsp_score>
+      <Hsp_evalue>2.5508e-19</Hsp_evalue>
+      <Hsp_query-from>3</Hsp_query-from>
+      <Hsp_query-to>169</Hsp_query-to>
+      <Hsp_hit-from>744443</Hsp_hit-from>
+      <Hsp_hit-to>744278</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>124</Hsp_identity>
+      <Hsp_positive>124</Hsp_positive>
+      <Hsp_gaps>1</Hsp_gaps>
+      <Hsp_align-len>167</Hsp_align-len>
+      <Hsp_qseq>GGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGAT</Hsp_qseq>
+      <Hsp_hseq>GGCTCAA-ATGCGTTTCCATAAAAAAGCCATCTACGCCCACGGCTGCGCTTGCGCGCGCCAAACAAGGCACAAAAGAGCTATCTCCTCCGCTCTTGCCCTGCGCGCCCCCGGGCATCTGCACGCTATGAGTGGCATCAAAGATCACGGGCGCAAAAGCGCGCATGAT</Hsp_hseq>
+      <Hsp_midline>|| |||| |||||||||   ||| || ||||| |  ||||| || ||    || | ||| |||  |||  |||||||||| ||||||   || || || | ||| ||||| ||||| ||||||||||| || || ||||| ||||| || |||||  | ||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>37</Hit_num>
+  <Hit_id>gi|315017338|gb|CP002029.1|</Hit_id>
+  <Hit_def>Campylobacter jejuni subsp. jejuni ICDCCJ07001, complete genome</Hit_def>
+  <Hit_accession>CP002029</Hit_accession>
+  <Hit_len>1664840</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>91.4547</Hsp_bit-score>
+      <Hsp_score>100</Hsp_score>
+      <Hsp_evalue>1.60973e-15</Hsp_evalue>
+      <Hsp_query-from>2</Hsp_query-from>
+      <Hsp_query-to>169</Hsp_query-to>
+      <Hsp_hit-from>353514</Hsp_hit-from>
+      <Hsp_hit-to>353681</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>121</Hsp_identity>
+      <Hsp_positive>121</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>168</Hsp_align-len>
+      <Hsp_qseq>AGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGAT</Hsp_qseq>
+      <Hsp_hseq>AGGATTAATATGTGTTTCAAAGAAAAAGCCATCTATGCCTACGGCTGCTGCCGCTCTTGCTAAAGGTTCTACAAATTCGCTTTTCCCTCCGCTGCTTCCACCTGCAGCCCCTGGCATTTGTACGCTATGGGTAGCATCAAAAATAACTGGAGCAAATTCACGCATGAT</Hsp_hseq>
+      <Hsp_midline>||||| || ||| ||||||   || || ||||| || || || || || || ||||| ||||||       ||||   ||| |  |||   ||  | ||    ||  ||||||||||||| |||||||||||||| |||||||| || || |||||||| ||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>38</Hit_num>
+  <Hit_id>gi|284925303|gb|CP001876.1|</Hit_id>
+  <Hit_def>Campylobacter jejuni subsp. jejuni IA3902, complete genome</Hit_def>
+  <Hit_accession>CP001876</Hit_accession>
+  <Hit_len>1635045</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>91.4547</Hsp_bit-score>
+      <Hsp_score>100</Hsp_score>
+      <Hsp_evalue>1.60973e-15</Hsp_evalue>
+      <Hsp_query-from>2</Hsp_query-from>
+      <Hsp_query-to>169</Hsp_query-to>
+      <Hsp_hit-from>354365</Hsp_hit-from>
+      <Hsp_hit-to>354532</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>121</Hsp_identity>
+      <Hsp_positive>121</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>168</Hsp_align-len>
+      <Hsp_qseq>AGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGAT</Hsp_qseq>
+      <Hsp_hseq>AGGATTAATATGTGTTTCAAAGAAAAAGCCATCTATGCCTACGGCTGCTGCCGCTCTTGCTAAAGGTTCTACAAATTCGCTTTTCCCTCCGCTACTTCCACCTGCAGCCCCTGGCATTTGTACGCTATGGGTAGCATCAAAAATAACTGGAGCAAATTCACGCATGAT</Hsp_hseq>
+      <Hsp_midline>||||| || ||| ||||||   || || ||||| || || || || || || ||||| ||||||       ||||   ||| |  |||   ||  | ||    ||  ||||||||||||| |||||||||||||| |||||||| || || |||||||| ||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>39</Hit_num>
+  <Hit_id>gi|30407139|emb|AL111168.1|</Hit_id>
+  <Hit_def>Campylobacter jejuni subsp. jejuni NCTC 11168 complete genome</Hit_def>
+  <Hit_accession>AL111168</Hit_accession>
+  <Hit_len>1641481</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>91.4547</Hsp_bit-score>
+      <Hsp_score>100</Hsp_score>
+      <Hsp_evalue>1.60973e-15</Hsp_evalue>
+      <Hsp_query-from>2</Hsp_query-from>
+      <Hsp_query-to>169</Hsp_query-to>
+      <Hsp_hit-from>349705</Hsp_hit-from>
+      <Hsp_hit-to>349872</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>121</Hsp_identity>
+      <Hsp_positive>121</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>168</Hsp_align-len>
+      <Hsp_qseq>AGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGAT</Hsp_qseq>
+      <Hsp_hseq>AGGATTAATATGTGTTTCAAAGAAAAAGCCATCTATGCCTACGGCTGCTGCCGCTCTTGCTAAAGGTTCTACAAATTCGCTTTTCCCTCCGCTACTTCCACCTGCAGCCCCTGGCATTTGTACGCTATGGGTAGCATCAAAAATAACTGGAGCAAATTCACGCATGAT</Hsp_hseq>
+      <Hsp_midline>||||| || ||| ||||||   || || ||||| || || || || || || ||||| ||||||       ||||   ||| |  |||   ||  | ||    ||  ||||||||||||| |||||||||||||| |||||||| || || |||||||| ||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>40</Hit_num>
+  <Hit_id>gi|121504137|gb|CP000538.1|</Hit_id>
+  <Hit_def>Campylobacter jejuni subsp. jejuni 81-176, complete genome</Hit_def>
+  <Hit_accession>CP000538</Hit_accession>
+  <Hit_len>1616554</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>87.848</Hsp_bit-score>
+      <Hsp_score>96</Hsp_score>
+      <Hsp_evalue>1.96105e-14</Hsp_evalue>
+      <Hsp_query-from>2</Hsp_query-from>
+      <Hsp_query-to>169</Hsp_query-to>
+      <Hsp_hit-from>352772</Hsp_hit-from>
+      <Hsp_hit-to>352939</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>120</Hsp_identity>
+      <Hsp_positive>120</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>168</Hsp_align-len>
+      <Hsp_qseq>AGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGAT</Hsp_qseq>
+      <Hsp_hseq>AGGATTAATATGTGTTTCAAAGAAAAAGCCATCTATGCCTACGGCTGCTGCCGCTCTTGCTAAAGGTTCTACAAATTCGCTTTTCCCTCCGCTACTTCCACCTGCAGCCCCTGGCATTTGTACACTATGGGTAGCATCAAAAATAACTGGAGCAAATTCACGCATGAT</Hsp_hseq>
+      <Hsp_midline>||||| || ||| ||||||   || || ||||| || || || || || || ||||| ||||||       ||||   ||| |  |||   ||  | ||    ||  ||||||||||||| || ||||||||||| |||||||| || || |||||||| ||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>41</Hit_num>
+  <Hit_id>gi|315057441|gb|CP001960.1|</Hit_id>
+  <Hit_def>Campylobacter jejuni subsp. jejuni S3, complete genome</Hit_def>
+  <Hit_accession>CP001960</Hit_accession>
+  <Hit_len>1681364</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>82.4379</Hsp_bit-score>
+      <Hsp_score>90</Hsp_score>
+      <Hsp_evalue>8.33861e-13</Hsp_evalue>
+      <Hsp_query-from>2</Hsp_query-from>
+      <Hsp_query-to>169</Hsp_query-to>
+      <Hsp_hit-from>349325</Hsp_hit-from>
+      <Hsp_hit-to>349492</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>119</Hsp_identity>
+      <Hsp_positive>119</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>168</Hsp_align-len>
+      <Hsp_qseq>AGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGAT</Hsp_qseq>
+      <Hsp_hseq>AGGATTAATATGTGTTTCAAAGAAAAAGCCATCTATGCCTACGGCTGCTGCCGCTCTTGCTAAAGGTTCTACAAATTCGCTTTTCCCTCCGCTACTTCCACCTGCAGCCCCTGGCATTTGTACACTATGAGTAGCATCAAAAATTACTGGAGCAAATTCACGCATGAT</Hsp_hseq>
+      <Hsp_midline>||||| || ||| ||||||   || || ||||| || || || || || || ||||| ||||||       ||||   ||| |  |||   ||  | ||    ||  ||||||||||||| || ||||| ||||| |||||||| || || |||||||| ||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>42</Hit_num>
+  <Hit_id>gi|307746964|gb|CP001900.1|</Hit_id>
+  <Hit_def>Campylobacter jejuni subsp. jejuni M1, complete genome</Hit_def>
+  <Hit_accession>CP001900</Hit_accession>
+  <Hit_len>1616648</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>82.4379</Hsp_bit-score>
+      <Hsp_score>90</Hsp_score>
+      <Hsp_evalue>8.33861e-13</Hsp_evalue>
+      <Hsp_query-from>2</Hsp_query-from>
+      <Hsp_query-to>169</Hsp_query-to>
+      <Hsp_hit-from>348682</Hsp_hit-from>
+      <Hsp_hit-to>348849</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>119</Hsp_identity>
+      <Hsp_positive>119</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>168</Hsp_align-len>
+      <Hsp_qseq>AGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGAT</Hsp_qseq>
+      <Hsp_hseq>AGGATTAATATGTGTTTCAAAGAAAAAGCCATCTATGCCTACGGCTGCTGCCGCTCTTGCTAAAGGTTCTACAAATTCGCTTTTCCCCCCGCTACTTCCACCTGCAGCCCCTGGCATTTGTACACTATGGGTAGCATCAAAAATAACTGGAGCAAATTCACGCATGAT</Hsp_hseq>
+      <Hsp_midline>||||| || ||| ||||||   || || ||||| || || || || || || ||||| ||||||       ||||   ||| |  ||    ||  | ||    ||  ||||||||||||| || ||||||||||| |||||||| || || |||||||| ||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>43</Hit_num>
+  <Hit_id>gi|157385286|gb|CP000814.1|</Hit_id>
+  <Hit_def>Campylobacter jejuni subsp. jejuni 81116, complete genome</Hit_def>
+  <Hit_accession>CP000814</Hit_accession>
+  <Hit_len>1628115</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>82.4379</Hsp_bit-score>
+      <Hsp_score>90</Hsp_score>
+      <Hsp_evalue>8.33861e-13</Hsp_evalue>
+      <Hsp_query-from>2</Hsp_query-from>
+      <Hsp_query-to>169</Hsp_query-to>
+      <Hsp_hit-from>358807</Hsp_hit-from>
+      <Hsp_hit-to>358974</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>119</Hsp_identity>
+      <Hsp_positive>119</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>168</Hsp_align-len>
+      <Hsp_qseq>AGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGAT</Hsp_qseq>
+      <Hsp_hseq>AGGATTAATATGTGTTTCAAAGAAAAAGCCATCTATGCCTACGGCTGCTGCCGCTCTTGCTAAAGGTTCTACAAATTCGCTTTTCCCCCCGCTACTTCCACCTGCAGCCCCTGGCATTTGTACACTATGGGTAGCATCAAAAATAACTGGAGCAAATTCACGCATGAT</Hsp_hseq>
+      <Hsp_midline>||||| || ||| ||||||   || || ||||| || || || || || || ||||| ||||||       ||||   ||| |  ||    ||  | ||    ||  ||||||||||||| || ||||||||||| |||||||| || || |||||||| ||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>44</Hit_num>
+  <Hit_id>gi|152938384|gb|CP000768.1|</Hit_id>
+  <Hit_def>Campylobacter jejuni subsp. doylei 269.97, complete genome</Hit_def>
+  <Hit_accession>CP000768</Hit_accession>
+  <Hit_len>1845106</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>82.4379</Hsp_bit-score>
+      <Hsp_score>90</Hsp_score>
+      <Hsp_evalue>8.33861e-13</Hsp_evalue>
+      <Hsp_query-from>2</Hsp_query-from>
+      <Hsp_query-to>169</Hsp_query-to>
+      <Hsp_hit-from>1393453</Hsp_hit-from>
+      <Hsp_hit-to>1393286</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>119</Hsp_identity>
+      <Hsp_positive>119</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>168</Hsp_align-len>
+      <Hsp_qseq>AGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGAT</Hsp_qseq>
+      <Hsp_hseq>AGGATTAATATGTGTTTCAAAGAAAAAGCCATCTATGCCTACGGCTGCCGCTGCTCTTGCTAAAGGTTCTACAAATTCACTTTTCCCTCCGCTACTTCCACCTGCAGCCCCTGGCATTTGTACACTATGAGTAGCATCAAAAATTACTGGAGCAAATTCACGCATGAT</Hsp_hseq>
+      <Hsp_midline>||||| || ||| ||||||   || || ||||| || || || || ||||| ||||| ||||||       ||||    || |  |||   ||  | ||    ||  ||||||||||||| || ||||| ||||| |||||||| || || |||||||| ||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>45</Hit_num>
+  <Hit_id>gi|57165696|gb|CP000025.1|</Hit_id>
+  <Hit_def>Campylobacter jejuni RM1221, complete genome</Hit_def>
+  <Hit_accession>CP000025</Hit_accession>
+  <Hit_len>1777831</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>82.4379</Hsp_bit-score>
+      <Hsp_score>90</Hsp_score>
+      <Hsp_evalue>8.33861e-13</Hsp_evalue>
+      <Hsp_query-from>2</Hsp_query-from>
+      <Hsp_query-to>169</Hsp_query-to>
+      <Hsp_hit-from>387391</Hsp_hit-from>
+      <Hsp_hit-to>387558</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>119</Hsp_identity>
+      <Hsp_positive>119</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>168</Hsp_align-len>
+      <Hsp_qseq>AGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGAT</Hsp_qseq>
+      <Hsp_hseq>AGGATTAATATGTGTTTCAAAGAAAAAGCCATCTATGCCTACGGCTGCTGCCGCTCTTGCTAAAGGTTCTACAAATTCGCTTTTCCCTCCGCTACTTCCACCTGCAGCCCCTGGCATTTGTACACTATGAGTAGCATCAAAAATTACTGGAGCAAATTCACGCATGAT</Hsp_hseq>
+      <Hsp_midline>||||| || ||| ||||||   || || ||||| || || || || || || ||||| ||||||       ||||   ||| |  |||   ||  | ||    ||  ||||||||||||| || ||||| ||||| |||||||| || || |||||||| ||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>46</Hit_num>
+  <Hit_id>gi|222538267|gb|CP000932.1|</Hit_id>
+  <Hit_def>Campylobacter lari RM2100, complete genome</Hit_def>
+  <Hit_accession>CP000932</Hit_accession>
+  <Hit_len>1525460</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>71.6177</Hsp_bit-score>
+      <Hsp_score>78</Hsp_score>
+      <Hsp_evalue>1.50766e-09</Hsp_evalue>
+      <Hsp_query-from>2</Hsp_query-from>
+      <Hsp_query-to>169</Hsp_query-to>
+      <Hsp_hit-from>514887</Hsp_hit-from>
+      <Hsp_hit-to>514720</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>120</Hsp_identity>
+      <Hsp_positive>120</Hsp_positive>
+      <Hsp_gaps>6</Hsp_gaps>
+      <Hsp_align-len>171</Hsp_align-len>
+      <Hsp_qseq>AGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTT-TTCC--CGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGAT</Hsp_qseq>
+      <Hsp_hseq>AGGATCAAGATGAGTTTCAAAGAAAAATCCATCCACGCCAACAGCAGCTGCAGCTCTTGCTAAAGGCTCTACAAATTCACTTTTACCTCCACTACTTCCACCATTTATTCC---TGGCATTTGCACACTATGAGTAGCATCAAAAATAACAGGAGCGTATTTTCTCATGAT</Hsp_hseq>
+      <Hsp_midline>|||||||| ||| ||||||   || || ||||| |  || || || || |||||||| ||||||       ||||    || |  |||  |||  ||||  | ||   |||   |||||||||||| ||||| ||||| |||||||| ||||| ||  ||| || ||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>47</Hit_num>
+  <Hit_id>gi|153803875|gb|CP000776.1|</Hit_id>
+  <Hit_def>Campylobacter hominis ATCC BAA-381, complete genome</Hit_def>
+  <Hit_accession>CP000776</Hit_accession>
+  <Hit_len>1711273</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>71.6177</Hsp_bit-score>
+      <Hsp_score>78</Hsp_score>
+      <Hsp_evalue>1.50766e-09</Hsp_evalue>
+      <Hsp_query-from>108</Hsp_query-from>
+      <Hsp_query-to>169</Hsp_query-to>
+      <Hsp_hit-from>50637</Hsp_hit-from>
+      <Hsp_hit-to>50576</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>53</Hsp_identity>
+      <Hsp_positive>53</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>62</Hsp_align-len>
+      <Hsp_qseq>CCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGAT</Hsp_qseq>
+      <Hsp_hseq>CCTCCAGGCATTTGCACGCTGTGAGTTGCGTCAAAAATCACAGGTGCAAACTCACGCATAAT</Hsp_hseq>
+      <Hsp_midline>|| || |||||||||||||| || || ||||||||||||||||| ||||| || ||||| ||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>48</Hit_num>
+  <Hit_id>gi|157101370|gb|CP000792.1|</Hit_id>
+  <Hit_def>Campylobacter concisus 13826, complete genome</Hit_def>
+  <Hit_accession>CP000792</Hit_accession>
+  <Hit_len>2052007</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>68.0109</Hsp_bit-score>
+      <Hsp_score>74</Hsp_score>
+      <Hsp_evalue>1.8367e-08</Hsp_evalue>
+      <Hsp_query-from>113</Hsp_query-from>
+      <Hsp_query-to>169</Hsp_query-to>
+      <Hsp_hit-from>324360</Hsp_hit-from>
+      <Hsp_hit-to>324304</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>49</Hsp_identity>
+      <Hsp_positive>49</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>57</Hsp_align-len>
+      <Hsp_qseq>TGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGAT</Hsp_qseq>
+      <Hsp_hseq>TGGCATCTGCACGCTGTGGGTCGCGTCAAAAATGACTGGCGCAAATTCTCTCATCAT</Hsp_hseq>
+      <Hsp_midline>|||||| |||||||| ||||| ||||||||||| || || |||||||||| ||| ||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>49</Hit_num>
+  <Hit_id>gi|306978014|gb|CP002205.1|</Hit_id>
+  <Hit_def>Sulfurimonas autotrophica DSM 16294, complete genome</Hit_def>
+  <Hit_accession>CP002205</Hit_accession>
+  <Hit_len>2153198</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>55.3874</Hsp_bit-score>
+      <Hsp_score>60</Hsp_score>
+      <Hsp_evalue>0.000115908</Hsp_evalue>
+      <Hsp_query-from>3</Hsp_query-from>
+      <Hsp_query-to>170</Hsp_query-to>
+      <Hsp_hit-from>347591</Hsp_hit-from>
+      <Hsp_hit-to>347424</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>115</Hsp_identity>
+      <Hsp_positive>115</Hsp_positive>
+      <Hsp_gaps>2</Hsp_gaps>
+      <Hsp_align-len>169</Hsp_align-len>
+      <Hsp_qseq>GGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCG-TTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATT</Hsp_qseq>
+      <Hsp_hseq>GGATCAAAATGCGTTTCAAAGAAAAATCCGTCCACACCAACAGCTGCTGCCGCACTTGCAAGATAAGGCACCATGGAGCTGTCTCCGCCTGTCTTGCCGCCAAGCGCACCC-GGCATCTGTACAGAGTGTGTTGCATCAAAGATAACAGGTGCAAATTCGCGCATAATT</Hsp_hseq>
+      <Hsp_midline>||||||| ||||||||||   || || || || |  || || || || || || || || | |  |||  | |  |||||||||||     | || |||    || | ||| ||||| || ||    || || || ||||| || ||||| |||||||| ||||| |||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>50</Hit_num>
+  <Hit_id>gi|296923907|gb|CP001940.1|</Hit_id>
+  <Hit_def>Desulfurivibrio alkaliphilus AHT2, complete genome</Hit_def>
+  <Hit_accession>CP001940</Hit_accession>
+  <Hit_len>3097763</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>55.3874</Hsp_bit-score>
+      <Hsp_score>60</Hsp_score>
+      <Hsp_evalue>0.000115908</Hsp_evalue>
+      <Hsp_query-from>24</Hsp_query-from>
+      <Hsp_query-to>152</Hsp_query-to>
+      <Hsp_hit-from>1562098</Hsp_hit-from>
+      <Hsp_hit-to>1562226</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>93</Hsp_identity>
+      <Hsp_positive>93</Hsp_positive>
+      <Hsp_gaps>6</Hsp_gaps>
+      <Hsp_align-len>132</Hsp_align-len>
+      <Hsp_qseq>AACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAA--GAGCT-GTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGG</Hsp_qseq>
+      <Hsp_hseq>AACAGGCCGTCAATGCCCACCGCCGCCGCCGCCCGGGCCAGAGTCGGCACAAAACGGCGCTGGCCACCGGATCTATCGCCG---GCGCCGCCGGGCAACTGCACGCTGTGGGTGGCATCGAAGATCACCGGG</Hsp_hseq>
+      <Hsp_midline>||||  || ||||| |||||||||||||| || |  || | | | ||  |||||  | ||| | | || || || |  |||   || || || ||||  |||||||| ||||| || || || ||||| |||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+</Iteration_hits>
+  <Iteration_stat>
+    <Statistics>
+      <Statistics_db-num>15516451</Statistics_db-num>
+      <Statistics_db-len>1169875248</Statistics_db-len>
+      <Statistics_hsp-len>0</Statistics_hsp-len>
+      <Statistics_eff-space>0</Statistics_eff-space>
+      <Statistics_kappa>0.41</Statistics_kappa>
+      <Statistics_lambda>0.625</Statistics_lambda>
+      <Statistics_entropy>0.78</Statistics_entropy>
+    </Statistics>
+  </Iteration_stat>
+</Iteration>
+</BlastOutput_iterations>
+</BlastOutput>
+
+
+
