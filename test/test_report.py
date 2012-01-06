@@ -1,6 +1,7 @@
 import os
 import common
 import seqlablib.report
+import seqlablib.mdx
 import seqlablib.ab1
 import seqlablib.contig
 
@@ -63,3 +64,32 @@ def test_render_blast():
         print >>output, "</head><body>"
         print >>output, seqlablib.report.render_blast(b)
         print >>output, "</body></html>"
+
+def test_generate_report():
+    assembled_fun = lambda w, r1, r2, a, searchres: searchres
+    strandwise_fun = lambda w, r1, r2, searchres1, searchres2: searchres1+searchres2
+    assert seqlablib.report.generate_report(None, 'data/no_assembly-1.ab1', 'data/no_assembly-2.ab1',
+                                            lambda x: 'alpha', assembled_fun, strandwise_fun) == \
+                                            ('strandwise', "alphaalpha")
+    assert seqlablib.report.generate_report(None, 'data/tmpzRpKiy-1.ab1', 'data/tmpzRpKiy-2.ab1',
+                                            lambda x: 'beta', assembled_fun, strandwise_fun) == \
+                                            ('assembled', "beta")
+
+def test_render_assembled():
+    import cPickle
+    w = seqlablib.mdx.Workup(accession='W01', workup='F22501', pat_name='Jenkins, John H.', amp_name='rpoB', path='data/workups/2011-06-11/W01_JENKINS')
+    with open('data/blast.pickle') as h:
+        blast_res = cPickle.load(h)
+    with open('data/render_assembled.html', 'w') as h:
+        print >>h, seqlablib.report.generate_report(w, 'data/tmpzRpKiy-1.ab1', 'data/tmpzRpKiy-2.ab1',
+                                                    lambda s: blast_res, seqlablib.report.render_assembled, lambda *args: None)[1]
+
+def test_render_strandwise():
+    import cPickle
+    w = seqlablib.mdx.Workup(accession='W01', workup='F22501', pat_name='Jenkins, John H.', amp_name='rpoB', path='data/workups/2011-06-11/W01_JENKINS')
+    with open('data/blast.pickle') as h:
+        blast_res = cPickle.load(h)
+    with open('data/render_strandwise.html', 'w') as h:
+        print >>h, seqlablib.report.generate_report(w, 'data/no_assembly-1.ab1', 'data/no_assembly-2.ab1',
+                                                    lambda s: blast_res, lambda *args: None, seqlablib.report.render_strandwise)[1]
+    

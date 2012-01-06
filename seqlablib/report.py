@@ -3,8 +3,11 @@ import os
 import time
 import locale
 import math
+import collections
 
 import tracks
+import ab1
+import contig
 
 @templet.stringfunction
 def tab_li(i, text):
@@ -12,27 +15,28 @@ def tab_li(i, text):
 
 @templet.stringfunction
 def pane_div(i, text):
-    """<div class="tab" id="tab$i">$text</div>"""
+    """<div class="hiddentab" id="tab$i">$text</div>"""
 
 @templet.stringfunction
-def tabbed_page(title, additional_css, tabs):
+def tabbed_page(title, additional_css, additional_javascript, tabs):
     """
     <html><head>
     <title>$title</title>
     <script type="text/javascript">
     function map_children(fn,tgt){
-        var arr=document.getElementById(tgt).getElementsByTagName('*');
+        var arr=document.getElementById(tgt).childNodes;
         var l=arr.length;
         for(var i=0;i<l;i++){fn(arr[i]);}
     }
     function show_tab(to_show) {
         map_children(function(n) {
-                         n.style.display = n.id==to_show ? "block" : "none";
+                         n.className = n.id==to_show ? "visibletab" : "hiddentab";
                      }, "pane_container");
         map_children(function(n) {
                          n.className = n.id==to_show ? "active" : "";
                      }, "tab_container");
     }
+    $additional_javascript
     </script>
     <style>
     $additional_css
@@ -49,6 +53,8 @@ def tabbed_page(title, additional_css, tabs):
     #tab_container li a:hover { background-color: #000; }
     #tab_container li.active { color: #fff; }
     #tab_container li.active a:hover { background-color: inherit; }
+    .hiddentab { display: none; }
+    .visibletab { display: block; margin: 1em 0.2em; }
 
     h2 { font-size: 1.618em; line-height: 1.236em; }
 
@@ -277,3 +283,50 @@ def blast_javascript():
     """
 
 
+def generate_report(workup, read1path, read2path, lookup_fun, assembled_render, strandwise_render):
+    read1 = ab1.read(read1path)
+    read2 = ab1.read(read2path)
+    assembly = contig.contig(read1['sequence'], read1['confidences'],
+                             tracks.revcomp(read2['sequence']), tracks.revcomp(read2['confidences']))
+    if assembly['reference'] != None:
+        v = lookup_fun(assembly['reference'][1])
+        return ('assembled', assembled_render(workup, read1, read2, assembly, v))
+    else:
+        v1 = lookup_fun(read1['sequence'])
+        v2 = lookup_fun(read2['sequence'])
+        return ('strandwise', strandwise_render(workup, read1, read2, v1, v2))
+
+@templet.stringfunction
+def assembly_tab(assembly, read1, read2):
+    """
+    <h2>Assembly aligned to reads</h2>
+    ${render_alignment(assembly, read1, read2)}
+    <h2>Assembled sequence</h2>
+    ${pprint_seq(assembly['reference'][1])}
+    """
+
+def render_assembled(workup, read1, read2, assembly, blast_result):
+    title = "%s %s (%s)" % (workup.workup, workup.pat_name, workup.amp_name)
+    tabs =  collections.OrderedDict([('Assembly', assembly_tab(assembly, read1, read2)),
+                                     ('BLAST', render_blast(blast_result))])
+
+    return tabbed_page(title, alignment_css() + pprint_seq_css() + blast_css(), blast_javascript(), tabs)
+
+@templet.stringfunction
+def strandwise_tab(read1, read2):
+    """
+    <h2>Strand 1</h2>
+    ${render_ab1(read1)}
+    ${pprint_seq(read1['sequence'])}
+    <h2>Strand 2</h2>
+    ${render_ab1(read2)}
+    ${pprint_seq(read2['sequence'])}
+    """
+
+def render_strandwise(workup, read1, read2, blast_result1, blast_result2):
+    title = "%s %s (%s)" % (workup.workup, workup.pat_name, workup.amp_name)
+    tabs =  collections.OrderedDict([('Assembly', strandwise_tab(read1, read2)),
+                                     ('Strand 1 BLAST', render_blast(blast_result1)),
+                                     ('Strand 2 BLAST', render_blast(blast_result2))])
+    return tabbed_page(title, alignment_css() + pprint_seq_css() + blast_css(), blast_javascript(), tabs)
+    

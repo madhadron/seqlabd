@@ -277,7 +277,7 @@ stylesheet = """
     position: relative;
 }
 
-@media screen { .scrolling-container { overflow: scroll; white-space: nowrap; } }
+@media screen { .scrolling-container { overflow-x: scroll; overflow-y: hidden; white-space: nowrap; } }
 
 .label-column {
     float: left;

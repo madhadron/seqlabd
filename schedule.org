@@ -1,5 +1,5 @@
 * Infrastructure
-** TODO 15min Move codebase and development over to Linux workstation
+** DONE 15min Move codebase and development over to Linux workstation
 ** TODO 30min Install blast aligner on server
 ** TODO 30min Deployment scripts and instructions written
 ** TODO Set up swatch to monitor syslog and email when there is a problem
@@ -20,8 +20,7 @@ http://dev.mysql.com/tech-resources/articles/mysql-administrator-best-practices.
 ** TODO 15min Daemon installed on server
 ** TODO 15min Configuration file for daemon in place
 ** TODO 15min Daemon symlinked into init.d and rc?.d
-* Daemon
-** TODO 1.5h Daemon action function written
+* TODO 1.5h Daemon action function written
 Instantiate configuration reference
 Install signal handlers
 Connect to syslog with level INFO
@@ -32,7 +31,10 @@ Attach behavior to queues
 Initialize inotify monitoring
 Check for files already in inbox and enqueue them all
 Set up missed file checking
-
+** TODO 20min Add map_queue of processing to daemon
+** TODO 10min Add map_queue of generate_summary_report to daemon
+** TODO 10min Add command to daemon to enqueue only files ending in .ab1 on their creation
+** TODO 10min Add command for intermittently enqueueing files to daemon
 * DONE Configuration
 seqlablib.config:
   read_configuration(handle) -> dict
@@ -75,7 +77,7 @@ http://packages.python.org/oursql/
 Be sure it releases event on any error in update or lookup
 *** TODO 45min Subclass object and add database logic
 Check for liveness of the connection.
-* TODO Regeneration of HTML daily work summary
+* DONE Regeneration of HTML daily work summary
 Order by the creation time of the report in the directories.
 ** DONE 30min 14h15-14h50 Function to assemble list of subdirs along with the creation time of *report.html inside and the workup information from the database, and whether it was a strandwise or assembled report.
 ** DONE 90min 14h50-15h14 Mock up the display of a set of patient records for a given day in HTML
@@ -85,8 +87,8 @@ generate_summary_report(path, lookup_fun=id, format_fun=id, summary_filename=Non
 For each folder in *path*, runs *path_key* to get a key and lookup_fun to get info for that key. Then calls format_fun on the list of all such keys to produce a string. If summary_filename == None, return a string. Otherwise, write the results there.
 ** DONE 30min 15h29-15h40 Write map_queue (and tests)
 map_queue(queue, fun, exit_event) - pops something off the queue and runs fun on it. When fun returns, repeats. Blocks while queue is empty. Handle exit_event.
-** TODO 10min Add map_queue of generate_summary_report to daemon
-* TODO Processing pairs of AB1 files into reports
+
+* DONE Processing pairs of AB1 files into reports
 ** DONE 15min 15h40-15h44 Integrate AB1 reading and tests from seqviewer
 ** DONE 15min 15h44-15h46 Integrate contig construction from seqviewer, and tests
 ** DONE 15min Integrate seqviewer's alignment rendering code
@@ -99,7 +101,7 @@ tmpzRpKiy-1.ab1:
 
 tmpzRpKiy-2.ab1
 'CGTCGTTCGATGTGGCCGATCACCCTCTCAGGGTCGGCTACGTATCGTTGCCTAGGTGAACCATTACCTCACCAACTAGCTAATACGGCGCGGGTCCATCTATAAGTGATAGCAAAACCATCTTTCACTATTGAACCATGCGGTTCAACATATTATCCGGTATTAGCTCCGGTTTCCCGAAGTTGTCCCAGTCTTATAGGTAGGTTACCCACGTGTTACTCACCCGTCCGCCGCTAACGTCAAAGGAGCAAGCTCCTTATCTGTTCGCTCGACTTGCATGTATTAGGCACGCCGCCAGCGTTCATCCTGAGCCAAATCCAAACTCAAAACGAAGGTATTCTAAAATTTGAAGTCGAGAGAACAGATAAGGAGCTTGCTCCTTTGACGTTTGCGGCGGAGGGGTGAGTAACGCATGGGTTACCTACTAATAATACGGGAACAATTGCGAAATTTGATTTTTGGATAAAAAAAAA'
-** TODO 45min generate_report written and tested
+** DONE 45min 10h15-10h40 generate_report written and tested
 generate_report(workup_info, ab1_file1, ab1_file2, lookup_fun, assembled_render, strandwise_render)
 workup_info is a named tuple as described in the MDX database section
 Read the AB1 files
@@ -121,9 +123,9 @@ Call the seqviewer stuff
 pprint_seq(seq) -> HTML that can be embedded in a page
 pprint_seq_css() -> <style></style> block
 Handle gaps and IUPAC codes
-*** TODO Mock up in basic HTML with a multiline sequence
-*** TODO Write a templet function to return CSS required for this
-*** TODO Write a templet function to return the HTML for a sequence
+*** DONE Mock up in basic HTML with a multiline sequence
+*** DONE Write a templet function to return CSS required for this
+*** DONE Write a templet function to return the HTML for a sequence
 ** DONE 5min Write a templet function to return seqviewer alignment CSS block
 ** DONE 30min 9h26-9h38 Write a function to render two AB1s and the result of contig to HTML
 render_alignment(contig, seq1, conf1, trace1, seq2, conf2, trace2) -> HTML that can be embedded in a page
@@ -132,7 +134,7 @@ Take from the assemble function in seqviewer
 *** DONE 90min 9h38-10h35 Use example BLAST in project dir and make a mockup of results in raw HTML
 *** DONE 45min 10h35-11h49 Convert raw mockup to a templet function using the pickled BLAST results
 *** DONE 5min Write a BLAST CSS block and BLAST JavaScript block function
-** TODO Tabs in raw JavaScript and CSS in Firefox set up as a template
+** DONE Tabs in raw JavaScript and CSS in Firefox set up as a template
 *** DONE 20min 15h49-15h55 Look up how to set CSS properties on a div by name in Firefox
 <html><head>
 <script type="text/javascript">
@@ -145,18 +147,18 @@ function make_red(n) { document.getElementById(n).style.color = "#f00"; }
 *** DONE 1h 15h55-16h17 Mock up a tab set with links that say to hide the direct children of #tab_body and show the one specified by the link (name specified)
 *** DONE 20min 16h17-16h47 Add an h1 header and style the tabs to fill the whole screen - set baselines
 *** DONE 30min 16h47-17h05 Make into a templet function which takes additional CSS blocks and a dict of tab names and content for each tab
-** TODO 40min Assembled report designed and implemented
+** DONE 40min 10h40-11h21 Assembled report designed and implemented
 assembled_render(contig_result, blast_result, seq1, conf1, trace1, seq2, conf2, trace2)
 Returns a string of HTML
 Workup info at top, link to ../daily_summary.html, then two tabs: Assembly and BLAST
 Assembly shows the seqviewer alignment followed by the pretty printed assembly.
 BLAST shows the formatted BLAST results
-** TODO 40min Strandwise report designed and implemented
+** DONE 40min 11h21-11h26 Strandwise report designed and implemented
 strandwise_render(seq1, conf1, trace1, blast_result1, seq2, conf2, trace2, blast_result2)
 Returns a string of HTML
 Same as assembled, but shows both strands separately, both sequences separately, and has two tabs for BLAST results
-** TODO 20min Add map_queue of process to daemon
-* TODO Enqueueing, pairing and checking newly queued files
+
+* DONE Enqueueing, pairing and checking newly queued files
 Look at CREATE events and enqueue a structure indicating this onto a specified queue. All that has to be enqueued is the full path to the file.
 
 Defined as a function queue_events(queue, path, mask, fun=lambda x: x)
@@ -187,8 +189,7 @@ Need to switch to Linux with winpdb to figure out what's going on
 Use a directory in test/data
 Check that files are properly enqueued on creation
 Check that filter works
-** TODO 10min Add command to daemon to enqueue only files ending in .ab1 on their creation
-** TODO Generic process function written
+** DONE Generic process function written
 process(pair_by, unmatched_fun, pair_fun)
 
 pair_by needs to look up from the mock object. The key it returns is returned, so the key should be just the workup information.
@@ -210,7 +211,7 @@ Takes a path and:
 if path is a directory -> do nothing
 if path does not exist -> create directory
 else -> raise an error
-*** TODO 1.5h 12h29-12h57 13h35-13h56 Write guts of process
+*** DONE 1.5h 12h29-12h57 13h35-13h56 12h15-13h08 Write guts of process
 Most of the behavior has been moved to the functions unmatched_fun and pair_fun.
 
 unmatched_fun should be something like
@@ -233,7 +234,7 @@ process(lookup_fun,pairing_key_fun, unmatched_file_path_ref, unmatched_queue, sh
     for each unpaired file, if its n_retries = 0, move it to unmatched_file_path and delete it from n_retries dict; else reenqueue it and decrement its n_retries.
     for each pair, ensure that its target directory exists, move the files there, and queue the pair on analysis_queue. Run post_enqueue_fun
 
-* TODO Intermittent enqueuing of all files
+* DONE Intermittent enqueuing of all files
 intermittently and enqueue_files
 ** DONE 15min 13h56-14h05 Add filter to enqueue_files to match filenames with a regex
 ** DONE 30min Write intermittently function and tests
@@ -242,4 +243,4 @@ intermittently(fun, delay_ref, exit_event) runs fun with a fixed delay between r
  * delay - Ref-like to the delay in seconds between runs.
  * exit_event - don't run if this is true
 Create a run_now event, and pass a function that sets it to a delay timer. Then loop in the intermittently function until the run_now event is set or the exit_event is set. If the run_now event, get the value from delay_ref and start a new timer. If exit_event, return immediately.
-** TODO 10min Add command for intermittently enqueueing files to daemon
+
