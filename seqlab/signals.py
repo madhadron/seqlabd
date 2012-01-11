@@ -3,8 +3,8 @@ import functools
 
 import config
 
-def set_signal_handlers(conf_ref, exit_evt):
-    signal(SIGHUP, functools.partial(sighup, conf_ref))
+def set_signal_handlers(config_path, conf_ref, exit_evt):
+    signal(SIGHUP, functools.partial(sighup, config_path, conf_ref))
     signal(SIGTERM, functools.partial(sigterm, exit_evt))
     signal(SIGINT, SIG_DFL)
     signal(SIGPIPE, SIG_IGN)
@@ -13,9 +13,9 @@ def set_signal_handlers(conf_ref, exit_evt):
     signal(SIGUSR2, SIG_IGN)
     signal(SIGCHLD, SIG_IGN)
 
-def sighup(conf_ref, sig, stackframe):
+def sighup(config_path, conf_ref, sig, stackframe):
     try:
-        with open('/etc/seqlabd.conf') as h:
+        with open(config_path) as h:
             conf = config.read_configuration(h)
         conf_ref.put(conf)
         syslog.syslog(syslog.LOG_INFO, "Received SIGHUP. Reread configuration.")

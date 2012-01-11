@@ -1,3 +1,54 @@
+* Inbox
+** Learn to use oursql
+conn =
+oursql.connect(host='127.0.0.1',user='cooksonmicro',passwd='helicobacter',db='mdx',port=3307)
+curs = conn.cursor(oursql.DictCursor) # (or many others)
+then use cursor as usual
+*** DONE Install oursql on mephistopheles 
+*** DONE Install mysql on mephistopheles
+*** DONE Create a test database with a single table, insert some rows
+*** DONE Work through oursql tutorial to select those rows in Python
+http://packages.python.org/oursql/tutorial.html
+** DONE Set up stable port bridge to mdx database
+ssh -NfL 3307:localhost:3306 fredross@128.95.251.170
+Connected with:
+mysql --protocol=tcp --host=localhost --port=3307 --user=cooksonmicro -p mdx
+*** DONE Set up known_hosts and rsa authentication for port on mephistopheles to mdx
+
+** Extract sequence_report function from existing code
+Takes the paths to two ab1 files and a dictionary like
+{"accession": "H34908",
+ "workup": null,
+ "pat_name": "MORRALL,MARK R",
+ "amp_name": "alt_16s",
+ "seq_key": 22708}
+returns a string of the HTML to be written.
+** Extract daily_report function from existing code
+** Write function to move files into place, connecting to a database with workup table - place_file
+Get a few examples from the real data and put them in an SQLite
+database to use as the connection. 
+** Write command line dispatch of three functions and document it
+** Write a daemon around sequence_report function
+pyinotify monitors a tree. On creation of an ab1 or json file in the
+tree:
+ - if there are two ab1s and a json in that directory, and the json is
+   properly formed, kick off function; break
+ - if the json is malformed, log an error to that effect
+ - if there is only one ab1 file, log an info message
+ - break
+** Write a daemon around daily_report function
+ - on creation of a strandwise_report.html or assembly_report.html in
+   monitored tree, kick off daily_report function on that day.
+** Write a daemon around place_file
+- call function on file on pyinotify statement that something has happened
+- on SIGUSR1, push everything in the monitored directory (suspend pyinotify)
+Files moved while they are being written to work just fine on Linux
+(at least while moving within a filesystem).
+
+* Deployment
+** TODO Install oursql on microvm
+
+
 * Infrastructure
 ** DONE 15min Move codebase and development over to Linux workstation
 ** TODO 30min Install blast aligner on server
@@ -31,10 +82,10 @@ Attach behavior to queues
 Initialize inotify monitoring
 Check for files already in inbox and enqueue them all
 Set up missed file checking
-** TODO 20min Add map_queue of processing to daemon
-** TODO 10min Add map_queue of generate_summary_report to daemon
-** TODO 10min Add command to daemon to enqueue only files ending in .ab1 on their creation
-** TODO 10min Add command for intermittently enqueueing files to daemon
+** TODO Factor out behavior from setting configuration path
+** TODO Set up testing environment to run daemon's main in test/data
+** TODO Hook up serviced call to daemon's action function
+** TODO Update setup.py to build and install daemon
 * DONE Configuration
 seqlablib.config:
   read_configuration(handle) -> dict
@@ -88,7 +139,7 @@ For each folder in *path*, runs *path_key* to get a key and lookup_fun to get in
 ** DONE 30min 15h29-15h40 Write map_queue (and tests)
 map_queue(queue, fun, exit_event) - pops something off the queue and runs fun on it. When fun returns, repeats. Blocks while queue is empty. Handle exit_event.
 
-* DONE Processing pairs of AB1 files into reports
+* TODO Processing pairs of AB1 files into reports
 ** DONE 15min 15h40-15h44 Integrate AB1 reading and tests from seqviewer
 ** DONE 15min 15h44-15h46 Integrate contig construction from seqviewer, and tests
 ** DONE 15min Integrate seqviewer's alignment rendering code
@@ -158,6 +209,7 @@ strandwise_render(seq1, conf1, trace1, blast_result1, seq2, conf2, trace2, blast
 Returns a string of HTML
 Same as assembled, but shows both strands separately, both sequences separately, and has two tabs for BLAST results
 
+** TODO Change 'Assembly' to 'Strands' in strandwise report
 * DONE Enqueueing, pairing and checking newly queued files
 Look at CREATE events and enqueue a structure indicating this onto a specified queue. All that has to be enqueued is the full path to the file.
 

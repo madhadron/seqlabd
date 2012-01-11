@@ -113,12 +113,14 @@ def daily_summary(date, entries):
     </body></html>
     """
 
-def generate_daily_summary(path, mdx):
-    date = os.path.split(path)[1]
-    entries = subdirs_for_summary(path, mdx)
-    text = daily_summary(date, entries)
-    with open(os.path.join(path,'summary.html'), 'w') as h:
-        print >>h, text
+def generate_daily_summary(mdx):
+    def f(path):
+        date = os.path.split(path)[1]
+        entries = subdirs_for_summary(path, mdx)
+        text = daily_summary(date, entries)
+        with open(os.path.join(path,'summary.html'), 'w') as h:
+            print >>h, text
+    return f
 
 
 def render_ab1(ab1_dict):
@@ -283,18 +285,24 @@ def blast_javascript():
     """
 
 
-def generate_report(workup, read1path, read2path, lookup_fun, assembled_render, strandwise_render):
-    read1 = ab1.read(read1path)
-    read2 = ab1.read(read2path)
-    assembly = contig.contig(read1['sequence'], read1['confidences'],
-                             tracks.revcomp(read2['sequence']), tracks.revcomp(read2['confidences']))
-    if assembly['reference'] != None:
-        v = lookup_fun(assembly['reference'][1])
-        return ('assembled', assembled_render(workup, read1, read2, assembly, v))
-    else:
-        v1 = lookup_fun(read1['sequence'])
-        v2 = lookup_fun(read2['sequence'])
-        return ('strandwise', strandwise_render(workup, read1, read2, v1, v2))
+def generate_report(lookup_fun, assembled_render, strandwise_render, post_generate_fun=lambda x: None):
+    def f((workup, read1path, read2path)):
+        read1 = ab1.read(read1path)
+        read2 = ab1.read(read2path)
+        assembly = contig.contig(read1['sequence'], read1['confidences'],
+                                 tracks.revcomp(read2['sequence']), tracks.revcomp(read2['confidences']))
+        if assembly['reference'] != None:
+            v = lookup_fun(assembly['reference'][1], save_path=workup.path)
+            body = assembled_render(workup, read1, read2, assembly, v)
+            post_generate_fun(workup)
+            return ('assembled', body)
+        else:
+            v1 = lookup_fun(read1['sequence'], save_path=workup.path)
+            v2 = lookup_fun(read2['sequence'], save_path=workup.path)
+            body = strandwise_render(workup, read1, read2, v1, v2)
+            post_generate_fun(workup)
+            return ('strandwise', body)
+    return f
 
 @templet.stringfunction
 def assembly_tab(assembly, read1, read2):

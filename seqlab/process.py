@@ -107,13 +107,13 @@ def process(pair_by, unmatched_fun, pair_fun):
                                   (k,a,b,str(e)))
     return f
 
-def blast_seq(seq, xml_path, ncbi_db='nr'):
+def blast_seq(seq, save_path, ncbi_db='nr'):
     h = Bio.Blast.NCBIWWW.qblast("blastn", ncbi_db, seq)
     res = h.read()
     h.close()
-    with open(xml_path, 'w') as xh:
+    with open(save_path, 'w') as xh:
         xh.write(res)
-    with open(xml_path, 'r') as xh:
+    with open(save_path, 'r') as xh:
         records = list(Bio.Blast.NCBIXML.parse(xh))
         return records[0]
 

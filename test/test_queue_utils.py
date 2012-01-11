@@ -5,13 +5,14 @@ import time
 import Queue
 import pyinotify
 
-import seqlablib.refs
-import seqlablib.queue_utils
+import seqlab.refs
+import seqlab.queue_utils
 
 def test_queue_events():
     q = Queue.Queue()
     exit_event = threading.Event()
-    seqlablib.queue_utils.queue_events(q, 'data', pyinotify.IN_CREATE, exit_event, exclude_list=['.*beta$'])
+    seqlab.queue_utils.queue_events(q, 'data', pyinotify.IN_CREATE, exit_event, 
+                                       include_regex=r'.*(alpha|gamma)$')
     for i in ['data/alpha','data/beta','data/gamma']:
         with open(i, 'w') as h:
             print >>h, 'Hello'
@@ -23,7 +24,7 @@ def test_queue_events():
 
 def test_batched_unique():
     q = Queue.Queue()
-    timeout_ref = seqlablib.refs.Ref()
+    timeout_ref = seqlab.refs.Ref()
     timeout_ref.put(0.2)
     batchedevt = threading.Event()
     exitevt = threading.Event()
@@ -31,7 +32,7 @@ def test_batched_unique():
     def f(xs):
         d.extend(xs)
         batchedevt.set()
-    t = threading.Thread(target=seqlablib.queue_utils.batched_unique, args=(q, f, timeout_ref, exitevt))
+    t = threading.Thread(target=seqlab.queue_utils.batched_unique, args=(q, f, timeout_ref, exitevt))
     t.start()
     q.put(1); q.put(2); q.put(3)
     batchedevt.wait()
@@ -40,7 +41,7 @@ def test_batched_unique():
 
 
 def test_intermittently():
-    delay_ref = seqlablib.refs.Ref()
+    delay_ref = seqlab.refs.Ref()
     delay_ref.put(0.1)
     d = []
     evt = threading.Event()
@@ -48,7 +49,7 @@ def test_intermittently():
     def f():
         d.append(None)
         evt.set()
-    threading.Thread(target=seqlablib.queue_utils.intermittently, args=(f, delay_ref, exit_evt)).start()
+    threading.Thread(target=seqlab.queue_utils.intermittently, args=(f, delay_ref, exit_evt)).start()
     evt.wait()
     assert d==[None]
     evt.clear()
@@ -62,9 +63,9 @@ def test_intermittently():
 
 def test_enqueue_files():
     q = Queue.Queue()
-    path_ref = seqlablib.refs.Ref()
+    path_ref = seqlab.refs.Ref()
     path_ref.put('data/to_enqueue')
-    seqlablib.queue_utils.enqueue_files(q, path_ref, exclude_list=[r'.*?beta$'])
+    seqlab.queue_utils.enqueue_files(q, path_ref, include_regex=r'(alpha|gamma)')()
     d = []
     while not(q.empty()):
         x = q.get()
@@ -81,7 +82,7 @@ def test_map_queue():
         d.append(x)
         if x==3:
             done_event.set()
-    threading.Thread(target=seqlablib.queue_utils.map_queue, args=(q, f, exit_event)).start()
+    threading.Thread(target=seqlab.queue_utils.map_queue, args=(q, f, exit_event)).start()
     q.put(1)
     q.put(2)
     q.put(3)

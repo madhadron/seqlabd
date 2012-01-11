@@ -1,7 +1,7 @@
 import common
 import copy
 import pytest
-import seqlablib.config
+import seqlab.config as config
 import cStringIO
 
 conf_lines = [
@@ -22,7 +22,7 @@ conf_lines = [
 
 def test_good_config_works():
     good_config = cStringIO.StringIO('\n'.join(conf_lines))
-    assert seqlablib.config.read_configuration(good_config) == \
+    assert config.read_configuration(good_config) == \
         {'batch_timeout': 20, 'slurp_timeout': 900,
          'share_path': '/var', 'base_path': 'log',
          'inbox_path': '/usr/bin', 'unmatched_path': '/usr/lib',
@@ -41,6 +41,6 @@ def test_bad_values_fail():
         new_lines[i] = s
         h = cStringIO.StringIO('\n'.join(new_lines))
         with pytest.raises(ValueError):
-            seqlablib.config.read_configuration(h)
+            config.read_configuration(h)
         
 
