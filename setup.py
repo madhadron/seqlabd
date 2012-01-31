@@ -14,6 +14,6 @@ setup(name='seqlabd',
       packages=[],
       install_requires=['pydaemonize','pyinotify'],
       cmdclass = {'build_ext': build_ext},
-      ext_modules = [Extension("seqlablib.ab1", ["seqlablib/ab1.pyx"])],
+      ext_modules = [Extension("seqlab.ab1", ["seqlab/ab1.pyx"])],
       include_dirs = [numpy.get_include(),],
      )

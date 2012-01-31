@@ -7,18 +7,10 @@ import sets
 import time
 
 import common
-import test_mdx
 import seqlab.process
 import seqlab.refs
 import seqlab.tracks
 import seqlab.ab1
-import seqlab.mdx
-
-def test_pair_up():
-    pairs, singles = seqlab.process.pair_up(['alpha.1','beta.1','gamma.1','alpha.2','gamma.2'],
-                                               lambda s: s.split('.')[0])
-    assert pairs == {'alpha':('alpha.1','alpha.2'), 'gamma':('gamma.1','gamma.2')}
-    assert singles == {'beta':'beta.1'}
 
 def test_ensure_isdir():
     assert seqlab.process.ensure_isdir('data') == None
@@ -43,8 +35,7 @@ def test_process_pair():
     share_path_ref = seqlab.refs.Ref('data/process_share')
     workup_path_ref = seqlab.refs.Ref('workups')
     analysis_queue = Queue.Queue()
-    mdx = test_mdx.MockMDX()
-    seqlab.process.process_pair(share_path_ref, workup_path_ref, analysis_queue, mdx, leave_original=True)(
+    seqlab.process.process_pair(share_path_ref, workup_path_ref, analysis_queue, leave_original=True)(
         seqlab.mdx.Workup(accession='A01', workup='W01', pat_name='Jenkins, John',
                              amp_name='rpoB',path=None),
         'data/tmpzRpKiy-1.ab1', 'data/tmpzRpKiy-2.ab1')

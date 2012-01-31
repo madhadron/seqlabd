@@ -98,6 +98,8 @@ def read(filename):
     cdef numpy.ndarray bases_array, confidences, centers
     cdef str bases
     data = []
+    raw_data = []
+    processed_data = []
     cdef int c, q
     for i in range(td.numelements):
         d = fread_direntry(p)
@@ -122,10 +124,13 @@ def read(filename):
                 base_order.append((chr(c), q))
             base_order = dict(base_order)
         if name == b'DATA':
-            if data_index < 8:
+            if data_index < 4:
+                raw_data.append(fread_short_array_at(p, d.numelements, d.dataoffset))
+            elif data_index < 8:
                 pass
             else:
                 data.append(fread_short_array_at(p, d.numelements, d.dataoffset))
+                processed_data.append(fread_short_array_at(p, d.numelements, d.dataoffset))
             data_index += 1
 
     confidence_track = tracks.numeric(confidences)
@@ -136,7 +141,17 @@ def read(filename):
                                  T=data[base_order['T']],
                                  G=data[base_order['G']],
                                  centers=centers)
+    raw_data = {'A': raw_data[base_order['A']],
+                'T': raw_data[base_order['T']],
+                'C': raw_data[base_order['C']],
+                'G': raw_data[base_order['G']]}
+    processed_data = {'A': processed_data[base_order['A']],
+                      'T': processed_data[base_order['T']],
+                      'C': processed_data[base_order['C']],
+                      'G': processed_data[base_order['G']]}
     val = {'sequence': sequence_track,
            'confidences': confidence_track,
-           'traces': traces_track}
+           'traces': traces_track,
+           'raw_data': raw_data,
+           'processed_data': processed_data}
     return val
