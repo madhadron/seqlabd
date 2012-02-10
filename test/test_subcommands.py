@@ -5,55 +5,79 @@ import os
 
 import common
 
-from seqlab.subcommands import placefile
-from seqlab.subcommands import seqreport
+from seqlab.subcommands import place, metadata
 
 
-def test_placefile():
+def test_placefile(tmpdir):
+    tmpdir.mkdir('source')
+    filepath = tmpdir.join('source/279.22708_G02_014.ab1')
+    filepath.ensure(dir=False)
+    targetpath = tmpdir.join('target')
+    targetpath.ensure(dir=True)
     class Args:
-        file='data/place_file/source/279.22708_G02_014.ab1'
-        sqlite='data/workups.sqlite3'
-        target='data/place_file/target'
+        file=str(filepath)
+        target=str(targetpath)
+        config='data/seqlab.conf'
+        port = None
+        host=None
+        user=None
+        password=None
+        database=None
     args = Args()
 
-    # Clear anything already there
-    for f in os.listdir(args.target):
-        shutil.rmtree(os.path.join(args.target, f))
-    
-    ret = placefile.action(args)
+    assert place.action(args) == 0
     t = time.localtime()
-    path = os.path.join(args.target, time.strftime('%Y', t),
-                        time.strftime('%Y_%B', t), time.strftime('%Y_%m_%d', t),
-                        'H34908_JENKINS_alt_16s')
+    path = targetpath.join(time.strftime('%Y', t),
+                           time.strftime('%Y_%B', t), time.strftime('%Y_%m_%d', t),
+                           'H34908_MORRALL_alt_16s')
 
-    worked = os.path.exists(os.path.join(path, '279.22708_G02_014.ab1'))
-
-    if worked:
-        shutil.move(os.path.join(path, '279.22708_G02_014.ab1'),
-                    args.file)
-    assert ret == 0
-    assert worked
-    assert os.path.exists(os.path.join(path, 'workup.json'))
-    with open(os.path.join(path,'workup.json')) as h:
+    assert path.join('279.22708_G02_014.ab1').check(exists=1)
+    assert path.join('metadata.json').check(exists=1)
+    with open(str(path.join('metadata.json'))) as h:
         j = json.load(h)
-        assert j == {'accession': u'H34908',
-                     'amp_name': u'alt_16s',
-                     'pat_name': u'JENKINS,JOHN',
-                     'seq_key': 22708,
-                     'path': path}
+        expected = {'amp_name': 'alt_16s',
+                    'specimen_description': 'BNE-FLAP',
+                    'seq_key': 22708,
+                    'accession': 'H34908',
+                    'specimen_category': None,
+                    'pat_name': 'MORRALL,MARK R',
+                    'tests': [['TSEXAM-BACTERIAL',
+                               'Tissue extract and amplify bacterial primers'],
+                              ['TSEXAM-AFB',
+                               'Tissue extract and amplify AFB primers'],
+                              ['TSEXAM-FUNGAL',
+                               'Tissue extract and amplify fungal primers']]}
+        assert j == expected
 
 
-def test_seqreport():
-    for s in ['assembly','strandwise']:
-        class Args:
-            reportpath=os.path.join('data/seqreport_scratch',s)
-        args = Args()
+def test_metadata(tmpdir):
+    tmpdir.mkdir('source')
+    filepath = tmpdir.join('source/279.22708_G02_014.ab1')
+    filepath.ensure(dir=False)
+    class Args:
+        file=str(filepath)
+        output=str(tmpdir.join('metadata.json'))
+        config='data/seqlab.conf'
+        port = None
+        host=None
+        user=None
+        password=None
+        database=None
+    args = Args()
 
-        # Clear possibly existing reports.
-        for f in [x for x in os.listdir(args.reportpath) if x.endswidth('.html')]:
-            shutil.rmtree(os.path.join(args.reportpath, x))
-
-        ret = seqreport.action(args)
-        assert ret == 0
-        assert os.path.exists(os.path.join(args.reportpath, '%s_report.html' % s))
-        os.unlink(os.path.join(args.reportpath, '%s_report.html' %s))
+    assert metadata.action(args) == 0
+    with open(args.output) as h:
+        j = json.load(h)
+        expected = {'amp_name': 'alt_16s',
+                    'specimen_description': 'BNE-FLAP',
+                    'seq_key': 22708,
+                    'accession': 'H34908',
+                    'specimen_category': None,
+                    'pat_name': 'MORRALL,MARK R',
+                    'tests': [['TSEXAM-BACTERIAL',
+                               'Tissue extract and amplify bacterial primers'],
+                              ['TSEXAM-AFB',
+                               'Tissue extract and amplify AFB primers'],
+                              ['TSEXAM-FUNGAL',
+                               'Tissue extract and amplify fungal primers']]}
+        assert j == expected

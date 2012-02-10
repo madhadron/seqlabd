@@ -1,7 +1,7 @@
 import logging
 import os
 
-from  seqlab.sequence_report import sequence_report
+#from  seqlab.sequence_report import sequence_report
 
 log = logging.getLogger(__name__)
 
@@ -18,10 +18,10 @@ def action(args):
         print "Error: Expected 2 AB1 files; found %d" % len(ab1_files)
         return 1
     try:
-        result, html = sequence_report(workup, ab1_files[0], ab1_files[1])
+        # result, html = sequence_report(workup, ab1_files[0], ab1_files[1])
         html_filename = result=='assembled' and 'assembly_report.html' or 'strandwise_report.html'
-        with open(os.path.join(path, html_filename), 'w') as h:
-            print >>h, html
+        # with open(os.path.join(path, html_filename), 'w') as h:
+        #     print >>h, html
     except Exception, e:
         print "Error: " + str(e)
         return 1

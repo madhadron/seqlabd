@@ -1,4 +1,4 @@
-import sys; sys.path.insert(0, '../')
+import sys; sys.path.append('../')
 
 data_path = 'data'
 

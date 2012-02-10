@@ -2,7 +2,8 @@ import argparse
 import sys
 import os
 
-from seqlab import subcommands, __version__ as version
+import subcommands
+from __init__ import __version__ as version
 
 def main(argv):
     action, arguments = parse_arguments(argv)
