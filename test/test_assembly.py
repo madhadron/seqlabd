@@ -217,6 +217,7 @@ def test_render_affinelist():
     print s
     assert  s == ""
 
-
+def test_rendernucleotide():
+    assert rendernucleotide(3, 'A', []) == ""
         
 

@@ -370,8 +370,20 @@ def renderinteger(coord, val, features):
   ${[f.render() for f in features if coord in f]}
 </div>"""
 
+def base_color(base):
+    base_coloring = {'A': 'green', 'C': 'blue', 'T': 'red', 
+                     'G': 'black', 'U': 'red', 'X': 'black'}
+    try:
+        return base_coloring[base]
+    except KeyError:
+        return 'yellow'
 
-        
+@templet.stringfunction
+def rendernucleotide(coord, val, features):
+    """<div>
+  ${val == None and "&nbsp;" or '<span style="color: %s;">%s</span>' % (base_color(val), val)}
+  ${[f.render() for f in features if coord in f]}
+</div>"""
     
 css = """
 div.track div { position: relative; display: inline-block; width: 1.5em; height: 1.5em; margin: 0; padding: 0; }
