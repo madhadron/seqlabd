@@ -204,5 +204,19 @@ def test_serialize_deserialize():
     assert deserialize(filename) == a
     os.unlink(filename)
     
+
+def test_render_feature():
+    assert Feature('boris', 3, 5, 255, 0, 0, 0.3).render() == \
+        """<div style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; background-color: rgba(255, 0, 0, 0.3); z-index: +2;"></div>\n"""
+
+def test_render_affinelist():
+    a = AffineList(offset=3, vals=[1,2,3], renderitem=renderinteger, 
+                   features=[Feature('a', 3,5, 255,0,0, 0.3)])
+
+    s = a.render(additionalfeatures=[Feature('b', 1,6, 0,255,0, 0.4)], start=0)
+    print s
+    assert  s == ""
+
+
         
 

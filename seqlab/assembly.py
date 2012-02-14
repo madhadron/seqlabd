@@ -13,6 +13,7 @@ import itertools as it
 import json
 import collections
 import bz2
+import templet
 
 class HalfOpenInterval(object):
     """Represents a half open interval [a,b), a <= b.
@@ -61,6 +62,27 @@ class HalfOpenInterval(object):
             else:
                 return HalfOpenInterval(left, right)
 
+class Feature(object):
+    def __init__(self, name, left, right, red, green, blue, alpha):
+        self.name = name
+        self.pos = HalfOpenInterval(left, right)
+        assert 0 <= red < 256
+        assert 0 <= green < 256
+        assert 0 <= blue < 256
+        assert 0 <= alpha <= 1
+        self.red = red
+        self.green = green
+        self.blue = blue
+        self.alpha = alpha
+    def __contains__(self, x):
+        return x in self.pos
+    def bounds(self):
+        return self.pos
+    @templet.stringfunction
+    def render(self):
+        """<div class="feature" style="background-color: rgba(${self.red}, ${self.green}, ${self.blue}, ${self.alpha});"></div>"""
+
+
 
 class AffineList(object):
     """List embedded in 1D, discrete, affine space.
@@ -90,9 +112,12 @@ class AffineList(object):
     ``enumerate()`` on a normal list, but returns the coordinates
     instead of the indices.
     """
-    def __init__(self, offset, vals):
+    def __init__(self, offset, vals, renderitem=lambda i: "", trackclass="", features=[]):
         self.offset = offset
         self.vals = list(vals)
+        self.renderitem = renderitem
+        self.trackclass = trackclass
+        self.features = features
     def __getitem__(self, i):
         if i < self.offset or i >= self.offset+len(self.vals):
             return None
@@ -201,6 +226,12 @@ class AffineList(object):
         return x
     def __eq__(self, other):
         return self.offset == other.offset and self.vals == other.vals
+    @templet.stringfunction
+    def render(self, additionalfeatures=[], start=None, end=None):
+        """<div class="track ${self.trackclass}">
+${[self.renderitem(i,v, self.features + additionalfeatures) 
+   for i,v in self.itercoords(start=start, end=end)]}
+</div>"""
 
 class Assembly(collections.OrderedDict):
     """Class representing an assembly of sequences.
@@ -212,9 +243,10 @@ class Assembly(collections.OrderedDict):
     ``metadata`` is properly propogated through all operations on
     ``Assembly``.
     """
-    def __init__(self, items, metadata={}):
+    def __init__(self, items, metadata={}, features=[]):
         collections.OrderedDict.__init__(self, items)
         self.metadata = metadata
+        self.features = features
     def filterkeys(self, pred):
         """Return an Assembly containing only the items for which *pred*(key) is true."""
         return Assembly([(k,v) for k,v in self.iteritems() if pred(k)], metadata=self.metadata)
@@ -298,6 +330,10 @@ class Assembly(collections.OrderedDict):
         """
         s = self.support(*keys)
         return s.right - s.left
+    @templet.stringfunction
+    def render(self):
+        """ """
+        
 
 def as_assembly(dct):
     if '__Assembly' in dct:
@@ -327,5 +363,17 @@ def deserialize(filename):
     with bz2.BZ2File(filename, 'r') as input:
         return json.load(input, object_hook=as_assembly)
     
+@templet.stringfunction
+def renderinteger(coord, val, features):
+    """<div>
+  ${val == None and "&nbsp;" or val}
+  ${[f.render() for f in features if coord in f]}
+</div>"""
+
+
         
     
+css = """
+div.track div { position: relative; display: inline-block; width: 1.5em; height: 1.5em; margin: 0; padding: 0; }
+div.track div div.feature { position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: +2; }
+"""
