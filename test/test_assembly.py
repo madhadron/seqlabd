@@ -1,5 +1,6 @@
 import common
 from seqlab.assembly import *
+import os
 
 def test_halfopeninterval_intersect():
     assert HalfOpenInterval(1,3).intersect(HalfOpenInterval(5,7)) == HalfOpenInterval(0,0)
@@ -54,10 +55,6 @@ def test_affinelist_itercoords():
 def test_affinelist_repr():
     a = AffineList(offset=3, vals=[1,2,3,4,5])    
     assert eval(repr(a)) == a
-
-def test_affinelist_json():
-    a = AffineList(offset=3, vals=[1,2,3,4,5])
-    assert json.loads(a.json()) == {"__AffineList": True, "offset": 3, "vals": [1,2,3,4,5]}
 
 def test_affinelist_append():
     a = AffineList(offset=3, vals=[1,2,3,4,5])
@@ -178,3 +175,34 @@ def test_assembly_width():
     assert a.width() == 8
     assert a.width('a') == 5
     assert a.width('a','b') == 2
+
+def test_json_dumpload():
+    import json
+    altxt = """{"__AffineList": true,
+                "offset": 3,
+                "vals": [1,2,3,4,5]}"""
+    alval = AffineList(3, [1,2,3,4,5])
+    astxt = """{"__Assembly": true,
+                "metadata": {"boris": "hilda", "meep": 3},
+                "tracks": [["b", {"__AffineList": true, "offset": 1, "vals": [1,2,3]}],
+                           ["a", {"__AffineList": true, "offset": 3, "vals": [4,4,4]}]]}"""
+    asval = Assembly([('b', AffineList(1, [1,2,3])),
+                      ('a', AffineList(3, [4,4,4]))],
+                     metadata={'boris': 'hilda', 'meep': 3})
+    assert json.loads(altxt, object_hook=as_assembly) == alval
+    assert json.loads(astxt, object_hook=as_assembly) == asval
+    assert json.loads(json.dumps(alval, cls=AssemblyEncoder), object_hook=as_assembly) == alval
+    assert json.loads(json.dumps(asval, cls=AssemblyEncoder), object_hook=as_assembly) == asval
+
+def test_serialize_deserialize():
+    a = Assembly([('b', AffineList(1, [1,2,3])),
+                  ('a', AffineList(3, [4,4,4]))],
+                 metadata={'boris': 'hilda', 'meep': 3})
+    import tempfile
+    filename = tempfile.mktemp()
+    serialize(a, filename)
+    assert deserialize(filename) == a
+    os.unlink(filename)
+    
+        
+

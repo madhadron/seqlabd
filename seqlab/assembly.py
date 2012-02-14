@@ -12,6 +12,7 @@ provides methods to subset and iterate over hunks of tracks.
 import itertools as it
 import json
 import collections
+import bz2
 
 class HalfOpenInterval(object):
     """Represents a half open interval [a,b), a <= b.
@@ -139,8 +140,6 @@ class AffineList(object):
             yield (i,self[i])
     def __repr__(self):
         return 'AffineList(offset=%d, vals=%s)' % (self.offset, repr(self.vals))
-    def json(self, *args, **kwargs):
-        return json.dumps({'__AffineList': True, 'offset': self.offset, 'vals': self.vals})
     def __len__(self):
         return len(self.vals)
     def append(self, x):
@@ -299,5 +298,34 @@ class Assembly(collections.OrderedDict):
         """
         s = self.support(*keys)
         return s.right - s.left
+
+def as_assembly(dct):
+    if '__Assembly' in dct:
+        return Assembly(dct['tracks'], metadata=dct['metadata'])
+    elif '__AffineList' in dct:
+        return AffineList(offset=dct['offset'], vals=dct['vals'])
+    else:
+        return dct
+
+class AssemblyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, AffineList):
+            return {'__AffineList': True, 'offset': obj.offset, 'vals': obj.vals}
+        elif isinstance(obj, Assembly):
+            return {'__Assembly': True, 'metadata': obj.metadata, 
+                    'tracks': [(k,v) for k,v in obj.iteritems()]}
+        else:
+            return json.JSONEncoder.default(self, obj)
+            
+def serialize(obj, filename):
+    """Dump *obj* to *filename* as bz2 compressed JSON."""
+    with bz2.BZ2File(filename, 'w') as out:
+        json.dump(obj, out, cls=AssemblyEncoder)
+
+def deserialize(filename):
+    """Load an object from a bz2 compressed JSON file *filename*."""
+    with bz2.BZ2File(filename, 'r') as input:
+        return json.load(input, object_hook=as_assembly)
+    
         
     
