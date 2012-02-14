@@ -135,17 +135,17 @@ def test_assembly_support():
 def test_assembly_itercolumns():
     a = Assembly([('a', AffineList(1, [1,2,3,4,5])),
                   ('b', AffineList(4, [1,2,3,4,5]))])
-    assert list(a.itercolumns()) == [(1, collections.OrderedDict([('a',1),('b',None)])),
-                                     (2, collections.OrderedDict([('a',2),('b',None)])),
-                                     (3, collections.OrderedDict([('a',3),('b',None)])),
-                                     (4, collections.OrderedDict([('a',4),('b',1)])),
-                                     (5, collections.OrderedDict([('a',5),('b',2)])),
-                                     (6, collections.OrderedDict([('a',None),('b',3)])),
-                                     (7, collections.OrderedDict([('a',None),('b',4)])),
-                                     (8, collections.OrderedDict([('a',None),('b',5)]))]
+    assert list(a.itercolumns()) == [(1, OrderedDict([('a',1),('b',None)])),
+                                     (2, OrderedDict([('a',2),('b',None)])),
+                                     (3, OrderedDict([('a',3),('b',None)])),
+                                     (4, OrderedDict([('a',4),('b',1)])),
+                                     (5, OrderedDict([('a',5),('b',2)])),
+                                     (6, OrderedDict([('a',None),('b',3)])),
+                                     (7, OrderedDict([('a',None),('b',4)])),
+                                     (8, OrderedDict([('a',None),('b',5)]))]
     assert list(a.itercolumns(start=3,end=5)) == \
-        [(3, collections.OrderedDict([('a',3),('b',None)])),
-         (4, collections.OrderedDict([('a',4),('b',1)]))]
+        [(3, OrderedDict([('a',3),('b',None)])),
+         (4, OrderedDict([('a',4),('b',1)]))]
 
 def test_assembly_subset():
     a = Assembly([('a', AffineList(1, [1,2,3,4,5])),
@@ -207,7 +207,8 @@ def test_serialize_deserialize():
 
 def test_render_feature():
     assert Feature('boris', 3, 5, 255, 0, 0, 0.3).render() == \
-        """<div style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; background-color: rgba(255, 0, 0, 0.3); z-index: +2;"></div>\n"""
+        """<div class="feature" style="background-color: rgba(255, 0, 0, 0.3);"></div>"""
+
 
 def test_render_affinelist():
     a = AffineList(offset=3, vals=[1,2,3], renderitem=renderinteger, 
@@ -215,9 +216,91 @@ def test_render_affinelist():
 
     s = a.render(additionalfeatures=[Feature('b', 1,6, 0,255,0, 0.4)], start=0)
     print s
-    assert  s == ""
+    assert  s == """<div class="track ">
+<div>
+  &nbsp;
+  
+</div><div>
+  &nbsp;
+  <div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div>
+</div><div>
+  &nbsp;
+  <div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div>
+</div><div>
+  1
+  <div class="feature" style="background-color: rgba(255, 0, 0, 0.3);"></div><div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div>
+</div><div>
+  2
+  <div class="feature" style="background-color: rgba(255, 0, 0, 0.3);"></div><div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div>
+</div><div>
+  3
+  <div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div>
+</div>
+</div>"""
 
 def test_rendernucleotide():
-    assert rendernucleotide(3, 'A', []) == ""
+    print rendernucleotide(3, 'A', [])
+    assert rendernucleotide(3, 'A', []) == """<div>
+  <span style="color: green;">A</span>
+  
+</div>"""
         
+def test_assembly_render():
+    a = Assembly([('a', AffineList(1, [1,2,3,4,5], 
+                                   trackclass='integer', renderitem=renderinteger,
+                                   features=[Feature('b', 1,6, 0,255,0, 0.4)])),
+                  ('b', AffineList(4, [1,2,3,4,5], trackclass='integer', 
+                                   renderitem=renderinteger))],
+                 features=[Feature('q', 0,3, 30, 30, 0, 0.3)])
+    s = a.render()
+    with open('tmp.html','w') as o:
+        print >>o, "<html><head><style>"
+        print >>o, css
+        print >>o, "</style></head><body>"
+        print >>o, s
+        print >>o, "</body></html>"
+    assert s == """<div class="assembly">
+  <div class="label-column">
+    <div class="label"><span>Position</span></div>
+    <div class="label integer"><span>a</span></div><div class="label integer"><span>b</span></div>
+  </div>
+  <div class="scrolling-container">
+    <div class="track integer">
+<div>
+  1
+  <div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div><div class="feature" style="background-color: rgba(30, 30, 0, 0.3);"></div>
+</div><div>
+  2
+  <div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div><div class="feature" style="background-color: rgba(30, 30, 0, 0.3);"></div>
+</div><div>
+  3
+  <div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div>
+</div><div>
+  4
+  <div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div>
+</div><div>
+  5
+  <div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div>
+</div>
+</div><div class="track integer">
+<div>
+  1
+  
+</div><div>
+  2
+  
+</div><div>
+  3
+  
+</div><div>
+  4
+  
+</div><div>
+  5
+  
+</div>
+</div>
+  </div>
+</div>"""
+    
 

@@ -11,7 +11,10 @@ provides methods to subset and iterate over hunks of tracks.
 
 import itertools as it
 import json
-import collections
+try:
+    from collections import OrderedDict
+except:
+    from ordereddict import OrderedDict
 import bz2
 import templet
 
@@ -233,7 +236,7 @@ ${[self.renderitem(i,v, self.features + additionalfeatures)
    for i,v in self.itercoords(start=start, end=end)]}
 </div>"""
 
-class Assembly(collections.OrderedDict):
+class Assembly(OrderedDict):
     """Class representing an assembly of sequences.
 
     ``Assembly`` is an extension of an ordered dictionary. All its
@@ -244,7 +247,7 @@ class Assembly(collections.OrderedDict):
     ``Assembly``.
     """
     def __init__(self, items, metadata={}, features=[]):
-        collections.OrderedDict.__init__(self, items)
+        OrderedDict.__init__(self, items)
         self.metadata = metadata
         self.features = features
     def filterkeys(self, pred):
@@ -301,7 +304,7 @@ class Assembly(collections.OrderedDict):
         if end == None:
             end = whole.right
         for i in range(start,end):
-            yield (i,collections.OrderedDict([(k,v[i]) for k,v in self.iteritems()]))
+            yield (i,OrderedDict([(k,v[i]) for k,v in self.iteritems()]))
     def subset(self, start=0, end=None):
         """Return an Assembly of a subset of columns.
 
@@ -332,7 +335,18 @@ class Assembly(collections.OrderedDict):
         return s.right - s.left
     @templet.stringfunction
     def render(self):
-        """ """
+        """
+<div class="assembly">
+  <div class="label-column">
+    <div class="label"><span>Position</span></div>
+    ${['<div class="label %s"><span>%s</span></div>' % (v.trackclass, k)
+       for k,v in self.iteritems()]}
+  </div>
+  <div class="scrolling-container">
+  ${[v.render(self.features) for v in self.itervalues()]}
+  </div>
+</div>"""
+
         
 
 def as_assembly(dct):
@@ -355,13 +369,20 @@ class AssemblyEncoder(json.JSONEncoder):
             
 def serialize(obj, filename):
     """Dump *obj* to *filename* as bz2 compressed JSON."""
-    with bz2.BZ2File(filename, 'w') as out:
+    try:
+        out = bz2.BZ2File(filename, 'w')
         json.dump(obj, out, cls=AssemblyEncoder)
+    finally:
+        out.close()
+
 
 def deserialize(filename):
     """Load an object from a bz2 compressed JSON file *filename*."""
-    with bz2.BZ2File(filename, 'r') as input:
+    try:
+        input = bz2.BZ2File(filename, 'r')
         return json.load(input, object_hook=as_assembly)
+    finally:
+        input.close()
     
 @templet.stringfunction
 def renderinteger(coord, val, features):
@@ -380,12 +401,46 @@ def base_color(base):
 
 @templet.stringfunction
 def rendernucleotide(coord, val, features):
-    """<div>
+    """<div class="${val == None and "empty" or ""}">
   ${val == None and "&nbsp;" or '<span style="color: %s;">%s</span>' % (base_color(val), val)}
   ${[f.render() for f in features if coord in f]}
 </div>"""
+
+@templet.stringfunction
+def rendersvg(coord, val, features):
+    """ """
     
 css = """
-div.track div { position: relative; display: inline-block; width: 1.5em; height: 1.5em; margin: 0; padding: 0; }
+* { margin: 0; padding: 0; }
+@media print { * { font-size: 10pt; } }
+
+.scrolling-container { position: relative; width: 100%; max-width: 100%; }
+@media screen { 
+  .scrolling-container { overflow-x: scroll; overflow-y: hidden; white-space: nowrap; } 
+}
+
+.label-column { float: left; max-width: 10em; overflow: hidden; white-space: nowrap; border-right: 0.2em solid black; }
+.label-column div { display: block; font-family: Optima, Myriad, sans-serif; vertical-align: middle; color: white; border-top: 0.01em solid #eee; background-color: #111; padding-right: 0.1em; padding-left: 0.2em; padding-top: 0.2em; padding-bottom: 0.2em; height: 0.59em; text-align: right; }
+div.label-column div span { font-size: 0.6em; }
+div.label-column div:first-child { border-top: none; }
+div.label-column div.svg { height: 3.6em !important; }
+div.label-column div.svg span { height: 6em !important; vertical-align: middle; line-height: 6em; }
+
+div.track { display: block; }
+div.track div { position: relative; display: inline-block; width: 1.3em; vertical-align: top; padding-left: 0.3em; padding-right: 0.3em; text-align: center; height: 1.1em; }
+div.track div:nth-of-type(odd) { background-color: #eee; }
+div.track div:nth-of-type(even) { background-color: #fff; }
 div.track div div.feature { position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: +2; }
+
+@media print { 
+  div.scrolling-container div:last-child { padding-bottom: 0.5em; border-bottom: 0.1em double #000; margin-bottom: 0.5em; }
+}
+
+div.track div.empty:nth-of-type(odd) { background-color: #ccc; }
+div.track div.empty:nth-of-type(even) { background-color: #ddd; }
+
+div.svg { height: 4em !important; padding: 0; }
+div.svg div div.svg-container { width: 100%; height: 100%; font-size: 0; }
+
+div.integer div { font-size: 70%; color: #666; line-height: 143%; }
 """
