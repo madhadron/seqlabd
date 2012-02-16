@@ -2,7 +2,7 @@
 fasta.py - Module to run and parse FASTA alignment
 
 This module only binds the ssearch36 program, which does pairwise,
-global alignment.
+global alignment with Smith-Waterman.
 """
 import re
 import os
@@ -11,6 +11,7 @@ import tempfile
 import subprocess
 import contextlib
 import Bio.SeqIO
+import assembly
 
 @contextlib.contextmanager
 def as_fasta(seq, tmpdir=None, label='sequence'):
@@ -33,57 +34,45 @@ def as_fasta(seq, tmpdir=None, label='sequence'):
 
 def fasta(seq1, seq2, ssearch36_path="ssearch36", tmpdir='/tmp'):
     with as_fasta(seq1, tmpdir) as fasta1, as_fasta(seq2, tmpdir) as fasta2:
-        command = ' '.join([ssearch36_path, '-d','1','-m','3', fasta1, fasta2])
+        command = ' '.join([ssearch36_path, '-a', '-d','1','-m','10', fasta1, fasta2])
         pipe = subprocess.Popen(str(command), shell=True, 
                                 stdout=subprocess.PIPE)
         (alignment, _) = pipe.communicate()
-        res = parse_fasta(alignment, seq1, seq2)
-        assert len(seq1) == len(res[0][1])
-        assert len(seq2) == len(res[1][1])
+        res = parse_ssearch36m10(alignment)
         return res
 
 
 
-def parse_fasta(alignment, origseq1, origseq2):
-    lines = alignment.split('\n')
-    l = lines.index('>sequen ..') + 1
-    c = lines[l:].index('>sequen ..') + l
-    r = lines[c:].index('') + c
-    l1, r1 = l, c
-    l2, r2 = c+1, r
-    seq1 = ''.join(lines[l1:r1])
-    spaces1, bases1 = re.match(r'( *)([A-Z-]+)', seq1).groups()
-    offset1 = len(spaces1)
+def spliton(f, xs):
+    i = 0
+    while not(f(xs[i])) and i < len(xs):
+        i += 1
+    return (xs[:i], xs[i:])
 
-    seq2 = ''.join(lines[l2:r2])
-    spaces2, bases2 = re.match(r'( *)([A-Z-]+)', seq2).groups()
-    offset2 = len(spaces2)
-
-    ungapped1 = bases1.replace('-','')
-    if len(ungapped1) < len(origseq1):
-        i = origseq1.find(ungapped1)
-        assert i > -1
-        bases1 = origseq1[:i] + bases1 + origseq1[i+len(ungapped1):]
-        offset1 -= len(ungapped1[:i])
-
-    ungapped2 = bases2.replace('-','')
-    if len(ungapped2) < len(origseq2):
-        i = origseq2.find(ungapped2)
-        assert i > -1
-        bases2 = origseq2[:i] + bases2 + origseq2[i+len(ungapped2):]
-        offset2 -= len(origseq2[:i])
-
-    if min(offset1,offset2) < 0:
-        offset1 -= min(offset1,offset2)
-        offset2 -= min(offset1,offset2)
-
-    return ((offset1, bases1), (offset2, bases2))
-        
+def parse_ssearch36m10(alignment):
+    a = alignment.split('\n')
+    a = spliton(lambda s: s.startswith('>>>'), a)[1]
+    a = spliton(lambda s: s.startswith('>>><<<'), a)[0]
+    seqsect, parsect = spliton(lambda s: s.startswith('; al_cons:'), a)
+    seqsect = filter(lambda s: not(s.startswith(';')), seqsect)[3:]
+    seq1, seqsect = spliton(lambda s: s.startswith('>'), seqsect)
+    seq1 = ''.join(seq1)
+    seq2 = ''.join(seqsect[1:])
+    par = ''.join(parsect[1:])
+    seq1gaps, seq1 = spliton(lambda s: s!='-', seq1)
+    seq1 = assembly.AffineList(offset=len(gaps), vals=seq1)
+    gaps, seq2 = spliton(lambda s: s!='-', seq2)
+    seq2 = assembly.AffineList(offset=len(gaps), vals=seq2)
+    gaps, par = spliton(lambda s: s!=' ', par)
+    par = assembly.AffineList(offset=len(gaps), vals=par)
+    return (seq1, seq2, par)
+    
 
 def test_ssearch():
     s1 = 'CTCAGGATGAACGCTGGCGGCGTGCCTAATACATGCMAGTCGAGCGAACAGATAAGGAGCTTGCTCCTTTGACGTTAGCGGCGGACGGGTGAGTAACACGTGGGTAACCTACCTATAAGACTGGGACAACTTCGGGAAACCGGAGCTAATACCGGATAATATGTTGAACCGCATGGTTCAATAGTGAAAGATGGTTTTGCTATCACTTATAGATGGACCCGCGCCGTATTAGCTAGTTGGTGAGGTAACGGCTCACCAAGGCAACGATACGTAGCCGACCTGAGAGGGTGATCGGCCACACTGGAACTGAGACACGGTCCAGACTCCTACGGGAGGCAGCAGTAGGGAATCTTCCGCAATGGGCGAAAGCCTGACGGAGCAACGCCGCGTGAGTGATGAAGGTCTTAGGATCGTAAAACTCTGTTATTAGGGAAGAACAAACGTGTAAGTAACTGTGCACGTCTTGACGGTACCTAATCAGAAAGCCACGGCTAACTACG'
     s2 = 'GATGAACGCTGGCGGCGTGCCTAATACATGCAAGTCGAGCGAACAGATAAGGAGCTTGCTCCTTTGACGTTAGCGGCGGACGGGTGAGTAACACGTGGGTAACCTACCTATAAGACTGGGACAACTTCGGGAAACCGGAGCTAATACCGGATAATATGTTGAACCGCATGGTTCAATAGTGAAAGATGGTTTTGCTATCACTTATAGATGGACCCGCGCCGTATTAGCTAGTTGGTGAGGTAACGGCTCACCAAGGCAACGATACGTAGCCGACCTGAGAGGGTGATCGGCCACACTGGAACTGAGACACGGTCCAGACTCCTACGGGAGGCAGCAGTAGGGAATCTTCCGCAATGGGCGAAAGCCTGACGGAGCAACGCCGCGTGAGTGATGAAGGTCTTAGGATCGTAAAACTCTGTTATTAGGGAAGAACAAACGTGTAAGTAACTGTGCACGTCTTGACGGTACCTAATCAGAAAGCCACGGCTAACTA'
-    print fasta(s1,s2)
+    seq1,seq2,algn = fasta(s1,s2)
+    assert algn == assembly.AffineList(5, ':::::::::::::::::::::::::::::::.:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::')
 
 if __name__=='__main__':
     test_ssearch()

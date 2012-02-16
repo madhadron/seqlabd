@@ -209,98 +209,54 @@ def test_render_feature():
     assert Feature('boris', 3, 5, 255, 0, 0, 0.3).render() == \
         """<div class="feature" style="background-color: rgba(255, 0, 0, 0.3);"></div>"""
 
-
-def test_render_affinelist():
-    a = AffineList(offset=3, vals=[1,2,3], renderitem=renderinteger, 
-                   features=[Feature('a', 3,5, 255,0,0, 0.3)])
-
-    s = a.render(additionalfeatures=[Feature('b', 1,6, 0,255,0, 0.4)], start=0)
-    print s
-    assert  s == """<div class="track ">
-<div>
-  &nbsp;
-  
-</div><div>
-  &nbsp;
-  <div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div>
-</div><div>
-  &nbsp;
-  <div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div>
-</div><div>
-  1
-  <div class="feature" style="background-color: rgba(255, 0, 0, 0.3);"></div><div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div>
-</div><div>
-  2
-  <div class="feature" style="background-color: rgba(255, 0, 0, 0.3);"></div><div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div>
-</div><div>
-  3
-  <div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div>
-</div>
-</div>"""
-
 def test_rendernucleotide():
-    print rendernucleotide(3, 'A', [])
-    assert rendernucleotide(3, 'A', []) == """<div>
-  <span style="color: green;">A</span>
+    print rendernucleotide(3, 'A')
+    assert rendernucleotide(3, 'A') == """<span style="color: green;">A</span>"""
+
   
-</div>"""
-        
+def test_assembly_coordinates():
+    a = Assembly([('a', AffineList(1, [1,2,3,4,5])),
+                  ('b', AffineList(3, [1,2,3,4,5]))])
+    assert a.coordinates() == [1,2,3,4,5,6,7]
+      
 def test_assembly_render():
-    a = Assembly([('a', AffineList(1, [1,2,3,4,5], 
+    a = Assembly([('bases', AffineList(8, ['A','C','T','T','N','R','T','A','G'],
+                                       trackclass='nucleotide', renderitem=rendernucleotide)),
+                  ('a', AffineList(1, range(50), 
                                    trackclass='integer', renderitem=renderinteger,
-                                   features=[Feature('b', 1,6, 0,255,0, 0.4)])),
+                                   features=[Feature('b', 6,12, 0,255,0, 0.4)])),
+                  ('q', AffineList(3, [{'A': [(0,0), (1,1)],
+                                        'C': [(0,1), (1,0)],
+                                        'T': [(0, 0.5), (1, 0.5)],
+                                        'G': [(0, 0.25), (1,0.25)]},
+                                       {'A': [(0,0), (1,1)],
+                                        'C': [(0,1), (1,0)],
+                                        'T': [(0, 0.5), (1, 0.5)],
+                                        'G': [(0, 0.25), (1,0.25)]}],
+                                   trackclass="svg", renderitem=rendersvg)),
                   ('b', AffineList(4, [1,2,3,4,5], trackclass='integer', 
                                    renderitem=renderinteger))],
-                 features=[Feature('q', 0,3, 30, 30, 0, 0.3)])
-    s = a.render()
-    with open('tmp.html','w') as o:
+                 features=[Feature('q', 11,15, 255,0,0, 0.3)])
+    s = renderassembly(a)
+    with open('assembly_render_test.html','w') as o:
         print >>o, "<html><head><style>"
         print >>o, css
         print >>o, "</style></head><body>"
         print >>o, s
         print >>o, "</body></html>"
-    assert s == """<div class="assembly">
-  <div class="label-column">
-    <div class="label"><span>Position</span></div>
-    <div class="label integer"><span>a</span></div><div class="label integer"><span>b</span></div>
-  </div>
-  <div class="scrolling-container">
-    <div class="track integer">
-<div>
-  1
-  <div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div><div class="feature" style="background-color: rgba(30, 30, 0, 0.3);"></div>
-</div><div>
-  2
-  <div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div><div class="feature" style="background-color: rgba(30, 30, 0, 0.3);"></div>
-</div><div>
-  3
-  <div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div>
-</div><div>
-  4
-  <div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div>
-</div><div>
-  5
-  <div class="feature" style="background-color: rgba(0, 255, 0, 0.4);"></div>
-</div>
-</div><div class="track integer">
-<div>
-  1
-  
-</div><div>
-  2
-  
-</div><div>
-  3
-  
-</div><div>
-  4
-  
-</div><div>
-  5
-  
-</div>
-</div>
-  </div>
-</div>"""
+
+def test_tracealong():
+    template = AffineList(3, 'ACTG-TT--GGG')
+    assert tracealong([1]*2, template) == AffineList(3, [1]*2)
+    assert tracealong([1]*9, template) == AffineList(3, [1,1,1,1,None,1,1,None,None,1,1,1])
+    assert tracealong([1]*12, template) == AffineList(3, [1,1,1,1,None,1,1,None,None,1,1,1,1,1,1])
+
+def test_alzip():
+    a = AffineList(2, [1]*3)
+    b = AffineList(0, [1]*6)
+    assert alzipsupport(a,b) == AffineList(0, [(None,1), (None,1), (1,1), (1,1), (1,1), (None, 1)])
+    assert alzipnarrow(a,b) == AffineList(2, [(1,1), (1,1), (1,1)])
+
     
+
 

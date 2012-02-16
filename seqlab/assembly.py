@@ -229,12 +229,7 @@ class AffineList(object):
         return x
     def __eq__(self, other):
         return self.offset == other.offset and self.vals == other.vals
-    @templet.stringfunction
-    def render(self, additionalfeatures=[], start=None, end=None):
-        """<div class="track ${self.trackclass}">
-${[self.renderitem(i,v, self.features + additionalfeatures) 
-   for i,v in self.itercoords(start=start, end=end)]}
-</div>"""
+
 
 class Assembly(OrderedDict):
     """Class representing an assembly of sequences.
@@ -333,20 +328,10 @@ class Assembly(OrderedDict):
         """
         s = self.support(*keys)
         return s.right - s.left
-    @templet.stringfunction
-    def render(self):
-        """
-<div class="assembly">
-  <div class="label-column">
-    <div class="label"><span>Position</span></div>
-    ${['<div class="label %s"><span>%s</span></div>' % (v.trackclass, k)
-       for k,v in self.iteritems()]}
-  </div>
-  <div class="scrolling-container">
-  ${[v.render(self.features) for v in self.itervalues()]}
-  </div>
-</div>"""
-
+    def coordinates(self):
+        """Return an AffineList of the coordinates in the Assembly's support."""
+        h = self.support()
+        return range(h.left, h.right)
         
 
 def as_assembly(dct):
@@ -385,11 +370,8 @@ def deserialize(filename):
         input.close()
     
 @templet.stringfunction
-def renderinteger(coord, val, features):
-    """<div>
-  ${val == None and "&nbsp;" or val}
-  ${[f.render() for f in features if coord in f]}
-</div>"""
+def renderinteger(coord, val):
+    """<span>$val</span>"""
 
 def base_color(base):
     base_coloring = {'A': 'green', 'C': 'blue', 'T': 'red', 
@@ -400,47 +382,135 @@ def base_color(base):
         return 'yellow'
 
 @templet.stringfunction
-def rendernucleotide(coord, val, features):
-    """<div class="${val == None and "empty" or ""}">
-  ${val == None and "&nbsp;" or '<span style="color: %s;">%s</span>' % (base_color(val), val)}
+def renderbaseitem(coord, val, features, trackclass, renderitem):
+    """<div class="${trackclass or ""} ${val or "empty"}">
+  ${val == None and "&nbsp;" or renderitem(coord,val)}
   ${[f.render() for f in features if coord in f]}
 </div>"""
+   
 
 @templet.stringfunction
-def rendersvg(coord, val, features):
-    """ """
+def rendernucleotide(coord, val):
+    """<span style="color: ${base_color(val)};">$val</span>"""
+
+def path(coords, stroke="black", strokeWidth="0.03", fill="none"):
+    d = "M%0.3f,%0.3f" % coords[0] + ''.join("L%0.3f,%0.3f" % c for c in coords[1:])
+    return """<path stroke="%s" stroke-width="%s" fill="%s" d="%s" />""" % (stroke, strokeWidth, fill, d)
+
+def rendersvg(coord, val):
+    @templet.stringfunction
+    def _rendersvg(coord, val):
+        """<div class="svg-container">
+  <svg preserveAspectRatio="none" viewbox="0 -0.05 1 1.05" version="1.1">
+    ${[path(v, stroke=base_color(k)) for k,v in val.iteritems()]}
+  </svg></div>"""
+    
+    if val != None:
+        return _rendersvg(coord, val)
+
+
+@templet.stringfunction
+def rendercolumn(assembly, i):
+    """<div>
+      ${renderbaseitem(i, i, assembly.features, 'coordinate', renderinteger)}
+      ${[renderbaseitem(i, v[i], v.features + assembly.features, v.trackclass, v.renderitem)
+         for v in assembly.itervalues()]}
+    </div>"""
+
+
+@templet.stringfunction
+def renderassembly(assembly):
+        """
+<div class="assembly">
+  <div class="label-column">
+    <div class="label"><span>Position</span></div>
+    ${['<div class="label %s"><span>%s</span></div>' % (v.trackclass, k)
+       for k,v in assembly.iteritems()]}
+  </div>
+  <div class="scrolling-container">
+    ${[rendercolumn(assembly, i) for i in assembly.coordinates()]}
+  </div>
+</div>"""
+
+
+def tracealong(target, template, targetgap=None, templategap='-'):
+    """Given a list *target*, string it along *template*, inserting gaps.
+
+    *target* is assumed to have no gaps.
+    """
+    result = AffineList(template.offset, [])
+    i = template.offset
+    j = 0
+    while i < template.support().right and j < len(target):
+        if template[i] == templategap:
+            i += 1
+            result.append(targetgap)
+        else:
+            result.append(target[j])
+            i += 1
+            j += 1
+    if j < len(target):
+        result.extend(target[j:])
+    return result
+
+def alzipinterval(interval, *als):
+    """Zip AffineLists *als* over *interval*.
+
+    *als* should be AffineLists, and *interval* a HalfOpenInterval.
+    """
+    result = AffineList(interval.left, [])
+    for i in range(interval.left, interval.right):
+        result.append(tuple(a[i] for a in als))
+    return result
+
+def alzipnarrow(*als):
+    """Zip *als* over the intersection of their supports."""
+    interval = Assembly(enumerate(als)).support(*range(len(als)))
+    return alzipinterval(interval, *als)
+
+def alzipsupport(*als):
+    """Zip *als* over the union of their supports, with gaps filled by ``None``."""
+    interval = Assembly(enumerate(als)).support()
+    return alzipinterval(interval, *als)
     
 css = """
 * { margin: 0; padding: 0; }
-@media print { * { font-size: 10pt; } }
 
 .scrolling-container { position: relative; width: 100%; max-width: 100%; }
-@media screen { 
-  .scrolling-container { overflow-x: scroll; overflow-y: hidden; white-space: nowrap; } 
-}
 
 .label-column { float: left; max-width: 10em; overflow: hidden; white-space: nowrap; border-right: 0.2em solid black; }
-.label-column div { display: block; font-family: Optima, Myriad, sans-serif; vertical-align: middle; color: white; border-top: 0.01em solid #eee; background-color: #111; padding-right: 0.1em; padding-left: 0.2em; padding-top: 0.2em; padding-bottom: 0.2em; height: 0.59em; text-align: right; }
+.label-column div { display: block; font-family: Optima, Myriad, sans-serif; vertical-align: middle; color: #fff; border-top: 0.01em solid #eee; background-color: #111; padding-right: 0.1em; padding-left: 0.2em; padding-top: 0.2em; padding-bottom: 0.2em; height: 0.59em; text-align: right; }
 div.label-column div span { font-size: 0.6em; }
 div.label-column div:first-child { border-top: none; }
 div.label-column div.svg { height: 3.6em !important; }
 div.label-column div.svg span { height: 6em !important; vertical-align: middle; line-height: 6em; }
 
-div.track { display: block; }
-div.track div { position: relative; display: inline-block; width: 1.3em; vertical-align: top; padding-left: 0.3em; padding-right: 0.3em; text-align: center; height: 1.1em; }
-div.track div:nth-of-type(odd) { background-color: #eee; }
-div.track div:nth-of-type(even) { background-color: #fff; }
-div.track div div.feature { position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: +2; }
+div.scrolling-container div { display: inline-block; width: 1.9em; vertical-align: top; text-align: center; }
+div.scrolling-container div div { display: block; position: relative; }
+div.scrolling-container div div div.feature { position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: +2; }
 
 @media print { 
-  div.scrolling-container div:last-child { padding-bottom: 0.5em; border-bottom: 0.1em double #000; margin-bottom: 0.5em; }
+  * { font-size: 10pt; }
+  div.scrolling-container > div > div:last-child { margin-bottom: 10pt; }
+  div.scrolling-container div:nth-of-type(odd) div { background-color: #f5f5f5; }
+  div.scrolling-container div:nth-of-type(even) div { background-color: #fff; }
+  div.scrolling-container div:nth-of-type(odd) div div svg { background-color: #f5f5f5; }
+  div.scrolling-container div:nth-of-type(even) div div svg { background-color: #fff; }
 }
 
-div.track div.empty:nth-of-type(odd) { background-color: #ccc; }
-div.track div.empty:nth-of-type(even) { background-color: #ddd; }
+@media screen { 
+  .scrolling-container { overflow-x: scroll; overflow-y: hidden; white-space: nowrap; } 
+  div.scrolling-container div:nth-of-type(odd) div { background-color: #eee; }
+  div.scrolling-container div:nth-of-type(odd) div.empty { background-color: #aaa; }
+  div.scrolling-container div:nth-of-type(even) div { background-color: #fff; }
+  div.scrolling-container div:nth-of-type(even) div.empty { background-color: #bbb; }
+  div.scrolling-container div:nth-of-type(odd) div div svg { background-color: #eee; }
+  div.scrolling-container div:nth-of-type(even) div div svg { background-color: #fff; }
+}
 
-div.svg { height: 4em !important; padding: 0; }
-div.svg div div.svg-container { width: 100%; height: 100%; font-size: 0; }
 
-div.integer div { font-size: 70%; color: #666; line-height: 143%; }
+div.scrolling-container div div.svg { height: 4em !important; width: 1.9em; padding: 0; }
+div.scrolling-container div div.svg div.svg-container { width: 100%; height: 100%;  }
+div.scrolling-container div div.integer span { font-size: 70%; color: #666; line-height: 1.43; vertical-align: bottom; }
+div.scrolling-container div div.coordinate span { font-weight: bold; font-size: 70%; line-height: 1.43; vertical-align: bottom; }
 """
