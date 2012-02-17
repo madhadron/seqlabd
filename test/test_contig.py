@@ -72,6 +72,12 @@ def test_assemble():
                   ('contig', AffineList(2, 'ATG'+s)),
                   ('confidences 2', AffineList(0, [5]*24)),
                   ('bases 2', AffineList(0, s))])
+    with open('tmp.html','w') as o:
+        print >>o, "<html><head><style>"
+        print >>o, css
+        print >>o, "</style></head><body>"
+        print >>o, renderassembly(a)
+        print >>o, "</body></html>"
     assert a == expecteda
     a = assemble(s, [5]*24, s, [5]*24).narrowto()
     assert a == Assembly([('confidences 1', AffineList(0,[5]*24)),

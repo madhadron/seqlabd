@@ -11,6 +11,7 @@ provides methods to subset and iterate over hunks of tracks.
 
 import itertools as it
 import json
+from collections import defaultdict
 try:
     from collections import OrderedDict
 except:
@@ -111,6 +112,13 @@ def support(*affinelists):
 
 class Feature(object):
     def __init__(self, name, left, right, red, green, blue, alpha):
+        assert isinstance(name, str)
+        assert isinstance(left, int) or left == None
+        assert isinstance(right, int) or right == None
+        assert isinstance(red, int)
+        assert isinstance(green, int)
+        assert isinstance(blue, int)
+        assert isinstance(alpha, float)
         self.name = name
         self.pos = HalfOpenInterval(left, right)
         assert 0 <= red < 256
@@ -121,13 +129,16 @@ class Feature(object):
         self.green = green
         self.blue = blue
         self.alpha = alpha
+    def __repr__(self):
+        return "Feature(%s, %d,%d, %d,%d,%d, %d)" % (repr(self.name), self.pos.left, self.pos.right, self.red,
+                                                     self.green, self.blue, self.alpha)
     def __contains__(self, x):
         return x in self.pos
     def bounds(self):
         return self.pos
     @templet.stringfunction
     def render(self):
-        """<div class="feature" style="background-color: rgba(${self.red}, ${self.green}, ${self.blue}, ${self.alpha});"></div>"""
+        """<div class="feature" id="${self.name}" style="background-color: rgba(${self.red}, ${self.green}, ${self.blue}, ${self.alpha});"></div>"""
 
 
 
@@ -159,10 +170,9 @@ class AffineList(object):
     ``enumerate()`` on a normal list, but returns the coordinates
     instead of the indices.
     """
-    def __init__(self, offset, vals, renderitem=lambda i: "", trackclass="", features=[]):
+    def __init__(self, offset, vals, trackclass="", features=[]):
         self.offset = offset
         self.vals = list(vals)
-        self.renderitem = renderitem
         self.trackclass = trackclass
         self.features = features
     def __getitem__(self, i):
@@ -180,13 +190,15 @@ class AffineList(object):
             newoffset = start
             newleft = start - self.offset
         else:
-            return AffineList(0, []) # Canonical empty list
+            return AffineList(0, [], trackclass=self.trackclass, features=self.features) # Canonical empty list
         if end < self.offset:
-            return AffineList(0, [])
+            return AffineList(0, [], trackclass=self.trackclass, features=self.features)
         elif end < self.offset + len(self):
-            return AffineList(newoffset, self.vals[newleft : end-self.offset])
+            return AffineList(newoffset, self.vals[newleft : end-self.offset], 
+                              trackclass=self.trackclass, features=self.features)
         else:
-            return AffineList(newoffset, self.vals[newleft:])
+            return AffineList(newoffset, self.vals[newleft:], 
+                              trackclass=self.trackclass, features=self.features)
     def narrowto(self, i=None, j=None):
         if isinstance(i,HalfOpenInterval):
             j = i.right
@@ -200,13 +212,32 @@ class AffineList(object):
         right = max(j-self.offset, 0)
         newvals = self.vals[left:right]
         if newvals == []: # Must impose a canonical offset on empty lists
-            return AffineList(0, [])
+            return AffineList(0, [], trackclass=self.trackclass, 
+                              features=[Feature(f.name, f.pos.left and f.pos.left-i or None, 
+                                                f.pos.right and f.pos.right-i or None,
+                                                f.red,f.green,f.blue,f.alpha)
+                                        for f in self.features])
         else:
-            return AffineList(offset=newoffset, vals=newvals)
+            return AffineList(offset=newoffset, vals=newvals,
+                              trackclass=self.trackclass, 
+                              features=[Feature(f.name, 
+                                                f.pos.left and f.pos.left-i or None,
+                                                f.pos.right and f.pos.right-i or None,
+                                                f.red,f.green,f.blue,f.alpha)
+                                        for f in self.features])
     def __rshift__(self, i):
-        return AffineList(offset=self.offset+i, vals=self.vals)
+        return AffineList(offset=self.offset+i, vals=self.vals, 
+                          features=[Feature(f.name,
+                                            f.pos.left and f.pos.left+i or None,
+                                            f.pos.right and f.pos.right+i or None,
+                                            f.red,f.green,f.blue,f.alpha)
+                                    for f in self.features])
     def __lshift__(self, i):
-        return AffineList(offset=self.offset-i, vals=self.vals)
+        return AffineList(offset=self.offset-i, vals=self.vals,
+                          features=[Feature(f.name,
+                                            f.pos.left and f.pos.left-i or None,
+                                            f.pos.right and f.pos.right-i or None, f.red,f.green,f.blue,f.alpha)
+                                    for f in self.features])
     def support(self):
         """Return the HalfOpenInterval containing the support of this list.
 
@@ -233,7 +264,7 @@ class AffineList(object):
         for i in range(start, end):
             yield (i,self[i])
     def __repr__(self):
-        return 'AffineList(offset=%d, vals=%s)' % (self.offset, repr(self.vals))
+        return 'AffineList(offset=%d, vals=%s, trackclass="%s", features=%s)' % (self.offset, repr(self.vals), self.trackclass, repr(self.features))
     def __len__(self):
         return len(self.vals)
     def append(self, x):
@@ -402,19 +433,29 @@ class Assembly(OrderedDict):
 
 def as_assembly(dct):
     if '__Assembly' in dct:
-        return Assembly(dct['tracks'], metadata=dct['metadata'])
+        return Assembly(dct['tracks'], metadata=dct['metadata'], features=dct['features'])
     elif '__AffineList' in dct:
-        return AffineList(offset=dct['offset'], vals=dct['vals'])
+        return AffineList(offset=dct['offset'], vals=dct['vals'], features=dct['features'],
+                          trackclass=dct['trackclass'])
+    elif '__Feature' in dct:
+        return Feature(dct['name'], dct['left'], dct['right'], dct['red'], dct['green'],
+                       dct['blue'], dct['alpha'])
     else:
         return dct
 
 class AssemblyEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, AffineList):
-            return {'__AffineList': True, 'offset': obj.offset, 'vals': obj.vals}
+            return {'__AffineList': True, 'offset': obj.offset, 'vals': obj.vals,
+                    'trackclass': obj.trackclass, 'features': obj.features}
         elif isinstance(obj, Assembly):
             return {'__Assembly': True, 'metadata': obj.metadata, 
-                    'tracks': [(k,v) for k,v in obj.iteritems()]}
+                    'tracks': [(k,v) for k,v in obj.iteritems()],
+                    'features': obj.features}
+        elif isinstance(obj, Feature):
+            return {'__Feature': True, 'name': obj.name, 'left': obj.pos.left,
+                    'right': obj.pos.right, 'red': obj.red, 'green': obj.green,
+                    'blue': obj.blue, 'alpha': obj.alpha}
         else:
             return json.JSONEncoder.default(self, obj)
             
@@ -446,13 +487,6 @@ def base_color(base):
         return base_coloring[base]
     except KeyError:
         return 'yellow'
-
-@templet.stringfunction
-def renderbaseitem(coord, val, features, trackclass, renderitem):
-    """<div class="${trackclass or ""} ${val or "empty"}">
-  ${val == None and "&nbsp;" or renderitem(coord,val)}
-  ${[f.render() for f in features if coord in f]}
-</div>"""
    
 
 @templet.stringfunction
@@ -474,12 +508,30 @@ def rendersvg(coord, val):
     if val != None:
         return _rendersvg(coord, val)
 
+renderfun = defaultdict(lambda: rendertext,
+                        [('nucleotide', rendernucleotide),
+                         ('coordinate', renderinteger),
+                         ('integer', renderinteger),
+                         ('svg', rendersvg)])
+
+
+@templet.stringfunction
+def renderbaseitem(coord, val, features, trackclass):
+    """<div class="${trackclass or ""} ${val==None and "empty" or ""}">
+  ${val == None and "&nbsp;" or renderfun[trackclass](coord,val)}
+  ${[f.render() for f in features if coord in f]}
+</div>"""
+
+
+@templet.stringfunction
+def rendertext(coord,val):
+    """$val"""
 
 @templet.stringfunction
 def rendercolumn(assembly, i):
     """<div>
-      ${renderbaseitem(i, i, assembly.features, 'coordinate', renderinteger)}
-      ${[renderbaseitem(i, v[i], v.features + assembly.features, v.trackclass, v.renderitem)
+      ${renderbaseitem(i, i, assembly.features, 'coordinate')}
+      ${[renderbaseitem(i, v[i], v.features + assembly.features, v.trackclass)
          for v in assembly.itervalues()]}
     </div>"""
 

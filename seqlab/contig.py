@@ -127,14 +127,27 @@ def assemble(seq1, conf1, seq2, conf2):
         extend(alsegment2, hqint2, AffineList(0,seq2))
     alhqint1 = hoi(offset1, offset1+len(alsegment1))
     alhqint2 = hoi(offset2, offset2+len(alsegment2))
-    alseq1.features = [Feature('leftunused', None,alhqint1.right, 0,0,0, 0.2),
-                       Feature('rightunused', alhqint1.left,None, 0,0,0, 0.2)]
-    alseq2.features = [Feature('leftunused', None,alhqint2.left, 0,0,0, 0.2),
-                       Feature('leftunused', alhqint2.right,None, 0,0,0, 0.2)]
+    alseq1.features = [Feature('leftunused', None,alhqint1.left, 0,0,0, 0.5),
+                       Feature('rightunused', alhqint1.right,None, 0,0,0, 0.5)]
+    alseq2.features = [Feature('leftunused', None,alhqint2.left, 0,0,0, 0.5),
+                       Feature('leftunused', alhqint2.right,None, 0,0,0, 0.5)]
     alconf1, alconf2 = tracealong(conf1, alseq1), tracealong(conf2, alseq2)
+    alconf1.features = [Feature('leftunused', None,alhqint1.left, 0,0,0, 0.5),
+                        Feature('rightunused', alhqint1.right,None, 0,0,0, 0.5)]
+    alconf2.features = [Feature('leftunused', None,alhqint2.left, 0,0,0, 0.5),
+                        Feature('leftunused', alhqint2.right,None, 0,0,0, 0.5)]
+
     assert len(alsegment1) == len(alconf1[alhqint1])
     assert len(alsegment2) == len(alconf2[alhqint2])
     contig = combine((alsegment1, alconf1[alhqint1]), (alsegment2, alconf2[alhqint2]))
+
+    alconf1.trackclass='integer'
+    alconf2.trackclass='integer'
+    alseq1.trackclass='nucleotide'
+    alseq2.trackclass='nucleotide'
+    contig.trackclass='nucleotide'
+
+
     if len(alsegment1) != 0 and len(alsegment2) != 0: # both strands
         return Assembly([('confidences 1', alconf1),
                          ('bases 1', alseq1),
@@ -145,15 +158,19 @@ def assemble(seq1, conf1, seq2, conf2):
         a = Assembly([('confidences 1', alconf1),
                       ('bases 1', alseq1),
                       ('contig', contig)]).narrowto()
-        a['confidences 2'] = AffineList(0, conf2, features=[Feature('unused',None,None,0,0,0,0.5)])
-        a['bases 2'] = AffineList(0, seq2, features=[Feature('unused',None,None,0,0,0,0.5)])
+        a['confidences 2'] = AffineList(0, conf2, features=[Feature('unused',None,None,0,0,0,0.5)],
+                                        trackclass='integer')
+        a['bases 2'] = AffineList(0, seq2, features=[Feature('unused',None,None,0,0,0,0.5)],
+                                  trackclass='nucleotide')
         return a
     elif len(alsegment2) != 0: # strand 2 only
         a = Assembly([('confidences 2', alconf2),
                       ('bases 2', alseq2),
                       ('contig', contig)]).narrowto()
-        a['confidences 1'] = AffineList(0, conf1, features=[Feature('unused',None,None,0,0,0,0.5)])
-        a['bases 1'] = AffineList(0, seq1, features=[Feature('unused',None,None,0,0,0,0.5)])
+        a['confidences 1'] = AffineList(0, conf1, features=[Feature('unused',None,None,0,0,0,0.5)],
+                                        trackclass='integer')
+        a['bases 1'] = AffineList(0, seq1, features=[Feature('unused',None,None,0,0,0,0.5)],
+                                  trackclass='nucleotide')
         return a
     else:
         a = Assembly()

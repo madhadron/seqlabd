@@ -205,12 +205,17 @@ def test_json_dumpload():
     import json
     altxt = """{"__AffineList": true,
                 "offset": 3,
-                "vals": [1,2,3,4,5]}"""
+                "vals": [1,2,3,4,5],
+                "features": [],
+                "trackclass": "integer"}"""
     alval = AffineList(3, [1,2,3,4,5])
     astxt = """{"__Assembly": true,
+                "features": [],
                 "metadata": {"boris": "hilda", "meep": 3},
-                "tracks": [["b", {"__AffineList": true, "offset": 1, "vals": [1,2,3]}],
-                           ["a", {"__AffineList": true, "offset": 3, "vals": [4,4,4]}]]}"""
+                "tracks": [["b", {"__AffineList": true, "offset": 1, "vals": [1,2,3], 
+                                  "features": [], "trackclass": "integer"}],
+                           ["a", {"__AffineList": true, "offset": 3, "vals": [4,4,4], 
+                                  "features": [], "trackclass": "integer"}]]}"""
     asval = Assembly([('b', AffineList(1, [1,2,3])),
                       ('a', AffineList(3, [4,4,4]))],
                      metadata={'boris': 'hilda', 'meep': 3})
@@ -246,9 +251,9 @@ def test_assembly_coordinates():
       
 def test_assembly_render():
     a = Assembly([('bases', AffineList(8, ['A','C','T','T','N','R','T','A','G'],
-                                       trackclass='nucleotide', renderitem=rendernucleotide)),
+                                       trackclass='nucleotide')),
                   ('a', AffineList(1, range(50), 
-                                   trackclass='integer', renderitem=renderinteger,
+                                   trackclass='integer',
                                    features=[Feature('b', 6,12, 0,255,0, 0.4)])),
                   ('q', AffineList(3, [{'A': [(0,0), (1,1)],
                                         'C': [(0,1), (1,0)],
@@ -258,9 +263,8 @@ def test_assembly_render():
                                         'C': [(0,1), (1,0)],
                                         'T': [(0, 0.5), (1, 0.5)],
                                         'G': [(0, 0.25), (1,0.25)]}],
-                                   trackclass="svg", renderitem=rendersvg)),
-                  ('b', AffineList(4, [1,2,3,4,5], trackclass='integer', 
-                                   renderitem=renderinteger))],
+                                   trackclass="svg")),
+                  ('b', AffineList(4, [1,2,3,4,5], trackclass='integer'))],
                  features=[Feature('q', 11,15, 255,0,0, 0.3)])
     s = renderassembly(a)
     with open('assembly_render_test.html','w') as o:
