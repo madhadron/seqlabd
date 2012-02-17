@@ -10,6 +10,19 @@ def test_halfopeninterval_closure():
     assert HalfOpenInterval(1,3).closure(HalfOpenInterval(5,7)) == HalfOpenInterval(1,7)
     assert HalfOpenInterval(1,3).closure(HalfOpenInterval(0,0)) == HalfOpenInterval(1,3)
     assert HalfOpenInterval(1,3).closure(HalfOpenInterval(1,3)) == HalfOpenInterval(1,3)
+    assert HalfOpenInterval(0,0).closure(HalfOpenInterval(1,3)) == HalfOpenInterval(1,3)
+
+def test_halfopeninterval_contains():
+    assert 3 in hoi(1,6)
+    assert not(3 in hoi(5,6))
+    assert not(3 in hoi(0,0))
+    assert 3 in hoi(None,5)
+    assert 3 in hoi(1, None)
+    assert not(3 in hoi(None, 1))
+    assert not(3 in hoi(5,None))
+
+def test_intersection():
+    assert intersection(hoi(0,0), hoi(3,6), hoi(3,5)) == hoi(3,5)
 
 def test_affinelist_getitem():
     a = AffineList(offset=3, vals=[1])
@@ -269,6 +282,9 @@ def test_alzip():
     assert alzipsupport(a,b) == AffineList(0, [(None,1), (None,1), (1,1), (1,1), (1,1), (None, 1)])
     assert alzipnarrow(a,b) == AffineList(2, [(1,1), (1,1), (1,1)])
 
-    
+def test_almap():
+    a = AffineList(3, [1,2,3])
+    assert almap(lambda i,x: x+1, a) == AffineList(3, [2,3,4])
+    assert almap((lambda i,x: x), a, start = 0, end = 7) == AffineList(0, [None,None,None,1,2,3,None])
 
 

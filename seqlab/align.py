@@ -33,6 +33,10 @@ def as_fasta(seq, tmpdir=None, label='sequence'):
         os.unlink(db_name)
 
 def ssearch36(seq1, seq2, ssearch36_path="ssearch36", tmpdir='/tmp'):
+    if len(seq1) == 0:
+        return (0, ''), (0, seq2)
+    if len(seq2) == 0:
+        return (0, seq1), (0, '')
     with as_fasta(seq1, tmpdir) as fasta1, as_fasta(seq2, tmpdir) as fasta2:
         command = ' '.join([ssearch36_path, '-a', '-d','1','-m','10', fasta1, fasta2])
         pipe = subprocess.Popen(str(command), shell=True, 

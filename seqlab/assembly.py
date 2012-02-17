@@ -37,12 +37,12 @@ class HalfOpenInterval(object):
     """
     def __init__(self, a, b):
         """Create a HalfOpenInterval [a,b)."""
-        assert a <= b
+        assert a == None or b == None or a <= b
         self.left = a
         self.right = b
     def __contains__(self, x):
         """Calculate x in [a,b)."""
-        return self.left <= x and x < self.right
+        return (self.left == None or self.left <= x) and (self.right == None or x < self.right)
     def __eq__(self, other):
         return self.left == other.left and self.right == other.right
     def __repr__(self):
@@ -55,6 +55,10 @@ class HalfOpenInterval(object):
 
         Empty intersections are canonically set to HalfOpenInterval(0,0).
         """
+        if self.isempty():
+            return other
+        if other.isempty():
+            return self
         if self.left >= other.right or other.left >= self.right:
             return HalfOpenInterval(0,0)
         else:
@@ -70,12 +74,40 @@ class HalfOpenInterval(object):
         """Smallest HalfOpenInterval containing the union of this and *other*."""
         if other.isempty():
             return self
+        if self.isempty():
+            return other
         left = min(self.left, other.left)
         right = max(self.right, other.right)
         if left == right:
             return HalfOpenInterval(0,0)
         else:
             return HalfOpenInterval(left,right)
+
+def hoi(left,right):
+    return HalfOpenInterval(left,right)
+
+def intersection(*intervals):
+    if len(intervals) == 0:
+        return hoi(0,0)
+    res = intervals[0]
+    for i in intervals[1:]:
+        res = res.intersect(i)
+    return res
+
+def closure(*intervals):
+    if len(intervals) == 0:
+        return hoi(0,0)
+    res = intervals[0]
+    for i in intervals[1:]:
+        res = res.closure(i)
+    return res
+
+def support(*affinelists):
+    if len(affinelists) == 0:
+        return hoi(0,0)
+    else:
+        return closure(*[x.support() for x in affinelists])
+
 
 class Feature(object):
     def __init__(self, name, left, right, red, green, blue, alpha):
@@ -185,6 +217,8 @@ class AffineList(object):
     def iter(self, start=None, end=None):
         """Return an iterator over the elements in the support of this list."""
         return it.imap(lambda (a,b): b, self.itercoords(start=start, end=end))
+    def __iter__(self):
+        return self.iter()
     def itercoords(self, start=None, end=None):
         """Return an iterator over (coordinate,item) pairs in the support of this list.
 
@@ -273,7 +307,7 @@ class Assembly(OrderedDict):
     ``metadata`` is properly propogated through all operations on
     ``Assembly``.
     """
-    def __init__(self, items, metadata={}, features=[]):
+    def __init__(self, items=[], metadata={}, features=[]):
         OrderedDict.__init__(self, items)
         self.metadata = metadata
         self.features = features
@@ -311,8 +345,9 @@ class Assembly(OrderedDict):
         the HalfOpenInterval of the intersection of the support of
         each key's value is returned.
         """
-        v = HalfOpenInterval(min([v.offset for v in self.itervalues()] or [0]),
-                             max([v.offset+len(v) for v in self.itervalues()] or [0]))
+        if len(self) == 0:
+            return hoi(0,0)
+        v = closure(*[v.support() for v in self.itervalues()])
         for k in keys:
             v = v.intersect(self[k].support())
         return v
@@ -350,7 +385,6 @@ class Assembly(OrderedDict):
 
         *keys* is specified in the same way as for the ``support`` method.
         """
-        print self.support(*keys)
         return self.subset(self.support(*keys))
     def width(self, *keys):
         """Return the width of the support of *keys* in the Assembly.
@@ -497,13 +531,23 @@ def alzipinterval(interval, *als):
 
 def alzipnarrow(*als):
     """Zip *als* over the intersection of their supports."""
-    interval = Assembly(enumerate(als)).support(*range(len(als)))
+    interval = intersection(*[x.support() for x in als])
     return alzipinterval(interval, *als)
 
 def alzipsupport(*als):
     """Zip *als* over the union of their supports, with gaps filled by ``None``."""
-    interval = Assembly(enumerate(als)).support()
+    interval = support(*als)
     return alzipinterval(interval, *als)
+
+
+def almap(f, xs, start=None, end=None):
+    print start,end
+    if start == None:
+        start = xs.support().left
+    if end == None:
+        end = xs.support().right
+    return AffineList(start, [f(i,x) for i,x in xs.itercoords(start=start,end=end)])
+
     
 css = """
 * { margin: 0; padding: 0; }

@@ -1,8 +1,9 @@
 import numpy
 import re
 import collections
-import fasta
+import align
 import tracks
+from assembly import *
 
 iupac = {('A','C'): 'M',
          ('A','G'): 'R',
@@ -35,146 +36,132 @@ for i in iupac.itervalues():
 iupac_table[('-',)] = '-'
 iupac_table[tuple()] = 'N'
 
-def dashify(target,template):
-    for i in [j for j,v in enumerate(template) if v=='-']:
-        target.insert(i, 0)
-    return target
 
-def find_steps(bs):
-    ups = []
-    downs = []
-    for i in range(len(bs)-1):
-        if bs[i] and not(bs[i+1]):
-            downs.append(i)
-        elif not(bs[i]) and bs[i+1]:
-            ups.append(i+1)
+def highqualityinterval(confs, threshold=40, boundarywidth=10):
+    """Find the largest interval in *confs* with high quality.
+
+    High quality is defined as having at least *boundarywidth* values
+    over *threshold* at each end. Returns a HalfOpenInterval of such a
+    region, or None if there is no such region.
+    """
+    if len(confs) < boundarywidth:
+        raise ValueError("Confidences must be at least boundarywidth wide.")
+    left = 0
+    while any([c < threshold for c in confs[left:left+boundarywidth]]):
+        if left+boundarywidth < len(confs):
+            left += 1
         else:
-            pass
-    return (ups,downs)
-
-def canny_mask(vals, high_threshold=40, low_threshold=10):
-    mask = [c >= high_threshold for c in vals]
-    N = len(vals)
-    ups, downs = find_steps(mask)
-    for i in ups:
-        assert i > 0 and i < N
-        j = i-1
-        while j >= 0:
-            if vals[j] >= low_threshold:
-                mask[j] = True
-                j -= 1
-            else:
-                break
-    for i in downs:
-        assert i >= 0 and i < N-1
-        j = i+1
-        while j < N:
-            if vals[j] >= low_threshold:
-                mask[j] = True
-                j += 1
-            else:
-                break
-    return mask
-
-def test_canny_mask():
-    assert canny_mask([]) == []
-    assert canny_mask([50]) == [True]
-    assert canny_mask([20]) == [False]
-    assert canny_mask([50,20]) == [True,True]
-    assert canny_mask([20,50]) == [True,True]
-    assert canny_mask([50,5]) == [True,False]
-    assert canny_mask([5,50]) == [False,True]
-    assert canny_mask([5,15,50]) == [False,True,True]
-    assert canny_mask([50,15,5]) == [True,True,False]
-    assert canny_mask([50,15,15,50,15,15,5]) == [True]*6 + [False]
+            return hoi(0,0)
+    right = len(confs)
+    while any([c < threshold for c in confs[right-boundarywidth:right]]):
+        if right-boundarywidth > 0:
+            right -= 1
+        else:
+            return hoi(0,0)
+    return HalfOpenInterval(left,right)
     
 
-def contig(seq1, conf1, seq2, conf2, high_threshold=40, low_threshold=10, call_threshold=20):
-    mask1 = canny_mask(conf1, high_threshold, low_threshold)
-    mask2 = canny_mask(conf2, high_threshold, low_threshold)
-    masked_seq1 = ''.join([m and c or 'N' for m,c in zip(mask1,seq1)])
-    masked_seq2 = ''.join([m and c or 'N' for m,c in zip(mask2,seq2)])
-    r = r'(?=[^N]{10,})(?:[^N]|N(?=.*[^N]{10,}))+'
-    m1 = re.search(r, ''.join([m>high_threshold and c or 'N' for m,c in zip(conf1,seq1)]))
-    m2 = re.search(r, ''.join([m>high_threshold and c or 'N' for m,c in zip(conf2,seq2)]))
-    if not(m1) and not(m2): # Neither sequence is usable.
-        return {'reference': None, 'read1': (0, seq1), 'read2': (0, seq2), 'strands': 'none'}
-    elif m1 and not(m2):
-        # Only sequence 1 is usable. Take its masked, acceptable part
-        # as the reference.
-        return {'reference': (m1.start(), tracks.sequence(masked_seq1[m1.start():m1.end()])),
-                'read1': (0, seq1), 'read2': (0, seq2),
-                'strands': 'strand 1'}
-    elif m2 and not(m1):
-        # Same as above, but only sequence 2 is usable.
-        return {'reference': (m2.start(), tracks.sequence(masked_seq2[m2.start():m2.end()])),
-                'read1': (0, seq1), 'read2': (0, seq2),
-                'strands': 'strand 2'}
+def extend(segment, interval, template):
+    """Extend *segment* as a subset *interval* of *template*.
+
+    *segment* and *template* should be AffineLists. *interval*
+    specifies a space in *template* where *segment* should replace
+    whatever is there. The offset of the resulting AffineList is
+    adjusted to be in the same coordinates as *segment*.
+    """
+    if interval.left < template.offset:
+        lefttail = []
+    elif interval.left < template.offset + len(template):
+        lefttail = template[template.offset:interval.left].vals
     else:
-        # Both are usable. Align them.
-        l1, r1 = m1.start(), m1.end()
-        seg1 = masked_seq1[l1:r1]
-        segconf1 = conf1[l1:r1]
-        l2, r2 = m2.start(), m2.end()
-        seg2 = masked_seq2[l2:r2]
-        segconf2 = conf2[l2:r2]
-        (offset1, aligned1), (offset2, aligned2) = fasta.fasta(seg1, seg2)
+        lefttail = template.vals + [None]*(interval.left - (template.offset+len(template)))
+    newoffset = segment.offset - len(lefttail)
+    if interval.right < template.offset:
+        righttail = [None]*(template.offset-interval.right) + template.vals
+    elif interval.right < template.offset + len(template):
+        righttail = template[interval.right:].vals
+    else:
+        righttail = []
+    return AffineList(newoffset, lefttail + segment.vals + righttail)
 
-        if offset1 != 0:
-            left, right, leftconf, rightconf = \
-                (aligned2,aligned1,
-                 dashify(segconf2,aligned2), 
-                 dashify(segconf1,aligned1)) 
+
+def combine(*tracks):
+    if len(tracks) == 0:
+        return AffineList(0, '')
+    n = alzipsupport(*[alzipsupport(t[0],t[1]) for t in tracks])
+    s = closure(*[t[0].support() for t in tracks])
+    return AffineList(s.left, [combinebase(*q) for q in n])
+
+
+def combinebase(*pairs):
+    if len(pairs) == 0:
+        return 'N'
+    threshold = 20
+    d = collections.defaultdict(lambda: 0)
+    for p in pairs:
+        if p == None:
+            continue
         else:
-            left, right, leftconf, rightconf = \
-                (aligned1,aligned2,
-                 dashify(segconf1,aligned1),
-                 dashify(segconf2,aligned2))
+            b,c = p
+            if b:
+                d[b] += c
+    key = tuple(sorted(k for k,v in d.iteritems() if v >= threshold))
+    return iupac_table[key]
 
-        offset = max(offset1, offset2)
 
-        left_end = min(len(left), len(right)+offset)
-        right_end = min(len(right), len(left)-offset)
+def assemble(seq1, conf1, seq2, conf2):
+    """Combine two reads into a contig.
 
-        reference = left[:offset]
+    Returns an Assembly with the reads (with used sections marked),
+    and a string specifying fate: 'both', 'strand 1', 'strand 2',
+    'none'. If the fate is not 'none', then there will be a key
+    'contig' in the Assembly.
+    """
+    assert len(seq1) == len(conf1)
+    assert len(seq2) == len(conf2)
+    hqint1, hqint2 = highqualityinterval(conf1), highqualityinterval(conf2)
+    segment1, segment2 = seq1[hqint1.left:hqint1.right], seq2[hqint2.left:hqint2.right]
+    (offset1, rawalsegment1), (offset2, rawalsegment2) = align.ssearch36(segment1, segment2)
+    alsegment1, alsegment2 = AffineList(offset1, rawalsegment1), AffineList(offset2, rawalsegment2)
+    alseq1, alseq2 = extend(alsegment1, hqint1, AffineList(0,seq1)), \
+        extend(alsegment2, hqint2, AffineList(0,seq2))
+    alhqint1 = hoi(offset1, offset1+len(alsegment1))
+    alhqint2 = hoi(offset2, offset2+len(alsegment2))
+    alseq1.features = [Feature('leftunused', None,alhqint1.right, 0,0,0, 0.2),
+                       Feature('rightunused', alhqint1.left,None, 0,0,0, 0.2)]
+    alseq2.features = [Feature('leftunused', None,alhqint2.left, 0,0,0, 0.2),
+                       Feature('leftunused', alhqint2.right,None, 0,0,0, 0.2)]
+    alconf1, alconf2 = tracealong(conf1, alseq1), tracealong(conf2, alseq2)
+    assert len(alsegment1) == len(alconf1[alhqint1])
+    assert len(alsegment2) == len(alconf2[alhqint2])
+    contig = combine((alsegment1, alconf1[alhqint1]), (alsegment2, alconf2[alhqint2]))
+    if len(alsegment1) != 0 and len(alsegment2) != 0: # both strands
+        return Assembly([('confidences 1', alconf1),
+                         ('bases 1', alseq1),
+                         ('confidences 2', alconf2),
+                         ('bases 2', alseq2),
+                         ('contig', contig)]).narrowto()
+    elif len(alsegment1) != 0: # strand 1 only
+        a = Assembly([('confidences 1', alconf1),
+                      ('bases 1', alseq1),
+                      ('contig', contig)]).narrowto()
+        a['confidences 2'] = AffineList(0, conf2, features=[Feature('unused',None,None,0,0,0,0.5)])
+        a['bases 2'] = AffineList(0, seq2, features=[Feature('unused',None,None,0,0,0,0.5)])
+        return a
+    elif len(alsegment2) != 0: # strand 2 only
+        a = Assembly([('confidences 2', alconf2),
+                      ('bases 2', alseq2),
+                      ('contig', contig)]).narrowto()
+        a['confidences 1'] = AffineList(0, conf1, features=[Feature('unused',None,None,0,0,0,0.5)])
+        a['bases 1'] = AffineList(0, seq1, features=[Feature('unused',None,None,0,0,0,0.5)])
+        return a
+    else:
+        a = Assembly()
+        a['confidences 1'] = AffineList(0, conf1, features=[Feature('unused',None,None,0,0,0,0.5)])
+        a['bases 1'] = AffineList(0, seq1, features=[Feature('unused',None,None,0,0,0,0.5)])
+        a['confidences 2'] = AffineList(0, conf2, features=[Feature('unused',None,None,0,0,0,0.5)])
+        a['bases 2'] = AffineList(0, seq2, features=[Feature('unused',None,None,0,0,0,0.5)])
+        return a
 
-        def combine(b1, c1, b2, c2):
-            d = collections.defaultdict(lambda: 0)
-            d[b1] += c1
-            d[b2] += c2
-            key = tuple(sorted(k for k,v in d.iteritems() if v > call_threshold))
-            return iupac_table[key]
-
-        # Use left, right, and the resulting confs instead
-        reference += ''.join([combine(b1,c1,b2,c2) for b1,c1,b2,c2
-                              in zip(left[offset:left_end],
-                                     leftconf[offset:left_end],
-                                     right[:right_end],
-                                     rightconf[:right_end])])
-
-        reference += right[right_end:] + left[left_end:] # One of these is ''
-
-        read1 = tracks.sequence(seq1[:l1] + aligned1 + seq1[r1:])
-        read2 = tracks.sequence(seq2[:l2] + aligned2 + seq2[r2:])
- 
-        maxo = min(max(l1,l2)-(l1-offset1), max(l1,l2)-(l2-offset2))
-
-        v = {'reference': (max(l1,l2)-maxo, tracks.sequence(reference)),
-             'read1': (max(l1,l2)-(l1-offset1)-maxo, read1),
-             'read2': (max(l1,l2)-(l2-offset2)-maxo, read2),
-             'strands': 'both'}
-        return v
-        
-
-def test_contig():
-    ref = 'ACTGATGAGATTGAGACCATTAGGGTAGTTGGAGGCC'
-    pref1 = 'TTATTTTTTTTTTAATTTAAA'
-    pref2 = 'CCCATTGAGTCCCCCACACCCCACACCCTC'
-    s1 = pref1 + ref[:-2] + pref1
-    c1 = [1]*len(pref1) + [60]*(len(ref)-2) + [1]*len(pref1)
-    s2 = pref2 + ref + pref2
-    c2 = [1]*len(pref2) + [60]*len(ref) + [1]*len(pref2)
-    assert contig(s1,c1,s2,c2) == {'reference': (30,ref),
-                                   'read1': (9, s1),
-                                   'read2': (0, s2)}
+    
 
