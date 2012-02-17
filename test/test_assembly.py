@@ -6,18 +6,30 @@ def test_halfopeninterval_intersect():
     assert HalfOpenInterval(1,3).intersect(HalfOpenInterval(5,7)) == HalfOpenInterval(0,0)
     assert HalfOpenInterval(1,3).intersect(HalfOpenInterval(1,2)) == HalfOpenInterval(1,2)
 
+def test_halfopeninterval_closure():
+    assert HalfOpenInterval(1,3).closure(HalfOpenInterval(5,7)) == HalfOpenInterval(1,7)
+    assert HalfOpenInterval(1,3).closure(HalfOpenInterval(0,0)) == HalfOpenInterval(1,3)
+    assert HalfOpenInterval(1,3).closure(HalfOpenInterval(1,3)) == HalfOpenInterval(1,3)
+
 def test_affinelist_getitem():
     a = AffineList(offset=3, vals=[1])
     assert a[2] == None
     assert a[3] == 1
     assert a[4] == None
+    assert a[HalfOpenInterval(0,4)] == AffineList(3, [1])
+
+def test_affinelist_narrowto():
+    a = AffineList(3, [1,2,3,4,5])
+    assert a.narrowto() == AffineList(0, [1,2,3,4,5])
+    assert a.narrowto(1, 6) == AffineList(2, [1,2,3])
+    assert a.narrowto(4,6) == AffineList(0, [2,3])
 
 def test_affinelist_getslice():
     a = AffineList(offset=3, vals=[1,2,3,4,5])
     assert a[0:4] == AffineList(3, [1])
     assert a[0:6] == AffineList(3, [1,2,3])
-    assert a[4:6] == AffineList(0, [2,3])
-    assert a[4:25] == AffineList(0, [2,3,4,5])
+    assert a[4:6] == AffineList(4, [2,3])
+    assert a[4:25] == AffineList(4, [2,3,4,5])
     assert a[25:28] == AffineList(0, [])
     assert a[0:2] == AffineList(0, [])
 

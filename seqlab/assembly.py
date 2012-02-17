@@ -64,6 +64,18 @@ class HalfOpenInterval(object):
                 return HalfOpenInterval(0,0)
             else:
                 return HalfOpenInterval(left, right)
+    def isempty(self):
+        return self.left == 0 and self.right == 0
+    def closure(self, other):
+        """Smallest HalfOpenInterval containing the union of this and *other*."""
+        if other.isempty():
+            return self
+        left = min(self.left, other.left)
+        right = max(self.right, other.right)
+        if left == right:
+            return HalfOpenInterval(0,0)
+        else:
+            return HalfOpenInterval(left,right)
 
 class Feature(object):
     def __init__(self, name, left, right, red, green, blue, alpha):
@@ -122,13 +134,33 @@ class AffineList(object):
         self.trackclass = trackclass
         self.features = features
     def __getitem__(self, i):
+        if isinstance(i, HalfOpenInterval):
+            return self.__getslice__(i.left, i.right)
         if i < self.offset or i >= self.offset+len(self.vals):
             return None
         else:
             return self.vals[i - self.offset]
-    def __getslice__(self, i, j):
+    def __getslice__(self, start, end):
+        if start < self.offset:
+            newoffset = self.offset
+            newleft = 0
+        elif start < self.offset + len(self):
+            newoffset = start
+            newleft = start - self.offset
+        else:
+            return AffineList(0, []) # Canonical empty list
+        if end < self.offset:
+            return AffineList(0, [])
+        elif end < self.offset + len(self):
+            return AffineList(newoffset, self.vals[newleft : end-self.offset])
+        else:
+            return AffineList(newoffset, self.vals[newleft:])
+    def narrowto(self, i=None, j=None):
+        if isinstance(i,HalfOpenInterval):
+            j = i.right
+            i = i.left
         if i==None:
-            i = 0
+            i = self.offset
         if j==None:
             j = self.offset + len(self.vals)
         newoffset = max(self.offset-i, 0)
@@ -312,7 +344,7 @@ class Assembly(OrderedDict):
             start = start.left
         if end == None:
             end = self.support().right
-        return Assembly([(k, v[start:end]) for k,v in self.iteritems()], metadata=self.metadata)
+        return Assembly([(k, v.narrowto(start,end)) for k,v in self.iteritems()], metadata=self.metadata)
     def narrowto(self, *keys):
         """Return an Assembly subset to the support of *keys*.
 
