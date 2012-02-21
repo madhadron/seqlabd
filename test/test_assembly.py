@@ -3,14 +3,15 @@ from seqlab.assembly import *
 import os
 
 def test_halfopeninterval_intersect():
-    assert HalfOpenInterval(1,3).intersect(HalfOpenInterval(5,7)) == HalfOpenInterval(0,0)
-    assert HalfOpenInterval(1,3).intersect(HalfOpenInterval(1,2)) == HalfOpenInterval(1,2)
+    assert hoi(1,3).intersect(hoi(5,7)) == EmptyInterval()
+    assert hoi(1,3).intersect(hoi(1,2)) == hoi(1,2)
+    assert hoi(None,5).intersect(hoi(3,None)) == hoi(3,5)
 
 def test_halfopeninterval_closure():
-    assert HalfOpenInterval(1,3).closure(HalfOpenInterval(5,7)) == HalfOpenInterval(1,7)
-    assert HalfOpenInterval(1,3).closure(HalfOpenInterval(0,0)) == HalfOpenInterval(1,3)
-    assert HalfOpenInterval(1,3).closure(HalfOpenInterval(1,3)) == HalfOpenInterval(1,3)
-    assert HalfOpenInterval(0,0).closure(HalfOpenInterval(1,3)) == HalfOpenInterval(1,3)
+    assert hoi(1,3).closure(hoi(5,7)) == hoi(1,7)
+    assert hoi(1,3).closure(EmptyInterval()) == hoi(1,3)
+    assert hoi(1,3).closure(hoi(1,3)) == hoi(1,3)
+    assert EmptyInterval().closure(hoi(1,3)) == hoi(1,3)
 
 def test_halfopeninterval_contains():
     assert 3 in hoi(1,6)
@@ -22,20 +23,44 @@ def test_halfopeninterval_contains():
     assert not(3 in hoi(5,None))
 
 def test_intersection():
-    assert intersection(hoi(0,0), hoi(3,6), hoi(3,5)) == hoi(3,5)
+    assert intersection(hoi(3,6), hoi(3,5)) == hoi(3,5)
+    assert intersection(hoi(3,5), hoi(5,7)) == EmptyInterval()
+    assert intersection(hoi(None,5), hoi(3,None)) == hoi(3,5)
 
 def test_affinelist_getitem():
     a = AffineList(offset=3, vals=[1])
     assert a[2] == None
     assert a[3] == 1
     assert a[4] == None
-    assert a[HalfOpenInterval(0,4)] == AffineList(3, [1])
+    assert a[hoi(0,4)] == AffineList(3, [1])
+
+def test_feature_eq():
+    assert Feature('left', 0,7, 9,10,11,0.1) == Feature('left', 0,7,9,10,11,0.1)
+    assert Feature('left', None,7, 9,10,11,0.1) == Feature('left', None,7, 9,10,11,0.1)
+    assert Feature('right', 7,None,9,10,11,0.1) == Feature('right', 7,None,9,10,11,0.1)
 
 def test_affinelist_narrowto():
-    a = AffineList(3, [1,2,3,4,5])
-    assert a.narrowto() == AffineList(0, [1,2,3,4,5])
-    assert a.narrowto(1, 6) == AffineList(2, [1,2,3])
-    assert a.narrowto(4,6) == AffineList(0, [2,3])
+    a = AffineList(3, [1,2,3,4,5], features=[Feature('left', None,4, 5,6,7, 0.1),
+                                             Feature('middle', 3,10, 9,10,11, 0.2),
+                                             Feature('right', 4,None, 1,2,3, 0.3)])
+    b0 = AffineList(3, [1,2], features=[Feature('a', 3,5,1,2,3,0.1)], trackclass='boris')
+    b = b0.narrowto()
+    assert b == \
+        AffineList(0,[1,2], features=[Feature('a', 0,2,1,2,3,0.1)], trackclass='boris')
+    assert a.narrowto().features[0] == Feature('left', None,1, 5,6,7,0.1)
+    assert a.narrowto().features[1] == Feature('middle', 0,7, 9,10,11,0.2)
+    assert a.narrowto().features[2] == Feature('right', 1,None, 1,2,3,0.3)
+    assert a.narrowto().features == [Feature('left', None,1, 5,6,7,0.1),
+                                     Feature('middle', 0,7, 9,10,11,0.2),
+                                     Feature('right', 1,None, 1,2,3,0.3)]
+    assert a.narrowto() == AffineList(0, [1,2,3,4,5], features = [Feature('left', None,1, 5,6,7,0.1),
+                                                                   Feature('middle', 0,7, 9,10,11,0.2),
+                                                                   Feature('right', 1,None, 1,2,3,0.3)])
+    assert a.narrowto(1, 6) == AffineList(2, [1,2,3], features = [Feature('left', None,2, 5,6,7,0.1),
+                                                                   Feature('middle', 0,5, 9,10,11,0.2),
+                                                                   Feature('right', 0,None, 1,2,3,0.3)])
+    assert a.narrowto(4,6) == AffineList(0, [2,3], features = [Feature('middle', -1,6, 9,10,11,0.2),
+                                                                Feature('right', 0,None, 1,2,3,0.3)])
 
 def test_affinelist_getslice():
     a = AffineList(offset=3, vals=[1,2,3,4,5])
@@ -46,20 +71,30 @@ def test_affinelist_getslice():
     assert a[25:28] == AffineList(0, [])
     assert a[0:2] == AffineList(0, [])
 
+def test_affinelist_featureson():
+    a = AffineList(offset=3, vals=[1,2,3,4,5], features=[Feature('a', None,5, 1,1,1,0.5),
+                                                         Feature('b', 1,4, 1,1,1,0.5),
+                                                         Feature('c', 3,None,1,1,1,0.5)])
+    assert a.featureson(hoi(0,1)) == [Feature('a',None,5,1,1,1,0.5)]
+    assert a.featureson(3,4) == [Feature('a', None,5, 1,1,1,0.5),
+                                 Feature('b', 1,4, 1,1,1,0.5),
+                                 Feature('c', 3,None,1,1,1,0.5)]
+
 def test_affinelist_shifts():
-    a = AffineList(offset=3, vals=[1,2,3,4,5])
-    assert a << 3 == AffineList(0, [1,2,3,4,5])
-    assert a >> 2 == AffineList(5, [1,2,3,4,5])
+    a = AffineList(offset=3, vals=[1,2,3,4,5], features=[Feature('a',0,3,1,1,1,0.1)], trackclass="boris")
+    b = a << 3
+    assert b == AffineList(0, [1,2,3,4,5], features=[Feature('a',-3,0,1,1,1,0.1)], trackclass="boris")
+    assert a >> 2 == AffineList(5, [1,2,3,4,5], trackclass="boris", features=[Feature('a',2,5,1,1,1,0.1)])
     assert a << 0 == a
     assert a >> 0 == a
     assert a >> 1 == a << -1
     assert a << 1 == a >> -1
 
 def test_affinelist_support():
-    assert AffineList(3, [1,2,3,4,5]).support() == HalfOpenInterval(3,8)
-    assert AffineList(0, []).support() == HalfOpenInterval(0,0)
-    assert AffineList(1, []).support() == HalfOpenInterval(1,1)
-    assert AffineList(1, [3]).support() == HalfOpenInterval(1,2)
+    assert AffineList(3, [1,2,3,4,5]).support() == hoi(3,8)
+    assert AffineList(0, []).support() == hoi(0,0)
+    assert AffineList(1, []).support() == hoi(1,1)
+    assert AffineList(1, [3]).support() == hoi(1,2)
 
 def test_affinelist_iter():
     a = AffineList(offset=3, vals=[1,2,3,4,5])    
@@ -153,9 +188,9 @@ def test_assembly_adding():
 def test_assembly_support():
     a = Assembly([('a', AffineList(1, [1,2,3,4,5])),
                   ('b', AffineList(4, [1,2,3,4,5]))])
-    assert a.support() == HalfOpenInterval(1,9)
-    assert a.support('a') == HalfOpenInterval(1,6)
-    assert a.support('a', 'b') == HalfOpenInterval(4,6)
+    assert a.support() == hoi(1,9)
+    assert a.support('a') == hoi(1,6)
+    assert a.support('a', 'b') == hoi(4,6)
 
 def test_assembly_itercolumns():
     a = Assembly([('a', AffineList(1, [1,2,3,4,5])),
@@ -179,18 +214,19 @@ def test_assembly_subset():
         Assembly([('a', AffineList(0, [3,4])),
                   ('b', AffineList(1, [1]))])
     assert a.subset() == a
-    assert a.subset(HalfOpenInterval(3,5)) == \
+    assert a.subset(hoi(3,5)) == \
         Assembly([('a', AffineList(0, [3,4])),
                   ('b', AffineList(1, [1]))])
 
 def test_assembly_narrowto():
-    a = Assembly([('a', AffineList(1, [1,2,3,4,5])),
+    a = Assembly([('a', AffineList(1, [1,2,3,4,5], features=[Feature('left', None,5, 1,2,3,0.1)])),
                   ('b', AffineList(4, [1,2,3,4,5]))])
-    assert a.narrowto() == Assembly([('a', AffineList(0, [1,2,3,4,5])),
+    assert a.narrowto()['a'].features == [Feature('left', None, 4,1,2,3,0.1)]
+    assert a.narrowto() == Assembly([('a', AffineList(0, [1,2,3,4,5], features=[Feature('left', None, 4,1,2,3,0.1)])),
                                      ('b', AffineList(3, [1,2,3,4,5]))])
-    assert a.narrowto('a') == Assembly([('a', AffineList(0, [1,2,3,4,5])),
+    assert a.narrowto('a') == Assembly([('a', AffineList(0, [1,2,3,4,5], features=[Feature('left', None, 4, 1,2,3,0.1)])),
                                         ('b', AffineList(3, [1,2]))])
-    assert a.narrowto('a','b') == Assembly([('a', AffineList(0, [4,5])),
+    assert a.narrowto('a','b') == Assembly([('a', AffineList(0, [4,5], features=[Feature('left', None,1, 1,2,3,0.1)])),
                                             ('b', AffineList(0, [1,2]))])
     
 def test_assembly_width():
@@ -208,7 +244,7 @@ def test_json_dumpload():
                 "vals": [1,2,3,4,5],
                 "features": [],
                 "trackclass": "integer"}"""
-    alval = AffineList(3, [1,2,3,4,5])
+    alval = AffineList(3, [1,2,3,4,5], trackclass='integer', features=[])
     astxt = """{"__Assembly": true,
                 "features": [],
                 "metadata": {"boris": "hilda", "meep": 3},
@@ -216,8 +252,8 @@ def test_json_dumpload():
                                   "features": [], "trackclass": "integer"}],
                            ["a", {"__AffineList": true, "offset": 3, "vals": [4,4,4], 
                                   "features": [], "trackclass": "integer"}]]}"""
-    asval = Assembly([('b', AffineList(1, [1,2,3])),
-                      ('a', AffineList(3, [4,4,4]))],
+    asval = Assembly([('b', AffineList(1, [1,2,3], trackclass='integer', features=[])),
+                      ('a', AffineList(3, [4,4,4], trackclass='integer', features=[]))],
                      metadata={'boris': 'hilda', 'meep': 3})
     assert json.loads(altxt, object_hook=as_assembly) == alval
     assert json.loads(astxt, object_hook=as_assembly) == asval
@@ -237,7 +273,7 @@ def test_serialize_deserialize():
 
 def test_render_feature():
     assert Feature('boris', 3, 5, 255, 0, 0, 0.3).render() == \
-        """<div class="feature" style="background-color: rgba(255, 0, 0, 0.3);"></div>"""
+        """<div class="feature" id="boris" style="background-color: rgba(255, 0, 0, 0.3);"></div>"""
 
 def test_rendernucleotide():
     print rendernucleotide(3, 'A')
@@ -292,3 +328,5 @@ def test_almap():
     assert almap((lambda i,x: x), a, start = 0, end = 7) == AffineList(0, [None,None,None,1,2,3,None])
 
 
+if __name__=='__main__':
+    test_affinelist_narrowto()

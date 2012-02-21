@@ -84,3 +84,6 @@ def test_assemble():
                           ('bases 1', AffineList(0,s)),
                           ('confidences 2', AffineList(0,[5]*24)),
                           ('bases 2', AffineList(0,s))])
+
+if __name__=='__main__':
+    test_assemble()

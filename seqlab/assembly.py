@@ -19,6 +19,9 @@ except:
 import bz2
 import templet
 
+
+
+
 class HalfOpenInterval(object):
     """Represents a half open interval [a,b), a <= b.
 
@@ -27,7 +30,7 @@ class HalfOpenInterval(object):
     coordinate is in a HalfOpenInterval using Python's ``in``
     command::
 
-        3 in HalfOpenInterval(2,6)
+        3 in hoi(2,6)
 
     Or take the intersection with ``intersect``. To quickly get a
     2-tuple (a,b), call the ``bounds`` method. The individual
@@ -38,54 +41,88 @@ class HalfOpenInterval(object):
     """
     def __init__(self, a, b):
         """Create a HalfOpenInterval [a,b)."""
-        assert a == None or b == None or a <= b
-        self.left = a
-        self.right = b
+        raise ValueError("Create an Empty or NonemptyInterval")
     def __contains__(self, x):
         """Calculate x in [a,b)."""
-        return (self.left == None or self.left <= x) and (self.right == None or x < self.right)
-    def __eq__(self, other):
-        return self.left == other.left and self.right == other.right
-    def __repr__(self):
-        return "HalfOpenInterval(%s,%s)" % (str(self.left), str(self.right))
-    def bounds(self):
-        """Return the HalfOpenInterval as a 2-tuple (a,b)."""
-        return (self.left, self.right)
-    def intersect(self, other):
-        """Intersect two HalfOpenIntervals.
-
-        Empty intersections are canonically set to HalfOpenInterval(0,0).
-        """
-        if self.isempty():
-            return other
-        if other.isempty():
-            return self
-        if self.left >= other.right or other.left >= self.right:
-            return HalfOpenInterval(0,0)
+        if isinstance(x, HalfOpenInterval):
+            assert x.left in self and x.right in self
         else:
-            left = max(self.left, other.left)
-            right = min(self.right, other.right)
-            if left == right:
-                return HalfOpenInterval(0,0)
-            else:
-                return HalfOpenInterval(left, right)
+            return (self.left is None or self.left <= x) and (self.right is None or x < self.right)
+    def overlaps(self, other):
+        return not(self.intersect(other).isempty())
+    def __eq__(self, other):
+        if self.isempty() == other.isempty():
+            return True
+        else:
+            return self.left == other.left and self.right == other.right
+
+
+class EmptyInterval(HalfOpenInterval):
+    """Represents an empty version of HalfOpenInterval."""
+    def __init__(self):
+        pass
+    def __len__(self):
+        return 0
+    def __contains__(self, x):
+        """Calculate x in [a,b)."""
+        return False
+    def __eq__(self, other):
+        return isinstance(other,EmptyInterval)
+    def __repr__(self):
+        return "EmptyInterval()"
+    def isfinite(self):
+        return True
+    def intersect(self, other):
+        """Intersect two HalfOpenIntervals."""
+        return self
     def isempty(self):
-        return self.left == 0 and self.right == 0
+        return True
+    def closure(self, other):
+        """Smallest HalfOpenInterval containing the union of this and *other*."""
+        return other
+
+
+class NonemptyInterval(HalfOpenInterval):
+    def __init__(self, a, b):
+        self.left = a
+        self.right = b
+    def __len__(self):
+        return self.right - self.left
     def closure(self, other):
         """Smallest HalfOpenInterval containing the union of this and *other*."""
         if other.isempty():
             return self
-        if self.isempty():
-            return other
-        left = min(self.left, other.left)
-        right = max(self.right, other.right)
+        left = extmin(self.left, other.left)
+        right = extmax(self.right, other.right)
         if left == right:
-            return HalfOpenInterval(0,0)
+            return EmptyInterval()
         else:
-            return HalfOpenInterval(left,right)
+            return hoi(left,right)
+    def intersect(self,other):
+        left = extmax(self.left, other.left)
+        right = extmin(self.right, other.right)
+        if right <= left:
+            return EmptyInterval()
+        else:
+            return NonemptyInterval(left,right)
+    def isempty(self):
+        return False
+
+def extmin(a,b):
+    return a if b==None else b if a==None else min(a,b)
+
+def extmax(a,b):
+    return a if b==None else b if a==None else max(a,b)
+
+
 
 def hoi(left,right):
-    return HalfOpenInterval(left,right)
+    if left != None and right != None and right < left:
+        raise ValueError("Right must be at least left for half open intervals.")
+    elif left == right:
+        return EmptyInterval()
+    else:
+        return NonemptyInterval(left,right)
 
 def intersection(*intervals):
     if len(intervals) == 0:
@@ -113,14 +150,14 @@ def support(*affinelists):
 class Feature(object):
     def __init__(self, name, left, right, red, green, blue, alpha):
         assert isinstance(name, str)
-        assert isinstance(left, int) or left == None
-        assert isinstance(right, int) or right == None
+        assert isinstance(left, int) or left is None
+        assert isinstance(right, int) or right is None
         assert isinstance(red, int)
         assert isinstance(green, int)
         assert isinstance(blue, int)
         assert isinstance(alpha, float)
         self.name = name
-        self.pos = HalfOpenInterval(left, right)
+        self.pos = hoi(left, right)
         assert 0 <= red < 256
         assert 0 <= green < 256
         assert 0 <= blue < 256
@@ -129,8 +166,13 @@ class Feature(object):
         self.green = green
         self.blue = blue
         self.alpha = alpha
+    def __eq__(self, other):
+        return self.name == other.name and \
+            self.pos == other.pos and \
+            self.red == other.red and self.green == other.green and self.blue == other.blue and \
+            self.alpha == other.alpha
     def __repr__(self):
-        return "Feature(%s, %d,%d, %d,%d,%d, %d)" % (repr(self.name), self.pos.left, self.pos.right, self.red,
+        return "Feature(%s, %s,%s, %s,%s,%s, %s)" % (repr(self.name), self.pos.left, self.pos.right, self.red,
                                                      self.green, self.blue, self.alpha)
     def __contains__(self, x):
         return x in self.pos
@@ -182,6 +224,17 @@ class AffineList(object):
             return None
         else:
             return self.vals[i - self.offset]
+    def featureson(self, left=None, right=None):
+        if left is None and right is None:
+            pos = EmptyInterval()
+        elif not(isinstance(left, HalfOpenInterval)):
+            pos = hoi(left,right)
+        else:
+            assert right is None
+            pos = left
+        return [f for f in self.features
+                if f.pos.overlaps(pos)]
+        
     def __getslice__(self, start, end):
         if start < self.offset:
             newoffset = self.offset
@@ -190,15 +243,16 @@ class AffineList(object):
             newoffset = start
             newleft = start - self.offset
         else:
-            return AffineList(0, [], trackclass=self.trackclass, features=self.features) # Canonical empty list
+            return AffineList(0, [], trackclass=self.trackclass, features = []) # Canonical empty list
+
         if end < self.offset:
-            return AffineList(0, [], trackclass=self.trackclass, features=self.features)
+            return AffineList(0, [], trackclass=self.trackclass, features=[])
         elif end < self.offset + len(self):
             return AffineList(newoffset, self.vals[newleft : end-self.offset], 
-                              trackclass=self.trackclass, features=self.features)
+                              trackclass=self.trackclass, features=self.featureson(start,end))
         else:
             return AffineList(newoffset, self.vals[newleft:], 
-                              trackclass=self.trackclass, features=self.features)
+                              trackclass=self.trackclass, features=self.featureson(start,end))
     def narrowto(self, i=None, j=None):
         if isinstance(i,HalfOpenInterval):
             j = i.right
@@ -207,44 +261,28 @@ class AffineList(object):
             i = self.offset
         if j==None:
             j = self.offset + len(self.vals)
-        newoffset = max(self.offset-i, 0)
-        left = max(i-self.offset, 0)
-        right = max(j-self.offset, 0)
-        newvals = self.vals[left:right]
-        if newvals == []: # Must impose a canonical offset on empty lists
-            return AffineList(0, [], trackclass=self.trackclass, 
-                              features=[Feature(f.name, f.pos.left and f.pos.left-i or None, 
-                                                f.pos.right and f.pos.right-i or None,
-                                                f.red,f.green,f.blue,f.alpha)
-                                        for f in self.features])
-        else:
-            return AffineList(offset=newoffset, vals=newvals,
-                              trackclass=self.trackclass, 
-                              features=[Feature(f.name, 
-                                                f.pos.left and f.pos.left-i or None,
-                                                f.pos.right and f.pos.right-i or None,
-                                                f.red,f.green,f.blue,f.alpha)
-                                        for f in self.features])
+        return self[i:j] << i
     def __rshift__(self, i):
-        return AffineList(offset=self.offset+i, vals=self.vals, 
-                          features=[Feature(f.name,
-                                            f.pos.left and f.pos.left+i or None,
-                                            f.pos.right and f.pos.right+i or None,
-                                            f.red,f.green,f.blue,f.alpha)
-                                    for f in self.features])
+        if len(self) == 0: # Handle empty lists
+            return self
+        n = AffineList(offset=self.offset+i, vals=self.vals, trackclass=self.trackclass, features=[])
+        s = n.support()
+        for f in self.features:
+            newf = Feature(f.name,
+                           f.pos.left+i if f.pos.left!=None else None,
+                           f.pos.right+i if f.pos.right!=None else None,
+                           f.red,f.green,f.blue,f.alpha)
+            n.features.append(newf)
+        return n
     def __lshift__(self, i):
-        return AffineList(offset=self.offset-i, vals=self.vals,
-                          features=[Feature(f.name,
-                                            f.pos.left and f.pos.left-i or None,
-                                            f.pos.right and f.pos.right-i or None, f.red,f.green,f.blue,f.alpha)
-                                    for f in self.features])
+        return self >> (-1*i)
     def support(self):
         """Return the HalfOpenInterval containing the support of this list.
 
         For example, ``AffineList(offset=1, vals=[1,2]).support()`` is
-        ``HalfOpenInterval(1,3)``.
+        ``hoi(1,3)``.
         """
-        return HalfOpenInterval(self.offset, self.offset + len(self.vals))
+        return hoi(self.offset, self.offset + len(self.vals))
     def iter(self, start=None, end=None):
         """Return an iterator over the elements in the support of this list."""
         return it.imap(lambda (a,b): b, self.itercoords(start=start, end=end))
@@ -257,9 +295,9 @@ class AffineList(object):
         some other range. Any items returns outside of the support are
         denoted ``None``.
         """
-        if start == None:
+        if start is None:
             start = self.offset
-        if end == None:
+        if end is None:
             end = self.offset + len(self.vals)
         for i in range(start, end):
             yield (i,self[i])
@@ -302,9 +340,9 @@ class AffineList(object):
             f = lambda x: x==template
         else:
             f = template
-        if start == None:
+        if start is None:
             start = self.support().left
-        if end == None:
+        if end is None:
             end = self.support().right
         
         coords = []
@@ -325,7 +363,10 @@ class AffineList(object):
             self.vals = self.vals + [None]*(i - (self.offset+len(self.vals))) + [x]
         return x
     def __eq__(self, other):
-        return self.offset == other.offset and self.vals == other.vals
+        return self.offset == other.offset and self.vals == other.vals and \
+            self.trackclass == other.trackclass and \
+            self.features == other.features
+
 
 
 class Assembly(OrderedDict):
@@ -392,9 +433,9 @@ class Assembly(OrderedDict):
         the ``Assembly``.
         """
         whole = self.support()
-        if start == None:
+        if start is None:
             start = whole.left
-        if end == None:
+        if end is None:
             end = whole.right
         for i in range(start,end):
             yield (i,OrderedDict([(k,v[i]) for k,v in self.iteritems()]))
@@ -408,7 +449,7 @@ class Assembly(OrderedDict):
         if isinstance(start, HalfOpenInterval):
             end = start.right
             start = start.left
-        if end == None:
+        if end is None:
             end = self.support().right
         return Assembly([(k, v.narrowto(start,end)) for k,v in self.iteritems()], metadata=self.metadata)
     def narrowto(self, *keys):
@@ -424,7 +465,7 @@ class Assembly(OrderedDict):
         *keys* is specified as for the ``support`` method.
         """
         s = self.support(*keys)
-        return s.right - s.left
+        return len(s)
     def coordinates(self):
         """Return an AffineList of the coordinates in the Assembly's support."""
         h = self.support()
@@ -517,8 +558,8 @@ renderfun = defaultdict(lambda: rendertext,
 
 @templet.stringfunction
 def renderbaseitem(coord, val, features, trackclass):
-    """<div class="${trackclass or ""} ${val==None and "empty" or ""}">
-  ${val == None and "&nbsp;" or renderfun[trackclass](coord,val)}
+    """<div class="${trackclass or ""} ${val is None and "empty" or ""}">
+  ${val is None and "&nbsp;" or renderfun[trackclass](coord,val)}
   ${[f.render() for f in features if coord in f]}
 </div>"""
 
@@ -594,9 +635,9 @@ def alzipsupport(*als):
 
 def almap(f, xs, start=None, end=None):
     print start,end
-    if start == None:
+    if start is None:
         start = xs.support().left
-    if end == None:
+    if end is None:
         end = xs.support().right
     return AffineList(start, [f(i,x) for i,x in xs.itercoords(start=start,end=end)])
 
