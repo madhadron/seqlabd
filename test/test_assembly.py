@@ -6,52 +6,54 @@ import random
 # Intervals
 def test_intervals():
     # Does the intersection convenience function work?
-    assert intersection(hoi(1,3), hoi(5,7)) == hoi(1,3).intersect(hoi(5,7))
+    assert intersection(ProperInterval(1,3), ProperInterval(5,7)) == ProperInterval(1,3).intersection(ProperInterval(5,7))
     # Is intersection idempotent?
-    assert intersection(hoi(1,3), hoi(1,3)) == hoi(1,3)
+    assert intersection(ProperInterval(1,3), ProperInterval(1,3)) == ProperInterval(1,3)
     # Is the empty set a zero of intersection?
-    assert intersection(hoi(1,3), EmptyInterval()) == EmptyInterval()
+    assert intersection(ProperInterval(1,3), EmptyInterval()) == EmptyInterval()
     # Do disjoint intervals intersect to empty?
-    assert intersection(hoi(1,3), hoi(5,7)) == EmptyInterval()
+    assert intersection(ProperInterval(1,3), ProperInterval(5,7)) == EmptyInterval()
     # Does the closure convenience function work?
-    assert closure(hoi(1,3), hoi(5,7)) == hoi(1,3).closure(hoi(5,7))
+    assert closure(ProperInterval(1,3), ProperInterval(5,7)) == ProperInterval(1,3).closure(ProperInterval(5,7))
     # Is closure idempotent?
-    assert closure(hoi(1,3), hoi(1,3)) == hoi(1,3)
+    assert closure(ProperInterval(1,3), ProperInterval(1,3)) == ProperInterval(1,3)
     # Empty is a unit of closure
-    assert closure(hoi(1,3), EmptyInterval()) == hoi(1,3)
+    assert closure(ProperInterval(1,3), EmptyInterval()) == ProperInterval(1,3)
     # Are intervals containing posinf and neginf infinite?
-    for i in [hoi(neginf,posinf), hoi(neginf,5), hoi(5,posinf), hoi(3,5)]:
+    for i in [ProperInterval(neginf,posinf), ProperInterval(neginf,5), ProperInterval(5,posinf), ProperInterval(3,5)]:
         assert i.isfinite() != i.isinfinite()
         assert i.isinfinite() == (i.left() == neginf or i.right() == posinf)
     # Does contains work?
-    assert 3 in hoi(1,6)
-    assert not(3 in hoi(5,6))
+    assert 3 in ProperInterval(1,6)
+    assert not(3 in ProperInterval(5,6))
     assert not(3 in EmptyInterval())
-    assert 3 in hoi(neginf,posinf)
-    assert not(3 in hoi(neginf,0))
-    assert not(3 in hoi(5,posinf))
+    assert 3 in ProperInterval(neginf,posinf)
+    assert not(3 in ProperInterval(neginf,0))
+    assert not(3 in ProperInterval(5,posinf))
     # Does width work?
-    for i in [hoi(neginf,posinf), hoi(1,3), hoi(neginf,3), hoi(1,posinf)]:
+    for i in [ProperInterval(neginf,posinf), ProperInterval(1,3), ProperInterval(neginf,3), ProperInterval(1,posinf)]:
         assert i.width() == i.right() - i.left()
     assert EmptyInterval().width() == 0
     # Are metadata propogated properly?
     assert closure(EmptyInterval(a=3),EmptyInterval(b=5)) == EmptyInterval(a=3,b=5)
-    assert closure(hoi(3,8,a=3),hoi(3,8,b=5)) == hoi(3,8,a=3,b=5)
+    assert closure(ProperInterval(3,8,a=3),ProperInterval(3,8,b=5)) == ProperInterval(3,8,a=3,b=5)
     assert intersection(EmptyInterval(a=3),EmptyInterval(b=5)) == EmptyInterval(a=3,b=5)
-    assert intersection(hoi(3,8,a=3),hoi(3,8,b=5)) == hoi(3,8,a=3,b=5)
+    assert intersection(ProperInterval(3,8,a=3),ProperInterval(3,8,b=5)) == ProperInterval(3,8,a=3,b=5)
     # Are metadata left weighted?
     assert closure(EmptyInterval(a=3),EmptyInterval(a=5)) == EmptyInterval(a=3)
-    assert closure(hoi(3,8,a=3), hoi(3,8,a=5)) == hoi(3,8,a=3)
+    assert closure(ProperInterval(3,8,a=3), ProperInterval(3,8,a=5)) == ProperInterval(3,8,a=3)
     # Does strip remove metadata?
     assert EmptyInterval(a=3).strip() == EmptyInterval()
-    assert hoi(3,8,a=3).strip() == hoi(3,8)
+    assert ProperInterval(3,8,a=3).strip() == ProperInterval(3,8)
+    # Does support work?
+    assert support(ProperInterval(0,20), ProperInterval(-3,5)) == ProperInterval(-3,20)
 
 # Affine lists
 def test_affinelist():
     a = AffineList(offset=0, vals=range(20))
     # Shifting commutes with subsetting in the expected way for coordinates
     assert a[5:10] >> 3 == (a >> 3)[8:13]
-    assert a[hoi(5,10)] << 3 == (a << 3)[2:7]
+    assert a[ProperInterval(5,10)] << 3 == (a << 3)[2:7]
     assert EmptyList() << 3 == EmptyList()
     assert EmptyList() >> 3 == EmptyList()
     # Are shifting operators inverses?
@@ -62,12 +64,13 @@ def test_affinelist():
         assert EmptyList()[i] == None
     # Is featuresat sane?
     b = AffineList(offset=3, vals=[1,2,3,4,5], 
-                   features=[hoi(neginf,5), hoi(1,4), hoi(3,posinf)])
-    assert b.featuresat(-10) == [hoi(neginf,5)]
-    assert b.featuresat(3) == [hoi(neginf,5), hoi(1,4), hoi(3,posinf)]
+                   features=[ProperInterval(neginf,5), ProperInterval(1,4), ProperInterval(3,posinf)])
+    assert b.featuresat(-10) == [ProperInterval(neginf,5)]
+    assert b.featuresat(3) == [ProperInterval(neginf,5), ProperInterval(1,4), ProperInterval(3,posinf)]
     # Is support sane?
-    assert a.support() == hoi(0,20)
+    assert a.support() == ProperInterval(0,20)
     assert EmptyList().support() == EmptyInterval()
+    assert support(a,b) == ProperInterval(0,20)
     # Does width work?
     assert a.width() == a.right() - a.left()
     # Does iteration work?
@@ -100,33 +103,33 @@ def test_affinelist():
 
 # Assemblies
 def test_assembly():
-    entries = [('a', AffineList(3, range(20), features=[hoi(3,5), hoi(neginf,2)])),
-               ('b', EmptyList(features=[hoi(12,posinf)])),
+    entries = [('a', AffineList(3, range(20), features=[ProperInterval(3,5), ProperInterval(neginf,2)])),
+               ('b', EmptyList(features=[ProperInterval(12,posinf)])),
                ('c', AffineList(-2, range(8))),
-               ('d', AffineList(0, range(6), features=[hoi(1,2)]))]
-    a = Assembly(entries, features=[hoi(0,3)])
+               ('d', AffineList(0, range(6), features=[ProperInterval(1,2)]))]
+    a = Assembly(entries, features=[ProperInterval(0,3)])
     # Do iterators work?
     assert list(iter(a)) == [x[0] for x in entries]
     assert list(a.iterkeys()) == [x[0] for x in entries]
     assert list(a.itervalues()) == [x[1] for x in entries]
     assert list(a.iteritems()) == entries
     # Do filters work?
-    assert a.filterkeys(lambda k: k=='a' or k=='b') == Assembly(entries[0:2], features=[hoi(0,3)])
-    assert a.filteritems(lambda k,v: 5 in v.support()) == Assembly([entries[0]] + entries[2:], features=[hoi(0,3)])
-    assert a.filtervalues(lambda v: 5 in v.support()) == Assembly([entries[0]] + entries[2:], features=[hoi(0,3)])
+    assert a.filterkeys(lambda k: k=='a' or k=='b') == Assembly(entries[0:2], features=[ProperInterval(0,3)])
+    assert a.filteritems(lambda k,v: 5 in v.support()) == Assembly([entries[0]] + entries[2:], features=[ProperInterval(0,3)])
+    assert a.filtervalues(lambda v: 5 in v.support()) == Assembly([entries[0]] + entries[2:], features=[ProperInterval(0,3)])
     # Do maps work?
-    assert a.mapkeys(lambda k: k+'x') == Assembly([(x[0]+'x', x[1]) for x in entries], features=[hoi(0,3)])
-    assert a.mapvalues(lambda v: v[0:5]) == Assembly([(x[0],x[1][0:5]) for x in entries], features=[hoi(0,3)])
-    assert a.mapitems(lambda k,v: (k+'x', v[0:5])) == Assembly([(x[0]+'x', x[1][0:5]) for x in entries], features=[hoi(0,3)])
+    assert a.mapkeys(lambda k: k+'x') == Assembly([(x[0]+'x', x[1]) for x in entries], features=[ProperInterval(0,3)])
+    assert a.mapvalues(lambda v: v[0:5]) == Assembly([(x[0],x[1][0:5]) for x in entries], features=[ProperInterval(0,3)])
+    assert a.mapitems(lambda k,v: (k+'x', v[0:5])) == Assembly([(x[0]+'x', x[1][0:5]) for x in entries], features=[ProperInterval(0,3)])
     # Does appending work?
-    assert Assembly([('ax', AffineList(0,[]))], features=[hoi(0,3)]) + \
-        Assembly([('bx', AffineList(0,[]))], features=[hoi(3,5)]) == \
+    assert Assembly([('ax', AffineList(0,[]))], features=[ProperInterval(0,3)]) + \
+        Assembly([('bx', AffineList(0,[]))], features=[ProperInterval(3,5)]) == \
         Assembly([('ax', AffineList(0,[])), ('bx', AffineList(0,[]))],
-                 features=[hoi(0,3),hoi(3,5)])
+                 features=[ProperInterval(0,3),ProperInterval(3,5)])
     # Does support work?
-    assert a.support() == hoi(-2,23)
+    assert a.support() == ProperInterval(-2,23)
     assert a.support('b') == EmptyInterval()
-    assert a.support('a', 'd') == hoi(3,6)
+    assert a.support('a', 'd') == ProperInterval(3,6)
     # Does iterating columns work?
     a = Assembly([('a', AffineList(1, [1,2,3,4,5])),
                   ('b', AffineList(4, [1,2,3,4,5]))])

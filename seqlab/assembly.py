@@ -54,10 +54,17 @@ def closure(*intervals):
     return c
 
 def intersection(*intervals):
-    c = hoi(neginf,posinf)
+    c = ProperInterval(neginf,posinf)
     for i in intervals:
         c = c.intersection(i)
     return c
+
+def support(*affinelists):
+    c = EmptyInterval()
+    for a in affinelists:
+        c = c.closure(a.support())
+    return c
+
 
 # Positive and negative infinity
 class NegInf(object):
@@ -143,116 +150,131 @@ class PosInf(object):
 posinf = PosInf()
 neginf = NegInf()
 
-
-
-class HalfOpenInterval(object):
-    """Represents a half open interval [a,b), a <= b.
-
-    Working with AffineLists and Assemblies, we regularly want to
-    combine and compare various half open intervals. You can test if a
-    coordinate is in a HalfOpenInterval using Python's ``in``
-    command::
-
-        3 in hoi(2,6)
-
-    Or take the intersection with ``intersect``. To quickly get a
-    2-tuple (a,b), call the ``bounds`` method. The individual
-    coordinates are in the fields ``left`` and ``right``.
-
-    HalfOpenInterval does not provide union or complement methods
-    since the results of those need not be HalfOpenIntervals.
-    """
-    def __init__(self, a, b):
-        """Create a HalfOpenInterval [a,b)."""
-        raise ValueError("Create an Empty or NonemptyInterval")
-    def __contains__(self, x):
-        """Calculate x in [a,b)."""
-        if isinstance(x, HalfOpenInterval):
-            assert x.left in self and x.right in self
-        else:
-            return (self.left is None or self.left <= x) and (self.right is None or x < self.right)
-    def overlaps(self, other):
-        return not(self.intersect(other).isempty())
-    def __eq__(self, other):
-        if self.isempty() == other.isempty():
-            return True
-        else:
-            return self.left == other.left and self.right == other.right
-
-
-class EmptyInterval(HalfOpenInterval):
-    """Represents an empty version of HalfOpenInterval."""
-    def __init__(self):
-        pass
-    def __len__(self):
-        return 0
-    def __contains__(self, x):
-        """Calculate x in [a,b)."""
-        return False
-    def __eq__(self, other):
-        return isinstance(other,EmptyInterval)
-    def __repr__(self):
-        return "EmptyInterval()"
-    def isfinite(self):
-        return True
-    def intersect(self, other):
-        """Intersect two HalfOpenIntervals."""
+# Intervals
+class Affine(object):
+    def __init__(self, **kwargs):
+        self.metadata = kwargs
+    def left(self):
+        return None
+    def right(self):
+        return None
+    def strip(self):
+        return self.__class__()
+    def __rshift__(self, n):
         return self
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and \
+            self.metadata == other.metadata
+    def width(self):
+        return self.right() - self.left() if self.isproper() else 0
     def isempty(self):
         return True
-    def closure(self, other):
-        """Smallest HalfOpenInterval containing the union of this and *other*."""
-        return other
+    def isproper(self):
+        return not(self.isempty())
+    def __contains__(self, other):
+        if self.isproper():
+            if isinstance(other, Affine):
+                return (other.left() >= self.left() and other.right <= self.right()) 
+            else:
+                return other >= self.left() and other < self.right()
+        else:
+            return False
+    def isfinite(self):
+        return self.width() < posinf
+    def isinfinite(self):
+        return not(self.isfinite())
+    def __lshift__(self, n):
+        return self >> -n
+    def toorigin(self):
+        return self << self.left() if self.isproper() else self
+    def support(self):
+        if self.isempty():
+            return EmptyInterval()
+        else:
+            return ProperInterval(self.left(), self.right())
+    def __repr__(self):
+        return self.__class__.__name__ + "(" + ", ".join("%s=%s" % (k,repr(v)) for k,v in self.metadata.iteritems()) + ")"
+    def __iter__(self):
+        while False:
+            yield None
+    def iter(self, left=None, right=None):
+        while False:
+            yield None
 
 
-class NonemptyInterval(HalfOpenInterval):
-    def __init__(self, a, b):
-        self.left = a
-        self.right = b
-    def __len__(self):
-        return self.right - self.left
+class Interval(Affine):
+    def intersection(self, other, **kwargs):
+        pass
+    def closure(self, other, **kwargs):
+        pass
+
+
+class EmptyInterval(Interval):
+    def intersection(self, other):
+        metadata = dictunion(self.metadata, other.metadata)
+        return EmptyInterval(**metadata)
     def closure(self, other):
-        """Smallest HalfOpenInterval containing the union of this and *other*."""
+        metadata = dictunion(self.metadata, other.metadata)
         if other.isempty():
-            return self
-        left = extmin(self.left, other.left)
-        right = extmax(self.right, other.right)
-        if left == right:
-            return EmptyInterval()
+            return EmptyInterval(**metadata)
         else:
-            return hoi(left,right)
-    def intersect(self,other):
-        left = extmax(self.left, other.left)
-        right = extmin(self.right, other.right)
-        if right <= left:
-            return EmptyInterval()
-        else:
-            return NonemptyInterval(left,right)
+            return ProperInterval(other.left(), other.right(), **metadata)
+
+class ProperInterval(Interval):
+    def __init__(self, left, right, **kwargs):
+        assert left <= right
+        self._left = left
+        self._right = right
+        self.metadata = kwargs
+    def left(self):
+        return self._left
+    def right(self):
+        return self._right
+    def strip(self):
+        return ProperInterval(self._left, self._right)
     def isempty(self):
         return False
+    def __rshift__(self, n):
+        return ProperInterval(self._left+n, self._right+n,
+                              **self.metadata)
+    def __eq__(self, other):
+        return isinstance(other, ProperInterval) and \
+            self.left() == other.left() and \
+            self.right() == other.right() and \
+            self.metadata == other.metadata
+    def __repr__(self):
+        return "ProperInterval(%s, %s" % (self.left(), self.right()) + \
+            "".join(", %s=%s" % (k,repr(v)) for k,v in self.metadata.iteritems()) + ")"
+    def intersection(self, other):
+        metadata = dictunion(self.metadata, other.metadata)
+        if other.isempty():
+            return EmptyInterval(**metadata)
+        else:
+            left = max(self.left(), other.left())
+            right = min(self.right(), other.right())
+            print left, right
+            if right <= left:
+                return EmptyInterval(**metadata)
+            else:
+                return ProperInterval(left, right, **metadata)
+    def closure(self, other):
+        metadata = dictunion(self.metadata, other.metadata)
+        if other.isempty():
+            return ProperInterval(self.left(), self.right(), **metadata)
+        else:
+            left = min(self.left(), other.left())
+            stop = max(self.right(), other.right())
+            return ProperInterval(left, stop, **metadata)
+    def __iter__(self):
+        for i in range(self.left(), self.right()):
+            yield i
+    def iter(self, start=None, stop=None):
+        for i in range(max(start, self.left()),
+                       min(stop, self.right())):
+            yield i
 
-def extmin(a,b):
-    return a if b==None else b if a==None else min(a,b)
-
-def extmax(a,b):
-    return a if b==None else b if a==None else max(a,b)
 
 
-
-def hoi(left,right):
-    if left != None and right != None and right < left:
-        raise ValueError("Right must be at least left for half open intervals.")
-    elif left == right:
-        return EmptyInterval()
-    else:
-        return NonemptyInterval(left,right)
-
-
-def support(*affinelists):
-    if len(affinelists) == 0:
-        return hoi(0,0)
-    else:
-        return closure(*[x.support() for x in affinelists])
 
 
 class Feature(object):
@@ -265,7 +287,7 @@ class Feature(object):
         assert isinstance(blue, int)
         assert isinstance(alpha, float)
         self.name = name
-        self.pos = hoi(left, right)
+        self.pos = ProperInterval(left, right)
         assert 0 <= red < 256
         assert 0 <= green < 256
         assert 0 <= blue < 256
@@ -336,7 +358,7 @@ class AffineList(object):
         if left is None and right is None:
             pos = EmptyInterval()
         elif not(isinstance(left, HalfOpenInterval)):
-            pos = hoi(left,right)
+            pos = ProperInterval(left,right)
         else:
             assert right is None
             pos = left
@@ -388,9 +410,9 @@ class AffineList(object):
         """Return the HalfOpenInterval containing the support of this list.
 
         For example, ``AffineList(offset=1, vals=[1,2]).support()`` is
-        ``hoi(1,3)``.
+        ``ProperInterval(1,3)``.
         """
-        return hoi(self.offset, self.offset + len(self.vals))
+        return ProperInterval(self.offset, self.offset + len(self.vals))
     def iter(self, start=None, end=None):
         """Return an iterator over the elements in the support of this list."""
         return it.imap(lambda (a,b): b, self.itercoords(start=start, end=end))
@@ -526,10 +548,10 @@ class Assembly(OrderedDict):
         each key's value is returned.
         """
         if len(self) == 0:
-            return hoi(0,0)
+            return EmptyInterval()
         v = closure(*[v.support() for v in self.itervalues()])
         for k in keys:
-            v = v.intersect(self[k].support())
+            v = v.intersection(self[k].support())
         return v
     def itercolumns(self, start=None, end=None):
         """Iterate over columns in the Assembly.
