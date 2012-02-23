@@ -181,6 +181,8 @@ class Affine(object):
             return False
     def isfinite(self):
         return self.width() < posinf
+    def overlaps(self, other):
+        return intersection(self.support(), other.support()).isproper()
     def isinfinite(self):
         return not(self.isfinite())
     def __lshift__(self, n):
@@ -312,9 +314,22 @@ class Feature(object):
     def render(self):
         """<div class="feature" id="${self.name}" style="background-color: rgba(${self.red}, ${self.green}, ${self.blue}, ${self.alpha});"></div>"""
 
+class AffineList(Affine):
+    pass
 
+class EmptyList(AffineList):
+    """Object representing an empty AffineList."""
+    def __getslice__(self, left, right):
+        return self
+    def __getitem__(self, i):
+        if isinstance(i, int) or i is None or \
+                i == posinf or i == neginf:
+            return None
+        else:
+            return self
+    
 
-class AffineList(object):
+class ProperList(AffineList):
     """List embedded in 1D, discrete, affine space.
 
     Essentially, it's a list with an offset and methods altered to
@@ -342,47 +357,91 @@ class AffineList(object):
     ``enumerate()`` on a normal list, but returns the coordinates
     instead of the indices.
     """
-    def __init__(self, offset, vals, trackclass="", features=[]):
+    def __init__(self, offset, vals, **kwargs):
+        if len(vals) == 0:
+            raise ValueError("Cannot create a ProperList with no contents.")
+        self.metadata = kwargs
         self.offset = offset
-        self.vals = list(vals)
-        self.trackclass = trackclass
-        self.features = features
+        self.values = list(vals)
+    def isempty(self):
+        return False
+    def left(self):
+        return self.offset
+    def right(self):
+        return self.offset + len(self.values)
+    def strip(self):
+        return AffineList(self.offset, self.values)
+    def __rshift__(self, n):
+        return ProperList(self.offset+n, self.values, **self.metadata)
     def __getitem__(self, i):
-        if isinstance(i, HalfOpenInterval):
-            return self.__getslice__(i.left, i.right)
-        if i < self.offset or i >= self.offset+len(self.vals):
-            return None
-        else:
-            return self.vals[i - self.offset]
-    def featureson(self, left=None, right=None):
-        if left is None and right is None:
-            pos = EmptyInterval()
-        elif not(isinstance(left, HalfOpenInterval)):
-            pos = ProperInterval(left,right)
-        else:
-            assert right is None
-            pos = left
-        return [f for f in self.features
-                if f.pos.overlaps(pos)]
-        
-    def __getslice__(self, start, end):
-        if start < self.offset:
-            newoffset = self.offset
-            newleft = 0
-        elif start < self.offset + len(self):
-            newoffset = start
-            newleft = start - self.offset
-        else:
-            return AffineList(0, [], trackclass=self.trackclass, features = []) # Canonical empty list
+        if isinstance(i, int):
+            if i < self.left():
+                return None
+            elif i >= self.right():
+                return None
+            else:
+                return self.values[i-self.offset]
+        elif isinstance(i, slice):
+            return self.__getitem__(i.start, i.stop)
+        elif isinstance(i, EmptyInterval):
+            return EmptyList(**self.metadata)
+        elif isinstance(i, ProperInterval):
+            return self.__getslice__(i.left(), i.right())
+    def __getslice__(self, left, right):
+        assert left <= right
+        offset = max(self.left(), left)
+        i = offset - self.left()
+        j = min(self.right(), right) - self.offset
+        return ProperList(offset, 
+                          self.values[i:j],
+                          **self.metadata)
 
-        if end < self.offset:
-            return AffineList(0, [], trackclass=self.trackclass, features=[])
-        elif end < self.offset + len(self):
-            return AffineList(newoffset, self.vals[newleft : end-self.offset], 
-                              trackclass=self.trackclass, features=self.featureson(start,end))
+
+    # def __getitem__(self, i):
+    #     if isinstance(i, Interval) and i.isempty():
+    #         return EmptyList(**self.metadata)
+    #     elif isinstance(i, Interval) and i.isproper():
+    #         newoffset = max(self.offset, i.left())
+    #         newleft = max(i.left() - self.offset, 0)
+    #         return AffineList(self.__getslice__(i.left(), i.right()))
+    #     if i < self.offset or i >= self.offset+len(self.values):
+    #         return None
+    #     else:
+    #         return self.values[i - self.offset]
+    def featureson(self, left=None, right=None):
+        if 'features' not in self.metadata:
+            return []
         else:
-            return AffineList(newoffset, self.vals[newleft:], 
-                              trackclass=self.trackclass, features=self.featureson(start,end))
+            # Munge the arguments into something useful
+            if right is None and isinstance(left, int) or left == neginf:
+                pos = ProperInterval(left, left+1)
+            elif right is None and isinstance(left, Interval):
+                pos = left
+            elif right > left:
+                pos = ProperInterval(left, right)
+            else:
+                pos = EmptyInterval()
+        return [f for f in self.metadata['features'] if f.overlaps(pos)]
+        
+    # def __getslice__(self, start, end):
+                                    
+    #     if start < self.offset:
+    #         newoffset = self.offset
+    #         newleft = 0
+    #     elif start < self.offset + len(self):
+    #         newoffset = start
+    #         newleft = start - self.offset
+    #     else:
+    #         return AffineList(0, [], trackclass=self.trackclass, features = []) # Canonical empty list
+
+    #     if end < self.offset:
+    #         return AffineList(0, [], trackclass=self.trackclass, features=[])
+    #     elif end < self.offset + len(self):
+    #         return AffineList(newoffset, self.values[newleft : end-self.offset], 
+    #                           trackclass=self.trackclass, features=self.featureson(start,end))
+    #     else:
+    #         return AffineList(newoffset, self.values[newleft:], 
+    #                           trackclass=self.trackclass, features=self.featureson(start,end))
     def narrowto(self, i=None, j=None):
         if isinstance(i,HalfOpenInterval):
             j = i.right
@@ -390,20 +449,8 @@ class AffineList(object):
         if i==None:
             i = self.offset
         if j==None:
-            j = self.offset + len(self.vals)
+            j = self.offset + len(self.values)
         return self[i:j] << i
-    def __rshift__(self, i):
-        if len(self) == 0: # Handle empty lists
-            return self
-        n = AffineList(offset=self.offset+i, vals=self.vals, trackclass=self.trackclass, features=[])
-        s = n.support()
-        for f in self.features:
-            newf = Feature(f.name,
-                           f.pos.left+i if f.pos.left!=None else None,
-                           f.pos.right+i if f.pos.right!=None else None,
-                           f.red,f.green,f.blue,f.alpha)
-            n.features.append(newf)
-        return n
     def __lshift__(self, i):
         return self >> (-1*i)
     def support(self):
@@ -412,7 +459,7 @@ class AffineList(object):
         For example, ``AffineList(offset=1, vals=[1,2]).support()`` is
         ``ProperInterval(1,3)``.
         """
-        return ProperInterval(self.offset, self.offset + len(self.vals))
+        return ProperInterval(self.offset, self.offset + len(self.values))
     def iter(self, start=None, end=None):
         """Return an iterator over the elements in the support of this list."""
         return it.imap(lambda (a,b): b, self.itercoords(start=start, end=end))
@@ -428,16 +475,17 @@ class AffineList(object):
         if start is None:
             start = self.offset
         if end is None:
-            end = self.offset + len(self.vals)
+            end = self.offset + len(self.values)
         for i in range(start, end):
             yield (i,self[i])
     def __repr__(self):
-        return 'AffineList(offset=%d, vals=%s, trackclass="%s", features=%s)' % (self.offset, repr(self.vals), self.trackclass, repr(self.features))
+        return 'ProperList(offset=%d, vals=%s' % (self.offset, repr(self.values)) + \
+            "".join(", %s=%s" % (k, repr(v)) for k,v in self.metadata.iteritems()) + ")"
     def __len__(self):
-        return len(self.vals)
+        return len(self.values)
     def append(self, x):
         """Append *x* as an item to the end of this list."""
-        self.vals.append(x)
+        self.values.append(x)
         return self
     def insert(self, i, x):
         """Insert *x* at coordinate *i*.
@@ -446,16 +494,16 @@ class AffineList(object):
         the list's support.
         """
         if i in self.support():
-            self.vals.insert(i-self.offset, x)
+            self.values.insert(i-self.offset, x)
         elif i < self.offset:
-            self.vals = [x] + [None]*(self.offset-i-1) + self.vals
+            self.values = [x] + [None]*(self.offset-i-1) + self.values
             self.offset = i
         else: # i off to right of support
-            self.vals = self.vals + [None]*(i - (self.offset+len(self.vals))) + [x]
+            self.values = self.values + [None]*(i - (self.offset+len(self.values))) + [x]
         return self
     def extend(self, vals):
         """Append all items in *vals* to the end of the list."""
-        self.vals.extend(vals)
+        self.values.extend(vals)
         return self
     def find(self, template, all=False, start=None, end=None):
         """Find the coordinates matching *template*.
@@ -471,9 +519,9 @@ class AffineList(object):
         else:
             f = template
         if start is None:
-            start = self.support().left
+            start = self.left()
         if end is None:
-            end = self.support().right
+            end = self.right()
         
         coords = []
         for i in range(start, end):
@@ -485,17 +533,17 @@ class AffineList(object):
         return coords
     def __setitem__(self, i, x):
         if i in self.support():
-            self.vals[i-self.offset] = x
+            self.values[i-self.offset] = x
         elif i < self.offset:
-            self.vals = [x] + [None]*(self.offset-i-1) + self.vals
+            self.values = [x] + [None]*(self.offset-i-1) + self.values
             self.offset = i
         else: # i off to right of support
-            self.vals = self.vals + [None]*(i - (self.offset+len(self.vals))) + [x]
+            self.values = self.values + [None]*(i - (self.offset+len(self.values))) + [x]
         return x
     def __eq__(self, other):
-        return self.offset == other.offset and self.vals == other.vals and \
-            self.trackclass == other.trackclass and \
-            self.features == other.features
+        return self.offset == other.offset and self.values == other.values and \
+            self.metadata == other.metadata
+
 
 
 
