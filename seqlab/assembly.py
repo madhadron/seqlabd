@@ -19,6 +19,129 @@ except:
 import bz2
 import templet
 
+# Utility methods
+def max(a, b):
+    if a == None and b == None:
+        return None
+    elif a == None:
+        return b
+    elif b == None:
+        return a
+    else:
+        return a if a > b else b
+
+def min(a, b):
+    if a == None and b == None:
+        return None
+    elif a == None:
+        return b
+    elif b == None:
+        return a
+    else:
+        return a if a < b else b
+
+def dictunion(*dicts):
+    new = {}
+    for d in reversed(dicts):
+        for k,v in d.iteritems():
+            new[k] = v
+    return new
+
+def closure(*intervals):
+    c = EmptyInterval()
+    for i in intervals:
+        c = c.closure(i)
+    return c
+
+def intersection(*intervals):
+    c = hoi(neginf,posinf)
+    for i in intervals:
+        c = c.intersection(i)
+    return c
+
+# Positive and negative infinity
+class NegInf(object):
+    def __repr__(self):
+        return "NegInf()"
+    def __eq__(self, other):
+        return isinstance(other,NegInf)
+    def __lt__(self, other):
+        return False if isinstance(other,NegInf) else True
+    def __le__(self, other):
+        return True
+    def __gt__(self, other):
+        return False
+    def __ge__(self, other):
+        return True if isinstance(other,NegInf) else False
+    def __ne__(self, other):
+        return not(isinstance(other,NegInf))
+    def __sub__(self, other):
+        return self
+    def __rsub__(self, other):
+        return posinf
+    def __add__(self, other):
+        return self
+    def __radd__(self, other):
+        return self
+    def __mul__(self, other):
+        if other == 0:
+            raise ValueError("NegInf*0 is undefined.")
+        elif other > 0:
+            return self
+        else:
+            return posinf
+    def __div__(self, other):
+        if other == 0:
+            raise ZeroDivisionError()
+        elif other > 0:
+            return self
+        else:
+            return posinf
+    def __neg__(self):
+        return posinf
+
+class PosInf(object):
+    def __repr__(self):
+        return "PosInf()"
+    def __eq__(self, other):
+        return isinstance(other,PosInf)
+    def __gt__(self, other):
+        return False if isinstance(other,PosInf) else True
+    def __ge__(self, other):
+        return True
+    def __lt__(self, other):
+        return False
+    def __le__(self, other):
+        return True if isinstance(other,PosInf) else False
+    def __ne__(self, other):
+        return not(isinstance(other,PosInf))
+    def __sub__(self, other):
+        return self
+    def __rsub__(self, other):
+        return neginf
+    def __add__(self, other):
+        return self
+    def __radd__(self, other):
+        return self
+    def __mul__(self, other):
+        if other == 0:
+            raise ValueError("NegInf*0 is undefined.")
+        elif other > 0:
+            return posinf
+        else:
+            return neginf
+    def __div__(self, other):
+        if other == 0:
+            raise ZeroDivisionError()
+        elif other > 0:
+            return self
+        else:
+            return neginf
+    def __neg__(self):
+        return neginf
+
+posinf = PosInf()
+neginf = NegInf()
 
 
 
@@ -124,21 +247,6 @@ def hoi(left,right):
     else:
         return NonemptyInterval(left,right)
 
-def intersection(*intervals):
-    if len(intervals) == 0:
-        return hoi(0,0)
-    res = intervals[0]
-    for i in intervals[1:]:
-        res = res.intersect(i)
-    return res
-
-def closure(*intervals):
-    if len(intervals) == 0:
-        return hoi(0,0)
-    res = intervals[0]
-    for i in intervals[1:]:
-        res = res.closure(i)
-    return res
 
 def support(*affinelists):
     if len(affinelists) == 0:
