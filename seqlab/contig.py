@@ -58,7 +58,7 @@ def highqualityinterval(confs, threshold=40, boundarywidth=10):
             right -= 1
         else:
             return hoi(0,0)
-    return HalfOpenInterval(left,right)
+    return hoi(left,right)
     
 
 def extend(segment, interval, template):
@@ -130,12 +130,12 @@ def assemble(seq1, conf1, seq2, conf2):
     alseq1.features = [Feature('leftunused', None,alhqint1.left, 0,0,0, 0.5),
                        Feature('rightunused', alhqint1.right,None, 0,0,0, 0.5)]
     alseq2.features = [Feature('leftunused', None,alhqint2.left, 0,0,0, 0.5),
-                       Feature('leftunused', alhqint2.right,None, 0,0,0, 0.5)]
+                       Feature('rightunused', alhqint2.right,None, 0,0,0, 0.5)]
     alconf1, alconf2 = tracealong(conf1, alseq1), tracealong(conf2, alseq2)
     alconf1.features = [Feature('leftunused', None,alhqint1.left, 0,0,0, 0.5),
                         Feature('rightunused', alhqint1.right,None, 0,0,0, 0.5)]
     alconf2.features = [Feature('leftunused', None,alhqint2.left, 0,0,0, 0.5),
-                        Feature('leftunused', alhqint2.right,None, 0,0,0, 0.5)]
+                        Feature('rightunused', alhqint2.right,None, 0,0,0, 0.5)]
 
     assert len(alsegment1) == len(alconf1[alhqint1])
     assert len(alsegment2) == len(alconf2[alhqint2])
@@ -185,3 +185,5 @@ def assemble(seq1, conf1, seq2, conf2):
 
     
 
+if __name__=='__main__':
+    test_assemble()
