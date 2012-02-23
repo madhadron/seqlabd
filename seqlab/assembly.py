@@ -160,6 +160,10 @@ class Affine(object):
         return None
     def strip(self):
         return self.__class__()
+    def meta(self, key, default=None):
+        return self.metadata.get(key, default)
+    def setmeta(self, key, value):
+        self.metadata[key] = value
     def __rshift__(self, n):
         return self
     def __eq__(self, other):
@@ -188,7 +192,10 @@ class Affine(object):
     def __lshift__(self, n):
         return self >> -n
     def toorigin(self):
-        return self << self.left() if self.isproper() else self
+        if self.isproper():
+            return self << self.left()
+        else:
+            return self
     def support(self):
         if self.isempty():
             return EmptyInterval()
@@ -246,8 +253,11 @@ class ProperInterval(Interval):
     def isempty(self):
         return False
     def __rshift__(self, n):
+        newmetadata = self.metadata.copy()
+        if 'features' in newmetadata:
+            newmetadata['features'] = [f >> n for f in self.metadata['features']]
         return ProperInterval(self._left+n, self._right+n,
-                              **self.metadata)
+                              **newmetadata)
     def __eq__(self, other):
         return isinstance(other, ProperInterval) and \
             self.left() == other.left() and \
@@ -284,7 +294,11 @@ class ProperInterval(Interval):
             yield i
 
 
-
+def interval(left, right, **metadata):
+    if right <= left:
+        return EmptyInterval(**metadata)
+    else:
+        return ProperInterval(left, right, **metadata)
 
 
 class Feature(object):
@@ -323,7 +337,10 @@ class Feature(object):
         """<div class="feature" id="${self.name}" style="background-color: rgba(${self.red}, ${self.green}, ${self.blue}, ${self.alpha});"></div>"""
 
 class AffineList(Affine):
-    pass
+    def appendfeature(self, feature):
+        if 'features' not in self.metadata:
+            self.metadata['features'] = []
+        self.metadata['features'].append(feature)
 
 class EmptyList(AffineList):
     """Object representing an empty AffineList."""
@@ -380,7 +397,10 @@ class ProperList(AffineList):
     def strip(self):
         return AffineList(self.offset, self.values)
     def __rshift__(self, n):
-        return ProperList(self.offset+n, self.values, **self.metadata)
+        newmetadata = self.metadata.copy()
+        if 'features' in newmetadata:
+            newmetadata['features'] = [f >> n for f in self.metadata['features']]
+        return ProperList(self.offset+n, self.values, **newmetadata)
     def __getitem__(self, i):
         if isinstance(i, int):
             if i < self.left():
@@ -397,12 +417,16 @@ class ProperList(AffineList):
             return self.__getslice__(i.left(), i.right())
     def __getslice__(self, left, right):
         assert left <= right
+        if left == right:
+            return EmptyList(**self.metadata)
         offset = max(self.left(), left)
         i = offset - self.left()
         j = min(self.right(), right) - self.offset
-        return ProperList(offset, 
-                          self.values[i:j],
-                          **self.metadata)
+        body = self.values[i:j]
+        if len(body) == 0:
+            return EmptyList(**self.metadata)
+        else:
+            return ProperList(offset, body, **self.metadata)
     def featureson(self, left=None, right=None):
         if 'features' not in self.metadata:
             return []
@@ -501,10 +525,14 @@ class ProperList(AffineList):
         return self.offset == other.offset and self.values == other.values and \
             self.metadata == other.metadata
 
+def aflist(offset, values, **metadata):
+    if len(values) == 0:
+        return EmptyList(**metadata)
+    else:
+        return ProperList(offset, values, **metadata)
 
 
-
-class Assembly(OrderedDict):
+class Assembly(OrderedDict, Affine):
     """Class representing an assembly of sequences.
 
     ``Assembly`` is an extension of an ordered dictionary. All its
@@ -517,6 +545,13 @@ class Assembly(OrderedDict):
     def __init__(self, items=[], **metadata):
         OrderedDict.__init__(self, items)
         self.metadata = metadata
+    def isempty(self):
+        return len(self) == 0
+    def __rshift__(self, n):
+        newmetadata = self.metadata.copy()
+        if 'features' in newmetadata:
+            newmetadata['features'] = [f >> n for f in self.metadata['features']]
+        return Assembly(items=[(k, v >> n) for k,v in self.iteritems()], **newmetadata)
     def filterkeys(self, pred):
         """Return an Assembly containing only the items for which *pred*(key) is true."""
         return Assembly([(k,v) for k,v in self.iteritems() if pred(k)], metadata=self.metadata)
@@ -583,12 +618,12 @@ class Assembly(OrderedDict):
         Otherwise, returns an Assembly with its origin at *start* and
         with all the columns out to *end*.
         """
-        if isinstance(start, HalfOpenInterval):
+        if isinstance(start, Interval):
             end = start.right
             start = start.left
         if end is None:
             end = self.support().right
-        return Assembly([(k, v.narrowto(start,end)) for k,v in self.iteritems()], metadata=self.metadata)
+        return Assembly([(k, v[v.support()]) for k,v in self.iteritems()], **self.metadata)
     def narrowto(self, *keys):
         """Return an Assembly subset to the support of *keys*.
 
@@ -694,12 +729,15 @@ renderfun = defaultdict(lambda: rendertext,
                          ('integer', renderinteger),
                          ('svg', rendersvg)])
 
+@templet.stringfunction
+def renderfeature(f):
+    """<div class="feature" id="${f.meta('name','')}" style="background-color: rgba(${f.meta('red',0)}, ${f.meta('green',0)}, ${f.meta('blue',0)}, ${f.meta('alpha', 0)});"></div>"""
 
 @templet.stringfunction
 def renderbaseitem(coord, val, features, trackclass):
     """<div class="${trackclass or ""} ${val is None and "empty" or ""}">
   ${val is None and "&nbsp;" or renderfun[trackclass](coord,val)}
-  ${[f.render() for f in features if coord in f]}
+  ${[renderfeature(f) for f in features if coord in f]}
 </div>"""
 
 
@@ -710,8 +748,8 @@ def rendertext(coord,val):
 @templet.stringfunction
 def rendercolumn(assembly, i):
     """<div>
-      ${renderbaseitem(i, i, assembly.features, 'coordinate')}
-      ${[renderbaseitem(i, v[i], v.features + assembly.features, v.trackclass)
+      ${renderbaseitem(i, i, assembly.meta('features',[]), 'coordinate')}
+      ${[renderbaseitem(i, v[i], v.meta('features',[]) + assembly.meta('features',[]), v.meta('trackclass',''))
          for v in assembly.itervalues()]}
     </div>"""
 
@@ -722,7 +760,7 @@ def renderassembly(assembly):
 <div class="assembly">
   <div class="label-column">
     <div class="label"><span>Position</span></div>
-    ${['<div class="label %s"><span>%s</span></div>' % (v.trackclass, k)
+    ${['<div class="label %s"><span>%s</span></div>' % (v.metadata.get('trackclass',''), k)
        for k,v in assembly.iteritems()]}
   </div>
   <div class="scrolling-container">
@@ -736,10 +774,12 @@ def tracealong(target, template, targetgap=None, templategap='-'):
 
     *target* is assumed to have no gaps.
     """
-    result = AffineList(template.offset, [])
-    i = template.offset
+    if template.isempty():
+        raise ValueError("Can't trace along an empty list.")
+    result = []
+    i = template.left()
     j = 0
-    while i < template.support().right and j < len(target):
+    while i < template.right() and j < len(target):
         if template[i] == templategap:
             i += 1
             result.append(targetgap)
@@ -749,17 +789,20 @@ def tracealong(target, template, targetgap=None, templategap='-'):
             j += 1
     if j < len(target):
         result.extend(target[j:])
-    return result
+    return ProperList(template.left(), result)
 
 def alzipinterval(interval, *als):
     """Zip AffineLists *als* over *interval*.
 
     *als* should be AffineLists, and *interval* a HalfOpenInterval.
     """
-    result = AffineList(interval.left, [])
-    for i in range(interval.left, interval.right):
-        result.append(tuple(a[i] for a in als))
-    return result
+    if interval.isempty():
+        return EmptyList()
+    offset = interval.left()
+    body = []
+    for i in range(interval.left(), interval.right()):
+        body.append(tuple(a[i] for a in als))
+    return ProperList(offset, body)
 
 def alzipnarrow(*als):
     """Zip *als* over the intersection of their supports."""
@@ -774,10 +817,10 @@ def alzipsupport(*als):
 
 def almap(f, xs, start=None, end=None):
     if start is None:
-        start = xs.support().left
+        start = xs.left()
     if end is None:
-        end = xs.support().right
-    return AffineList(start, [f(i,x) for i,x in xs.itercoords(start=start,end=end)])
+        end = xs.right()
+    return ProperList(start, [f(i,x) for i,x in xs.itercoords(start=start,end=end)])
 
     
 css = """

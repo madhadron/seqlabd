@@ -64,6 +64,7 @@ def test_affinelist():
     assert a[ProperInterval(5,10)] << 3 == (a << 3)[2:7]
     assert EmptyList() << 3 == EmptyList()
     assert EmptyList() >> 3 == EmptyList()
+    assert a[5:5] == EmptyList()
     # Are shifting operators inverses?
     assert (a >> 3) << 3 == a
     # Fetching outside the range returns None
@@ -91,6 +92,12 @@ def test_affinelist():
     assert a == ProperList(-1, range(-1,21))
     a.extend([21,22])
     assert a == ProperList(-1, range(-1,23))
+    a.extend(EmptyList())
+    assert a == ProperList(-1, range(-1,23))
+    a.extend(ProperList(56, [23,24]))
+    assert a == ProperList(-1, range(-1,25))
+    assert list(a) == range(-1,25)
+    assert list(EmptyList()) == []
     # Does find work?
     assert ProperList(3, [1,2,3,4,5]).find(lambda x: x%2==0, all=True) == [4,6]
     assert ProperList(3, [1,2,3,4,5]).find(lambda x: x%2==0) == 4
@@ -111,6 +118,13 @@ def test_affinelist():
     
 
 # Assemblies
+
+def assertassemblies(a, b):
+    assert a.keys() == b.keys()
+    for k in a.keys():
+        assert (k, a[k]) == (k, b[k])
+    assert a.metadata == b.metadata
+
 def test_assembly():
     entries = [('a', ProperList(3, range(20), features=[ProperInterval(3,5), ProperInterval(neginf,2)])),
                ('b', EmptyList(features=[ProperInterval(12,posinf)])),
@@ -130,6 +144,9 @@ def test_assembly():
     assert a.mapkeys(lambda k,v: k+'x') == Assembly([(x[0]+'x', x[1]) for x in entries], features=[ProperInterval(0,3)])
     assert a.mapvalues(lambda k,v: v[0:5]) == Assembly([(x[0],x[1][0:5]) for x in entries], features=[ProperInterval(0,3)])
     assert a.mapitems(lambda k,v: (k+'x', v[0:5])) == Assembly([(x[0]+'x', x[1][0:5]) for x in entries], features=[ProperInterval(0,3)])
+    # Do shifts work?
+    assert (a >> 2) << 2 == a
+    assert ProperList(0, [1,2], features=[interval(3,5)]) >> 2 == ProperList(2, [1,2], features=[interval(5,7)])
     # Does appending work?
     assert Assembly([('ax', EmptyList())], features=[ProperInterval(0,3)]) + \
         Assembly([('bx', EmptyList())], features=[ProperInterval(3,5)]) == \
@@ -190,7 +207,7 @@ def test_serialize(tmpdir):
     
 
 def test_render_feature():
-    assert Feature('boris', 3, 5, 255, 0, 0, 0.3).render() == \
+    assert renderfeature(ProperInterval(3, 5, name='boris', red=255, blue=0, green=0, alpha=0.3)) == \
         """<div class="feature" id="boris" style="background-color: rgba(255, 0, 0, 0.3);"></div>"""
 
 def test_rendernucleotide():
@@ -208,7 +225,7 @@ def test_assembly_render():
                                        trackclass='nucleotide')),
                   ('a', ProperList(1, range(50), 
                                    trackclass='integer',
-                                   features=[Feature('b', 6,12, 0,255,0, 0.4)])),
+                                   features=[ProperInterval(6, 12, name='b', red=0, green=255, blue=0, alpha=0.4)])),
                   ('q', ProperList(3, [{'A': [(0,0), (1,1)],
                                         'C': [(0,1), (1,0)],
                                         'T': [(0, 0.5), (1, 0.5)],
@@ -219,7 +236,7 @@ def test_assembly_render():
                                         'G': [(0, 0.25), (1,0.25)]}],
                                    trackclass="svg")),
                   ('b', ProperList(4, [1,2,3,4,5], trackclass='integer'))],
-                 features=[Feature('q', 11,15, 255,0,0, 0.3)])
+                 features=[ProperInterval(11, 15, name='q', red=255, green=0, blue=0, alpha=0.3)])
     s = renderassembly(a)
     with open('assembly_render_test.html','w') as o:
         print >>o, "<html><head><style>"
