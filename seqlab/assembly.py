@@ -422,44 +422,6 @@ class ProperList(AffineList):
             else:
                 pos = EmptyInterval()
         return [f for f in self.metadata['features'] if f.overlaps(pos)]
-        
-    # def __getslice__(self, start, end):
-                                    
-    #     if start < self.offset:
-    #         newoffset = self.offset
-    #         newleft = 0
-    #     elif start < self.offset + len(self):
-    #         newoffset = start
-    #         newleft = start - self.offset
-    #     else:
-    #         return AffineList(0, [], trackclass=self.trackclass, features = []) # Canonical empty list
-
-    #     if end < self.offset:
-    #         return AffineList(0, [], trackclass=self.trackclass, features=[])
-    #     elif end < self.offset + len(self):
-    #         return AffineList(newoffset, self.values[newleft : end-self.offset], 
-    #                           trackclass=self.trackclass, features=self.featureson(start,end))
-    #     else:
-    #         return AffineList(newoffset, self.values[newleft:], 
-    #                           trackclass=self.trackclass, features=self.featureson(start,end))
-    def narrowto(self, i=None, j=None):
-        if isinstance(i,HalfOpenInterval):
-            j = i.right
-            i = i.left
-        if i==None:
-            i = self.offset
-        if j==None:
-            j = self.offset + len(self.values)
-        return self[i:j] << i
-    def __lshift__(self, i):
-        return self >> (-1*i)
-    def support(self):
-        """Return the HalfOpenInterval containing the support of this list.
-
-        For example, ``AffineList(offset=1, vals=[1,2]).support()`` is
-        ``ProperInterval(1,3)``.
-        """
-        return ProperInterval(self.offset, self.offset + len(self.values))
     def iter(self, start=None, end=None):
         """Return an iterator over the elements in the support of this list."""
         return it.imap(lambda (a,b): b, self.itercoords(start=start, end=end))
@@ -579,6 +541,10 @@ class Assembly(OrderedDict):
     def mapvalues(self, fun):
         """Return an Assembly with values replaced by *fun*(key,value)."""
         return Assembly([(k,fun(k,v)) for k,v in self.iteritems()], metadata=self.metadata)
+    def left(self):
+        return self.support().left()
+    def right(self):
+        return self.support().right()
     def __add__(self, other):
         """Append the entries in *other* to this.
         
@@ -610,11 +576,10 @@ class Assembly(OrderedDict):
         and *end* are omitted, it iterates over the whole support of
         the ``Assembly``.
         """
-        whole = self.support()
         if start is None:
-            start = whole.left
+            start = self.left()
         if end is None:
-            end = whole.right
+            end = self.right()
         for i in range(start,end):
             yield (i,OrderedDict([(k,v[i]) for k,v in self.iteritems()]))
     def subset(self, start=0, end=None):
@@ -643,7 +608,7 @@ class Assembly(OrderedDict):
         *keys* is specified as for the ``support`` method.
         """
         s = self.support(*keys)
-        return len(s)
+        return s.width()
     def coordinates(self):
         """Return an AffineList of the coordinates in the Assembly's support."""
         h = self.support()

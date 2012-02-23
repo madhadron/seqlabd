@@ -136,6 +136,8 @@ def test_assembly():
         Assembly([('ax', EmptyList()), ('bx', EmptyList())],
                  features=[ProperInterval(0,3),ProperInterval(3,5)])
     # Does support work?
+    assert a.left() == -2
+    assert a.right() == 23
     assert a.support() == ProperInterval(-2,23)
     assert a.support('b') == EmptyInterval()
     assert a.support('a', 'd') == ProperInterval(3,6)
