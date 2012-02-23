@@ -54,7 +54,7 @@ def test_intervals():
 
 # Affine lists
 def test_affinelist():
-    a = ProperList(offset=0, vals=range(20))
+    a = ProperList(offset=0, values=range(20))
     # Does repr work?
     assert eval(repr(a)) == a
     q = ProperList(0, [0,1,2], a=3, boris={1:2})
@@ -71,7 +71,7 @@ def test_affinelist():
         assert a[i] == (None if i < 0 or i >= 20 else i)
         assert EmptyList()[i] == None
     # Is featureson sane?
-    b = ProperList(offset=3, vals=[1,2,3,4,5], 
+    b = ProperList(offset=3, values=[1,2,3,4,5], 
                    features=[ProperInterval(neginf,5), ProperInterval(1,4), ProperInterval(3,posinf)])
     assert b.featureson(-10) == [ProperInterval(neginf,5)]
     assert b.featureson(3) == [ProperInterval(neginf,5), ProperInterval(1,4), ProperInterval(3,posinf)]
@@ -164,39 +164,29 @@ def test_assembly():
     assert a.width('a','b') == 2
 
 # Serialization
+def test_serialize(tmpdir):
+    assert affine_hooks({'__ProperInterval': True, 'left': 5, 'right': 12, 'a': 3}) == ProperInterval(5,12,a=3)
 
-def test_json_dumpload():
-    import json
-    altxt = """{"__AffineList": true,
-                "offset": 3,
-                "vals": [1,2,3,4,5],
-                "features": [],
-                "trackclass": "integer"}"""
-    alval = ProperList(3, [1,2,3,4,5], trackclass='integer', features=[])
-    astxt = """{"__Assembly": true,
-                "features": [],
-                "metadata": {"boris": "hilda", "meep": 3},
-                "tracks": [["b", {"__AffineList": true, "offset": 1, "vals": [1,2,3], 
-                                  "features": [], "trackclass": "integer"}],
-                           ["a", {"__AffineList": true, "offset": 3, "vals": [4,4,4], 
-                                  "features": [], "trackclass": "integer"}]]}"""
-    asval = Assembly([('b', ProperList(1, [1,2,3], trackclass='integer', features=[])),
-                      ('a', ProperList(3, [4,4,4], trackclass='integer', features=[]))],
-                     metadata={'boris': 'hilda', 'meep': 3})
-    assert json.loads(altxt, object_hook=as_assembly) == alval
-    assert json.loads(astxt, object_hook=as_assembly) == asval
-    assert json.loads(json.dumps(alval, cls=AssemblyEncoder), object_hook=as_assembly) == alval
-    assert json.loads(json.dumps(asval, cls=AssemblyEncoder), object_hook=as_assembly) == asval
+    a = Assembly([('a', ProperList(3, range(20), features=[ProperInterval(3,5), ProperInterval(neginf,2)])),
+                  ('b', EmptyList(features=[ProperInterval(12,posinf)])),
+                  ('c', ProperList(-2, range(8))),
+                  ('d', ProperList(0, range(6), features=[ProperInterval(1,2,red=55,green=12,blue=13,alpha=0.5)]))],
+                 features=[ProperInterval(0,3,name='boris')])
 
-def test_serialize_deserialize():
-    a = Assembly([('b', ProperList(1, [1,2,3])),
-                  ('a', ProperList(3, [4,4,4]))],
-                 metadata={'boris': 'hilda', 'meep': 3})
-    import tempfile
-    filename = tempfile.mktemp()
-    serialize(a, filename)
-    assert deserialize(filename) == a
-    os.unlink(filename)
+    assert deserializes("""{"__Assembly": true, "items": [["a", {"__ProperList": true, "offset": 3, "values": [1,2,3]}]]}""") == \
+        Assembly([('a', ProperList(3, [1,2,3]))])
+
+    newa = deserializes(a.serialize())
+    assert a.keys() == newa.keys()
+    for k in a.keys():
+        assert a[k] == newa[k]
+    assert a.metadata == newa.metadata
+
+    t = tmpdir.join('afile')
+    a.serialize(str(t))
+    assert deserialize(str(t)) == a
+
+    
     
 
 def test_render_feature():

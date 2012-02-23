@@ -202,6 +202,15 @@ class Affine(object):
     def iter(self, left=None, right=None):
         while False:
             yield None
+    def serialize(self, filename=None):
+        if filename is None:
+            return json.dumps(self, cls=AffineEncoder)
+        else:
+            with bz2.BZ2File(filename, 'w') as out:
+                json.dump(self, out, cls=AffineEncoder)
+
+
+
 
 
 class Interval(Affine):
@@ -254,7 +263,6 @@ class ProperInterval(Interval):
         else:
             left = max(self.left(), other.left())
             right = min(self.right(), other.right())
-            print left, right
             if right <= left:
                 return EmptyInterval(**metadata)
             else:
@@ -357,12 +365,12 @@ class ProperList(AffineList):
     ``enumerate()`` on a normal list, but returns the coordinates
     instead of the indices.
     """
-    def __init__(self, offset, vals, **kwargs):
-        if len(vals) == 0:
+    def __init__(self, offset, values, **kwargs):
+        if len(values) == 0:
             raise ValueError("Cannot create a ProperList with no contents.")
         self.metadata = kwargs
         self.offset = offset
-        self.values = list(vals)
+        self.values = list(values)
     def isempty(self):
         return False
     def left(self):
@@ -395,19 +403,6 @@ class ProperList(AffineList):
         return ProperList(offset, 
                           self.values[i:j],
                           **self.metadata)
-
-
-    # def __getitem__(self, i):
-    #     if isinstance(i, Interval) and i.isempty():
-    #         return EmptyList(**self.metadata)
-    #     elif isinstance(i, Interval) and i.isproper():
-    #         newoffset = max(self.offset, i.left())
-    #         newleft = max(i.left() - self.offset, 0)
-    #         return AffineList(self.__getslice__(i.left(), i.right()))
-    #     if i < self.offset or i >= self.offset+len(self.values):
-    #         return None
-    #     else:
-    #         return self.values[i - self.offset]
     def featureson(self, left=None, right=None):
         if 'features' not in self.metadata:
             return []
@@ -441,7 +436,7 @@ class ProperList(AffineList):
         for i in range(start, end):
             yield (i,self[i])
     def __repr__(self):
-        return 'ProperList(offset=%d, vals=%s' % (self.offset, repr(self.values)) + \
+        return 'ProperList(offset=%d, values=%s' % (self.offset, repr(self.values)) + \
             "".join(", %s=%s" % (k, repr(v)) for k,v in self.metadata.iteritems()) + ")"
     def __len__(self):
         return len(self.values)
@@ -519,10 +514,9 @@ class Assembly(OrderedDict):
     ``metadata`` is properly propogated through all operations on
     ``Assembly``.
     """
-    def __init__(self, items=[], metadata={}, features=[]):
+    def __init__(self, items=[], **metadata):
         OrderedDict.__init__(self, items)
         self.metadata = metadata
-        self.features = features
     def filterkeys(self, pred):
         """Return an Assembly containing only the items for which *pred*(key) is true."""
         return Assembly([(k,v) for k,v in self.iteritems() if pred(k)], metadata=self.metadata)
@@ -611,54 +605,56 @@ class Assembly(OrderedDict):
         return s.width()
     def coordinates(self):
         """Return an AffineList of the coordinates in the Assembly's support."""
-        h = self.support()
-        return range(h.left, h.right)
+        return range(self.left(), self.right())
+    def serialize(self, filename=None):
+        d = dictunion({'__Assembly': True,
+                       'items': [(k,v) for k,v in self.iteritems()]},
+                      self.metadata)
+        if filename is None:
+            return json.dumps(d, cls=AffineEncoder)
+        else:
+            with bz2.BZ2File(filename, 'w') as out:
+                json.dump(d, out, cls=AffineEncoder)
+
+
         
 
-def as_assembly(dct):
-    if '__Assembly' in dct:
-        return Assembly(dct['tracks'], metadata=dct['metadata'], features=dct['features'])
-    elif '__AffineList' in dct:
-        return AffineList(offset=dct['offset'], vals=dct['vals'], features=dct['features'],
-                          trackclass=dct['trackclass'])
-    elif '__Feature' in dct:
-        return Feature(dct['name'], dct['left'], dct['right'], dct['red'], dct['green'],
-                       dct['blue'], dct['alpha'])
-    else:
+def affine_hooks(dct):
+    classkeys = [k[2:] for k in dct if k.startswith('__')]
+    if classkeys == []:
         return dct
+    elif len(classkeys) > 1:
+        raise ValueError("Found more than one class specifier in JSON")
+    else:
+        c = classkeys[0]
+        s = c + '(' + ', '.join(['%s=%s' % (k,repr(v)) for k,v in dct.iteritems() if not(k.startswith('__'))]) + ")"
+        return eval(s)
 
-class AssemblyEncoder(json.JSONEncoder):
+class AffineEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, AffineList):
-            return {'__AffineList': True, 'offset': obj.offset, 'vals': obj.vals,
-                    'trackclass': obj.trackclass, 'features': obj.features}
-        elif isinstance(obj, Assembly):
-            return {'__Assembly': True, 'metadata': obj.metadata, 
-                    'tracks': [(k,v) for k,v in obj.iteritems()],
-                    'features': obj.features}
-        elif isinstance(obj, Feature):
-            return {'__Feature': True, 'name': obj.name, 'left': obj.pos.left,
-                    'right': obj.pos.right, 'red': obj.red, 'green': obj.green,
-                    'blue': obj.blue, 'alpha': obj.alpha}
+        if isinstance(obj, ProperInterval):
+            v = {'left': obj.left(), 'right': obj.right()}
+        elif isinstance(obj, ProperList):
+            v = {'offset': obj.left(), 'values': obj.values}
+        elif isinstance(obj, Affine):
+            v = {}
+        elif obj == neginf:
+            return {'__NegInf': True}
+        elif obj == posinf:
+            return {'__PosInf': True}
         else:
             return json.JSONEncoder.default(self, obj)
-            
-def serialize(obj, filename):
-    """Dump *obj* to *filename* as bz2 compressed JSON."""
-    try:
-        out = bz2.BZ2File(filename, 'w')
-        json.dump(obj, out, cls=AssemblyEncoder)
-    finally:
-        out.close()
+        d = dictunion(v, {'__'+obj.__class__.__name__: True}, obj.metadata)
+        return d
 
+def deserializes(txt):
+    return json.loads(txt, object_hook=affine_hooks)
 
 def deserialize(filename):
     """Load an object from a bz2 compressed JSON file *filename*."""
-    try:
-        input = bz2.BZ2File(filename, 'r')
-        return json.load(input, object_hook=as_assembly)
-    finally:
-        input.close()
+    with bz2.BZ2File(filename, 'r') as input:
+        return json.load(input, object_hook=affine_hooks)
+
     
 @templet.stringfunction
 def renderinteger(coord, val):
@@ -777,7 +773,6 @@ def alzipsupport(*als):
 
 
 def almap(f, xs, start=None, end=None):
-    print start,end
     if start is None:
         start = xs.support().left
     if end is None:
