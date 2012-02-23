@@ -1,198 +1,133 @@
 import common
 from seqlab.assembly import *
 import os
+import random
 
-def test_halfopeninterval_intersect():
-    assert hoi(1,3).intersect(hoi(5,7)) == EmptyInterval()
-    assert hoi(1,3).intersect(hoi(1,2)) == hoi(1,2)
-    assert hoi(None,5).intersect(hoi(3,None)) == hoi(3,5)
-
-def test_halfopeninterval_closure():
-    assert hoi(1,3).closure(hoi(5,7)) == hoi(1,7)
-    assert hoi(1,3).closure(EmptyInterval()) == hoi(1,3)
-    assert hoi(1,3).closure(hoi(1,3)) == hoi(1,3)
-    assert EmptyInterval().closure(hoi(1,3)) == hoi(1,3)
-
-def test_halfopeninterval_contains():
+# Intervals
+def test_intervals():
+    # Does the intersection convenience function work?
+    assert intersection(hoi(1,3), hoi(5,7)) == hoi(1,3).intersect(hoi(5,7))
+    # Is intersection idempotent?
+    assert intersection(hoi(1,3), hoi(1,3)) == hoi(1,3)
+    # Is the empty set a zero of intersection?
+    assert intersection(hoi(1,3), EmptyInterval()) == EmptyInterval()
+    # Do disjoint intervals intersect to empty?
+    assert intersection(hoi(1,3), hoi(5,7)) == EmptyInterval()
+    # Does the closure convenience function work?
+    assert closure(hoi(1,3), hoi(5,7)) == hoi(1,3).closure(hoi(5,7))
+    # Is closure idempotent?
+    assert closure(hoi(1,3), hoi(1,3)) == hoi(1,3)
+    # Empty is a unit of closure
+    assert closure(hoi(1,3), EmptyInterval()) == hoi(1,3)
+    # Are intervals containing posinf and neginf infinite?
+    for i in [hoi(neginf,posinf), hoi(neginf,5), hoi(5,posinf), hoi(3,5)]:
+        assert i.isfinite() != i.isinfinite()
+        assert i.isinfinite() == (i.left() == neginf or i.right() == posinf)
+    # Does contains work?
     assert 3 in hoi(1,6)
     assert not(3 in hoi(5,6))
-    assert not(3 in hoi(0,0))
-    assert 3 in hoi(None,5)
-    assert 3 in hoi(1, None)
-    assert not(3 in hoi(None, 1))
-    assert not(3 in hoi(5,None))
+    assert not(3 in EmptyInterval())
+    assert 3 in hoi(neginf,posinf)
+    assert not(3 in hoi(neginf,0))
+    assert not(3 in hoi(5,posinf))
+    # Does width work?
+    for i in [hoi(neginf,posinf), hoi(1,3), hoi(neginf,3), hoi(1,posinf)]:
+        assert i.width() == i.right() - i.left()
+    assert EmptyInterval().width() == 0
+    # Are metadata propogated properly?
+    assert closure(EmptyInterval(a=3),EmptyInterval(b=5)) == EmptyInterval(a=3,b=5)
+    assert closure(hoi(3,8,a=3),hoi(3,8,b=5)) == hoi(3,8,a=3,b=5)
+    assert intersection(EmptyInterval(a=3),EmptyInterval(b=5)) == EmptyInterval(a=3,b=5)
+    assert intersection(hoi(3,8,a=3),hoi(3,8,b=5)) == hoi(3,8,a=3,b=5)
+    # Are metadata left weighted?
+    assert closure(EmptyInterval(a=3),EmptyInterval(a=5)) == EmptyInterval(a=3)
+    assert closure(hoi(3,8,a=3), hoi(3,8,a=5)) == hoi(3,8,a=3)
+    # Does strip remove metadata?
+    assert EmptyInterval(a=3).strip() == EmptyInterval()
+    assert hoi(3,8,a=3).strip() == hoi(3,8)
 
-def test_intersection():
-    assert intersection(hoi(3,6), hoi(3,5)) == hoi(3,5)
-    assert intersection(hoi(3,5), hoi(5,7)) == EmptyInterval()
-    assert intersection(hoi(None,5), hoi(3,None)) == hoi(3,5)
-
-def test_affinelist_getitem():
-    a = AffineList(offset=3, vals=[1])
-    assert a[2] == None
-    assert a[3] == 1
-    assert a[4] == None
-    assert a[hoi(0,4)] == AffineList(3, [1])
-
-def test_feature_eq():
-    assert Feature('left', 0,7, 9,10,11,0.1) == Feature('left', 0,7,9,10,11,0.1)
-    assert Feature('left', None,7, 9,10,11,0.1) == Feature('left', None,7, 9,10,11,0.1)
-    assert Feature('right', 7,None,9,10,11,0.1) == Feature('right', 7,None,9,10,11,0.1)
-
-def test_affinelist_narrowto():
-    a = AffineList(3, [1,2,3,4,5], features=[Feature('left', None,4, 5,6,7, 0.1),
-                                             Feature('middle', 3,10, 9,10,11, 0.2),
-                                             Feature('right', 4,None, 1,2,3, 0.3)])
-    b0 = AffineList(3, [1,2], features=[Feature('a', 3,5,1,2,3,0.1)], trackclass='boris')
-    b = b0.narrowto()
-    assert b == \
-        AffineList(0,[1,2], features=[Feature('a', 0,2,1,2,3,0.1)], trackclass='boris')
-    assert a.narrowto().features[0] == Feature('left', None,1, 5,6,7,0.1)
-    assert a.narrowto().features[1] == Feature('middle', 0,7, 9,10,11,0.2)
-    assert a.narrowto().features[2] == Feature('right', 1,None, 1,2,3,0.3)
-    assert a.narrowto().features == [Feature('left', None,1, 5,6,7,0.1),
-                                     Feature('middle', 0,7, 9,10,11,0.2),
-                                     Feature('right', 1,None, 1,2,3,0.3)]
-    assert a.narrowto() == AffineList(0, [1,2,3,4,5], features = [Feature('left', None,1, 5,6,7,0.1),
-                                                                   Feature('middle', 0,7, 9,10,11,0.2),
-                                                                   Feature('right', 1,None, 1,2,3,0.3)])
-    assert a.narrowto(1, 6) == AffineList(2, [1,2,3], features = [Feature('left', None,2, 5,6,7,0.1),
-                                                                   Feature('middle', 0,5, 9,10,11,0.2),
-                                                                   Feature('right', 0,None, 1,2,3,0.3)])
-    assert a.narrowto(4,6) == AffineList(0, [2,3], features = [Feature('middle', -1,6, 9,10,11,0.2),
-                                                                Feature('right', 0,None, 1,2,3,0.3)])
-
-def test_affinelist_getslice():
-    a = AffineList(offset=3, vals=[1,2,3,4,5])
-    assert a[0:4] == AffineList(3, [1])
-    assert a[0:6] == AffineList(3, [1,2,3])
-    assert a[4:6] == AffineList(4, [2,3])
-    assert a[4:25] == AffineList(4, [2,3,4,5])
-    assert a[25:28] == AffineList(0, [])
-    assert a[0:2] == AffineList(0, [])
-
-def test_affinelist_featureson():
-    a = AffineList(offset=3, vals=[1,2,3,4,5], features=[Feature('a', None,5, 1,1,1,0.5),
-                                                         Feature('b', 1,4, 1,1,1,0.5),
-                                                         Feature('c', 3,None,1,1,1,0.5)])
-    assert a.featureson(hoi(0,1)) == [Feature('a',None,5,1,1,1,0.5)]
-    assert a.featureson(3,4) == [Feature('a', None,5, 1,1,1,0.5),
-                                 Feature('b', 1,4, 1,1,1,0.5),
-                                 Feature('c', 3,None,1,1,1,0.5)]
-
-def test_affinelist_shifts():
-    a = AffineList(offset=3, vals=[1,2,3,4,5], features=[Feature('a',0,3,1,1,1,0.1)], trackclass="boris")
-    b = a << 3
-    assert b == AffineList(0, [1,2,3,4,5], features=[Feature('a',-3,0,1,1,1,0.1)], trackclass="boris")
-    assert a >> 2 == AffineList(5, [1,2,3,4,5], trackclass="boris", features=[Feature('a',2,5,1,1,1,0.1)])
-    assert a << 0 == a
-    assert a >> 0 == a
-    assert a >> 1 == a << -1
-    assert a << 1 == a >> -1
-
-def test_affinelist_support():
-    assert AffineList(3, [1,2,3,4,5]).support() == hoi(3,8)
-    assert AffineList(0, []).support() == hoi(0,0)
-    assert AffineList(1, []).support() == hoi(1,1)
-    assert AffineList(1, [3]).support() == hoi(1,2)
-
-def test_affinelist_iter():
-    a = AffineList(offset=3, vals=[1,2,3,4,5])    
-    assert list(a.iter()) == [1,2,3,4,5]
-    assert list(a.iter(start=0)) == [None,None,None,1,2,3,4,5]
-    assert list(a.iter(start=0, end=2)) == [None,None]
-    assert list(a.iter(start=0, end=9)) == [None,None,None,1,2,3,4,5,None]
-
-def test_affinelist_itercoords():
-    a = AffineList(offset=3, vals=[1,2,3,4,5])    
-    assert list(a.itercoords()) == [(3,1),(4,2),(5,3),(6,4),(7,5)]
-    assert list(a.itercoords(start=0)) == [(0,None),(1,None),(2,None),(3,1),
-                                           (4,2),(5,3),(6,4),(7,5)]
-    assert list(a.itercoords(start=0, end=2)) == [(0,None),(1,None)]
-    assert list(a.itercoords(start=0, end=9)) == [(0,None),(1,None),(2,None),(3,1),(4,2),
-                                            (5,3),(6,4),(7,5),(8,None)]
-
-def test_affinelist_repr():
-    a = AffineList(offset=3, vals=[1,2,3,4,5])    
-    assert eval(repr(a)) == a
-
-def test_affinelist_append():
-    a = AffineList(offset=3, vals=[1,2,3,4,5])
-    assert a.append(1) == AffineList(3, [1,2,3,4,5,1])
-
-def test_affinelist_insert():
-    assert AffineList(3, [1,2,3,4,5]).insert(3,0) == AffineList(3, [0,1,2,3,4,5])
-    assert AffineList(0, []).insert(0, 12) == AffineList(0, [12])
-    assert AffineList(3, [1,2]).insert(1, 5) == AffineList(1, [5,None,1,2])
-    assert AffineList(3, [1,2]).insert(7, 13) == AffineList(3, [1,2,None,None,13])
-
-def test_affinelist_find():
+# Affine lists
+def test_affinelist():
+    a = AffineList(offset=0, vals=range(20))
+    # Shifting commutes with subsetting in the expected way for coordinates
+    assert a[5:10] >> 3 == (a >> 3)[8:13]
+    assert a[hoi(5,10)] << 3 == (a << 3)[2:7]
+    assert EmptyList() << 3 == EmptyList()
+    assert EmptyList() >> 3 == EmptyList()
+    # Are shifting operators inverses?
+    assert (a >> 3) << 3 == a
+    # Fetching outside the range returns None
+    for i in range(-20,50):
+        assert a[i] == None if i < 0 or i >= 20 else i
+        assert EmptyList()[i] == None
+    # Is featuresat sane?
+    b = AffineList(offset=3, vals=[1,2,3,4,5], 
+                   features=[hoi(neginf,5), hoi(1,4), hoi(3,posinf)])
+    assert b.featuresat(-10) == [hoi(neginf,5)]
+    assert b.featuresat(3) == [hoi(neginf,5), hoi(1,4), hoi(3,posinf)]
+    # Is support sane?
+    assert a.support() == hoi(0,20)
+    assert EmptyList().support() == EmptyInterval()
+    # Does width work?
+    assert a.width() == a.right() - a.left()
+    # Does iteration work?
+    assert list(iter(a)) == zip(range(20),range(20))
+    # Do list operations work?
+    a.append(20)
+    assert a == AffineList(0, range(21))
+    a.insert(-1,-1)
+    assert a == AffineList(-1, range(-1,21))
+    a.extend([21,22])
+    assert a == AffineList(-1, range(-1,23))
+    # Does find work?
     assert AffineList(3, [1,2,3,4,5]).find(lambda x: x%2==0, all=True) == [4,6]
     assert AffineList(3, [1,2,3,4,5]).find(lambda x: x%2==0) == 4
     assert AffineList(3, [1,2,1,2,1]).find(1, all=True) == [3,5,7]
     assert AffineList(3, [1,2,1,2,1]).find(1) == 3
     assert AffineList(3, [1,2,1,2,1]).find(1, all=True, start=4) == [5,7]
     assert AffineList(3, [1,2,1,2,1]).find(1, all=True, end=5) == [3]
-
-def test_affinelist_setitem():
+    # Does setting items work, in the support and to both sides of it?
     a = AffineList(3, [1,2,3,4,5]); a[3] = 0
     assert a == AffineList(3, [0,2,3,4,5])
     a = AffineList(3, [1,2,3,4,5]); a[1] = 0
     assert a == AffineList(1, [0,None,1,2,3,4,5])
     a = AffineList(3, [1,2,3,4,5]); a[9] = 0
     assert a == AffineList(3, [1,2,3,4,5,None,0])
+    # Is metadata propogated properly?
+    c = AffineList(3, range(20), a=12)
+    assert c[3:4].metadata == c.metadata
+    
 
-def test_assembly_init():
-    a = Assembly([('qboris', AffineList(0,[])),
-                  ('hilda', AffineList(0,[]))])
-    assert list(a.iteritems()) == [('qboris', AffineList(0, [])),
-                                   ('hilda', AffineList(0, []))]
-
-def test_assembly_filters():
-    a = Assembly([('ax', AffineList(3, [1,2,3])),
-                  ('ay', AffineList(3, [2,5,6])),
-                  ('bx', AffineList(0, [1,1,1]))])
-    assert a.filterkeys(lambda k: k.startswith('a')) == \
-        Assembly([('ax', AffineList(3, [1,2,3])),
-                  ('ay', AffineList(3, [2,5,6]))])
-    assert a.filteritems(lambda k,v: 5 in v.support()) == \
-        Assembly([('ax', AffineList(3, [1,2,3])),
-                  ('ay', AffineList(3, [2,5,6]))])
-    assert a.filtervalues(lambda v: 5 in v.support()) == \
-        Assembly([('ax', AffineList(3, [1,2,3])),
-                  ('ay', AffineList(3, [2,5,6]))])
-
-def test_assembly_maps():
-    a = Assembly([('ax', AffineList(3, [1,2,3])),
-                  ('ay', AffineList(3, [2,5,6])),
-                  ('bz', AffineList(0, [1,1,1]))])
-    assert a.mapkeys(lambda k,v: k[1]) == \
-        Assembly([('x', AffineList(3, [1,2,3])),
-                  ('y', AffineList(3, [2,5,6])),
-                  ('z', AffineList(0, [1,1,1]))])
-    assert a.mapitems(lambda k,v: (k,v[:5])) == \
-        Assembly([('ax', AffineList(3, [1,2])),
-                  ('ay', AffineList(3, [2,5])),
-                  ('bz', AffineList(0, [1,1,1]))])
-    assert a.mapvalues(lambda k,v: v[:5]) == \
-        Assembly([('ax', AffineList(3, [1,2])),
-                  ('ay', AffineList(3, [2,5])),
-                  ('bz', AffineList(0, [1,1,1]))])
-
-def test_assembly_adding():
-    a = Assembly([('ax', AffineList(0,[]))])
-    b = Assembly([('bx', AffineList(0,[]))])
-    assert a+b == Assembly([('ax', AffineList(0,[])),
-                            ('bx', AffineList(0,[]))])
-
-def test_assembly_support():
-    a = Assembly([('a', AffineList(1, [1,2,3,4,5])),
-                  ('b', AffineList(4, [1,2,3,4,5]))])
-    assert a.support() == hoi(1,9)
-    assert a.support('a') == hoi(1,6)
-    assert a.support('a', 'b') == hoi(4,6)
-
-def test_assembly_itercolumns():
+# Assemblies
+def test_assembly():
+    entries = [('a', AffineList(3, range(20), features=[hoi(3,5), hoi(neginf,2)])),
+               ('b', EmptyList(features=[hoi(12,posinf)])),
+               ('c', AffineList(-2, range(8))),
+               ('d', AffineList(0, range(6), features=[hoi(1,2)]))]
+    a = Assembly(entries, features=[hoi(0,3)])
+    # Do iterators work?
+    assert list(iter(a)) == [x[0] for x in entries]
+    assert list(a.iterkeys()) == [x[0] for x in entries]
+    assert list(a.itervalues()) == [x[1] for x in entries]
+    assert list(a.iteritems()) == entries
+    # Do filters work?
+    assert a.filterkeys(lambda k: k=='a' or k=='b') == Assembly(entries[0:2], features=[hoi(0,3)])
+    assert a.filteritems(lambda k,v: 5 in v.support()) == Assembly([entries[0]] + entries[2:], features=[hoi(0,3)])
+    assert a.filtervalues(lambda v: 5 in v.support()) == Assembly([entries[0]] + entries[2:], features=[hoi(0,3)])
+    # Do maps work?
+    assert a.mapkeys(lambda k: k+'x') == Assembly([(x[0]+'x', x[1]) for x in entries], features=[hoi(0,3)])
+    assert a.mapvalues(lambda v: v[0:5]) == Assembly([(x[0],x[1][0:5]) for x in entries], features=[hoi(0,3)])
+    assert a.mapitems(lambda k,v: (k+'x', v[0:5])) == Assembly([(x[0]+'x', x[1][0:5]) for x in entries], features=[hoi(0,3)])
+    # Does appending work?
+    assert Assembly([('ax', AffineList(0,[]))], features=[hoi(0,3)]) + \
+        Assembly([('bx', AffineList(0,[]))], features=[hoi(3,5)]) == \
+        Assembly([('ax', AffineList(0,[])), ('bx', AffineList(0,[]))],
+                 features=[hoi(0,3),hoi(3,5)])
+    # Does support work?
+    assert a.support() == hoi(-2,23)
+    assert a.support('b') == EmptyInterval()
+    assert a.support('a', 'd') == hoi(3,6)
+    # Does iterating columns work?
     a = Assembly([('a', AffineList(1, [1,2,3,4,5])),
                   ('b', AffineList(4, [1,2,3,4,5]))])
     assert list(a.itercolumns()) == [(1, OrderedDict([('a',1),('b',None)])),
@@ -206,36 +141,15 @@ def test_assembly_itercolumns():
     assert list(a.itercolumns(start=3,end=5)) == \
         [(3, OrderedDict([('a',3),('b',None)])),
          (4, OrderedDict([('a',4),('b',1)]))]
-
-def test_assembly_subset():
-    a = Assembly([('a', AffineList(1, [1,2,3,4,5])),
-                  ('b', AffineList(4, [1,2,3,4,5]))])    
-    assert a.subset(start=3,end=5) == \
-        Assembly([('a', AffineList(0, [3,4])),
-                  ('b', AffineList(1, [1]))])
-    assert a.subset() == a
-    assert a.subset(hoi(3,5)) == \
-        Assembly([('a', AffineList(0, [3,4])),
-                  ('b', AffineList(1, [1]))])
-
-def test_assembly_narrowto():
-    a = Assembly([('a', AffineList(1, [1,2,3,4,5], features=[Feature('left', None,5, 1,2,3,0.1)])),
-                  ('b', AffineList(4, [1,2,3,4,5]))])
-    assert a.narrowto()['a'].features == [Feature('left', None, 4,1,2,3,0.1)]
-    assert a.narrowto() == Assembly([('a', AffineList(0, [1,2,3,4,5], features=[Feature('left', None, 4,1,2,3,0.1)])),
-                                     ('b', AffineList(3, [1,2,3,4,5]))])
-    assert a.narrowto('a') == Assembly([('a', AffineList(0, [1,2,3,4,5], features=[Feature('left', None, 4, 1,2,3,0.1)])),
-                                        ('b', AffineList(3, [1,2]))])
-    assert a.narrowto('a','b') == Assembly([('a', AffineList(0, [4,5], features=[Feature('left', None,1, 1,2,3,0.1)])),
-                                            ('b', AffineList(0, [1,2]))])
-    
-def test_assembly_width():
+    # Does width work?
     a = Assembly([('a', AffineList(1, [1,2,3,4,5])),
                   ('b', AffineList(4, [1,2,3,4,5]))])
     assert Assembly([]).width() == 0
     assert a.width() == 8
     assert a.width('a') == 5
     assert a.width('a','b') == 2
+
+# Serialization
 
 def test_json_dumpload():
     import json
