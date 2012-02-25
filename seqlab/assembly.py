@@ -18,6 +18,7 @@ except:
     from ordereddict import OrderedDict
 import bz2
 import templet
+import ab1
 
 # Utility methods
 def max(a, b):
@@ -769,6 +770,20 @@ def renderassembly(assembly):
 </div>"""
 
 
+def ab1tohtml(ab1filename):
+    r = ab1.read(ab1filename)
+    a = Assembly([('traces', aflist(0, r['traces'], trackclass='svg')),
+                  ('confidences', aflist(0, r['confidences'], trackclass='integer')),
+                  ('bases', aflist(0, r['sequence'], trackclass='nucleotide'))])
+    s = ""
+    s += "<html><head><style>"
+    s += css
+    s += "</style></head><body>"
+    s += renderassembly(a)
+    s += "</body></html>"
+    return s
+
+
 def tracealong(target, template, targetgap=None, templategap='-'):
     """Given a list *target*, string it along *template*, inserting gaps.
 
@@ -826,7 +841,7 @@ def almap(f, xs, start=None, end=None):
 css = """
 * { margin: 0; padding: 0; }
 
-.scrolling-container { position: relative; width: 100%; max-width: 100%; }
+.scrolling-container { position: relative; width: auto; right: 0; max-width: 100%; }
 
 .label-column { float: left; max-width: 10em; overflow: hidden; white-space: nowrap; border-right: 0.2em solid black; }
 .label-column div { display: block; font-family: Optima, Myriad, sans-serif; vertical-align: middle; color: #fff; border-top: 0.01em solid #eee; background-color: #111; padding-right: 0.1em; padding-left: 0.2em; padding-top: 0.2em; padding-bottom: 0.2em; height: 0.59em; text-align: right; }

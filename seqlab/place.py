@@ -11,7 +11,7 @@ import time
 import os
 import re
 import py.path
-import oursql
+
 
 
 def place(filepath, keyfun, metadatafun, pathgenfun, basepath, postplacefun):

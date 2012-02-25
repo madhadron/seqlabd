@@ -53,21 +53,21 @@ def assertassemblies(a, b):
 
 def test_assemble():
     s = 'TTAATTCCTTGGTTAATTCCTTGG'
-    assertassemblies(assemble(s, [50]*24, s, [50]*24),
+    assertassemblies(assemble(s, [50]*24, None, s, [50]*24, None),
                      Assembly([('confidences 1', ProperList(0, [50]*24, trackclass='integer')),
                                ('bases 1', ProperList(0, s, trackclass='nucleotide')),
                                ('confidences 2', ProperList(0, [50]*24, trackclass='integer')),
                                ('bases 2', ProperList(0, s, trackclass='nucleotide')),
                                ('contig', ProperList(0, s, trackclass='nucleotide'))]))
 
-    assertassemblies(assemble("CC"+s, [50]*26, s, [50]*24),
+    assertassemblies(assemble("CC"+s, [50]*26, None, s, [50]*24, None),
                      Assembly([('confidences 1', ProperList(0, [50]*26, trackclass='integer')),
                                ('bases 1', ProperList(0, "CC"+s, trackclass='nucleotide')),
                                ('confidences 2', ProperList(2, [50]*24, trackclass='integer')),
                                ('bases 2', ProperList(2, s, trackclass='nucleotide')),
                                ('contig', ProperList(0, "CC"+s, trackclass='nucleotide'))]))
 
-    assertassemblies(assemble('CCATG'+s, [5,5]+([50]*27), s+"TTTTT", [50]*25 + [5]*4), 
+    assertassemblies(assemble('CCATG'+s, [5,5]+([50]*27), None, s+"TTTTT", [50]*25 + [5]*4, None), 
                      Assembly([('confidences 1',
                                 ProperList(0, [5,5]+[50]*27, trackclass='integer',
                                            features=[ProperInterval(NegInf(), 2, 
@@ -89,7 +89,7 @@ def test_assemble():
                                                                     blue=0, alpha=0.5, green=0,
                                                                     name='rightunused', red=0)])),
                                ('contig', ProperList(2, 'ATG'+s+'T', trackclass='nucleotide'))]))
-    a = assemble('CCATG'+s, [5,5]+[50]*27, s, [5]*24)
+    a = assemble('CCATG'+s, [5,5]+[50]*27, None, s, [5]*24, None)
     expecteda = \
         Assembly([('confidences 2', ProperList(0, [5]*24, trackclass='integer',
                                                features=[ProperInterval(neginf,posinf, name='unused',
@@ -114,7 +114,7 @@ def test_assemble():
         print >>o, renderassembly(a)
         print >>o, "</body></html>"
     assertassemblies(a, expecteda)
-    assertassemblies(assemble(s, [5]*24, s, [5]*24), 
+    assertassemblies(assemble(s, [5]*24, None, s, [5]*24, None), 
                      Assembly([('confidences 1', 
                                 ProperList(0,[5]*24, trackclass='integer',
                                            features=[ProperInterval(NegInf(), PosInf(), 
@@ -129,6 +129,18 @@ def test_assemble():
                                ('bases 2', ProperList(0,s, trackclass='nucleotide',
                                                       features=[ProperInterval(NegInf(), PosInf(), blue=0,
                                                                                alpha=0.5, green=0, name='unused', red=0)]))]))
+
+
+def test_ab1toassembly():
+    a = ab1toassembly('data/no_assembly-1.ab1', 'data/no_assembly-2.ab1')
+    with open('ab1toassembly.html','w') as o:
+        print >>o, "<html><head><style>"
+        print >>o, css
+        print >>o, "</style></head><body>"
+        print >>o, renderassembly(a)
+        print >>o, "</body></html>"
+
+
 
 if __name__=='__main__':
     test_assemble()

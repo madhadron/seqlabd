@@ -1,3 +1,4 @@
+# cython: profile=True
 from libc.stdio cimport fopen, fclose, fseek, fread, FILE, SEEK_SET, ftell
 
 import tracks
@@ -133,25 +134,106 @@ def read(filename):
                 processed_data.append(fread_short_array_at(p, d.numelements, d.dataoffset))
             data_index += 1
 
-    confidence_track = tracks.numeric(confidences)
-    sequence_track = tracks.sequence(bases)
-
-    traces_track = tracks.traces(A=data[base_order['A']],
-                                 C=data[base_order['C']],
-                                 T=data[base_order['T']],
-                                 G=data[base_order['G']],
-                                 centers=centers)
-    raw_data = {'A': raw_data[base_order['A']],
-                'T': raw_data[base_order['T']],
-                'C': raw_data[base_order['C']],
-                'G': raw_data[base_order['G']]}
-    processed_data = {'A': processed_data[base_order['A']],
-                      'T': processed_data[base_order['T']],
-                      'C': processed_data[base_order['C']],
-                      'G': processed_data[base_order['G']]}
-    val = {'sequence': sequence_track,
-           'confidences': confidence_track,
-           'traces': traces_track,
-           'raw_data': raw_data,
-           'processed_data': processed_data}
+    # confidences and bases are numpy arrays
+    traces = tracify(A=data[base_order['A']],
+                     C=data[base_order['C']],
+                     T=data[base_order['T']],
+                     G=data[base_order['G']],
+                     centers=centers)
+    val = {'sequence': bases,
+           'confidences': confidences,
+           'traces': traces}
     return val
+
+def tracify(A, C, T, G, centers):
+    assert len(A) == len(C) 
+    assert len(A) == len(T)
+    assert len(A) == len(G)
+    assert len(A) > 0
+    assert len(centers) > 0
+    assert all(centers >= 0) and all(centers < len(A)) and all(sorted(centers) == centers)
+    # Left and right limits of each base
+    _limits = [int(numpy.ceil((centers[i]+centers[i-1])/2.0))
+               for i in range(1, len(centers))]
+    limits = zip([0] + _limits, [x+1 for x in _limits] + [len(A)])
+
+    maxima = numpy.array(sorted([max(numpy.concatenate([A[i:j],C[i:j],T[i:j],G[i:j]]))
+                                 for i,j in limits]))
+    rmax = cutoff(maxima)
+    result = []
+    for l,r in limits:
+        xs = numpy.arange(0, r-l) / float(r-l-1)
+        assert len(xs) == len(A[l:r]) == len(C[l:r]) \
+            == len(T[l:r]) == len(G[l:r])
+        result.append({'A': sparsify(xs, 1-A[l:r]/rmax), 
+                       'C': sparsify(xs, 1-C[l:r]/rmax),
+                       'T': sparsify(xs, 1-T[l:r]/rmax),
+                       'G': sparsify(xs, 1-G[l:r]/rmax)})
+    return result
+
+cdef list sparsify(numpy.ndarray xs, numpy.ndarray ys):
+    cdef double Lx, Ly, Rx, Ry, nextx, nexty
+    new_points = [(xs[0], ys[0])]
+    i = 0
+    while i < len(ys)-1:
+        Lx, Ly, Rx, Ry = xs[i], ys[i], xs[i+1], ys[i+1]
+        skipped = []
+        while i < len(ys)-2 and len(skipped) < 10:
+            nextx, nexty = xs[i+2], ys[i+2]
+            if all([close_enough(Lx,Ly, nextx,nexty, px,py)
+                    for px,py in skipped + [(Rx,Ry)]]):
+                skipped += [(Rx,Ry)]
+                Rx,Ry = nextx,nexty
+                i += 1
+            else:
+                break
+        new_points.append((Rx,Ry))
+        i += 1
+    return new_points
+
+
+cdef bint close_enough(double Lx, double Ly, double Rx, double Ry, double px, double py):
+    """Is px,py close enough to the line given by L and R to be approximated by it?"""
+    # Find the vertical distance of px,py from the line through Lx,Ly
+    # and Rx,Ry.  px,py is defined to be "close enough" if it no more
+    # than a fraction alpha of the average height of the line away
+    # from it.  The value of alpha here was selected by looking at the
+    # output by eye and taking the highest value that left the curves
+    # still looking reasonably smooth.
+    cdef double alpha = 0.005
+    return abs(py - ((Ry-Ly)/float(Rx-Lx))*(px-Lx) - Ly) < alpha * (Ly + Ry)/2.0
+
+
+
+
+cdef double cutoff(numpy.ndarray xs):
+    # Calculate the scaling factor, so that
+    #     scaled = raw / rmax
+    # Ideally 0.25 <= scaled <= 1, but that is not in general possible
+    # with one degree of freedom. Instead, we will take the largest
+    # rmax such that P(scaled < 0.25) = P(scaled > 1).
+    # Assume xs is already sorted ascending.
+    cdef double ratio = 1/8.0
+    cdef double righti = -1
+    cdef double rmax = xs[righti]
+    cdef double lefti = 0
+    while xs[lefti] < rmax*ratio:
+        lefti += 1
+    while lefti > -righti:
+        righti -= 1
+        rmax = xs[righti]
+        while xs[lefti] > rmax*ratio:
+            lefti -= 1
+    return rmax
+
+def psparsify(xs, ys):
+    return sparsify(xs, ys)
+
+def pcutoff(vals):
+    return cutoff(vals)
+    
+
+
+
+
+    
