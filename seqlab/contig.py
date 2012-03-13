@@ -2,7 +2,6 @@ import numpy
 import re
 import collections
 import align
-import tracks
 
 from assembly import *
 import ab1
@@ -235,11 +234,12 @@ def assemble(seq1, conf1, traces1, seq2, conf2, traces2):
                                   features=[interval(neginf, posinf, name='unused', red=0, green=0, blue=0, alpha=0.5)])
         return a
 
+basecomplements = {'M': 'K', 'R': 'Y', 'W': 'W', 'S': 'S', 'Y': 'R', 'K': 'M', 'A': 'T', 'C': 'G',
+                   'T': 'A', 'G': 'C', 'V': 'B', 'H': 'D', 'D': 'H', 'B': 'V', 'N': 'N'}
 
 def rcbases(bases):
     def f(x):
-        return {'M': 'K', 'R': 'Y', 'W': 'W', 'S': 'S', 'Y': 'R', 'K': 'M', 'A': 'T', 'C': 'G',
-                'T': 'A', 'G': 'C', 'V': 'B', 'H': 'D', 'D': 'H', 'B': 'V', 'N': 'N'}[x]
+        return basecomplements[x]
     return [f(x) for x in bases[::-1]]
 
 def rcconfidences(confs):
@@ -247,7 +247,7 @@ def rcconfidences(confs):
 
 def rctraces(traces):
     def f(x):
-        return dict([(base, [(1-x,y) for x,y in trace]) for base,trace in x.iteritems()])
+        return dict([(basecomplements[base], [(1-x,y) for x,y in trace]) for base,trace in x.iteritems()])
     return [f(x) for x in traces[::-1]]
 
 def ab1toassembly(filename1, filename2):

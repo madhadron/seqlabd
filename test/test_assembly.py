@@ -239,9 +239,7 @@ def test_assembly_render():
                  features=[ProperInterval(11, 15, name='q', red=255, green=0, blue=0, alpha=0.3)])
     s = renderassembly(a)
     with open('assembly_render_test.html','w') as o:
-        print >>o, "<html><head><style>"
-        print >>o, css
-        print >>o, "</style></head><body>"
+        print >>o, "<html><body>"
         print >>o, s
         print >>o, "</body></html>"
 

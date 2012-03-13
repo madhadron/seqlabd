@@ -108,9 +108,7 @@ def test_assemble():
                   ('contig', ProperList(2, 'ATG'+s, trackclass='nucleotide')),
 ])
     with open('tmp.html','w') as o:
-        print >>o, "<html><head><style>"
-        print >>o, css
-        print >>o, "</style></head><body>"
+        print >>o, "<html><body>"
         print >>o, renderassembly(a)
         print >>o, "</body></html>"
     assertassemblies(a, expecteda)
@@ -134,9 +132,7 @@ def test_assemble():
 def test_ab1toassembly():
     a = ab1toassembly('data/no_assembly-1.ab1', 'data/no_assembly-2.ab1')
     with open('ab1toassembly.html','w') as o:
-        print >>o, "<html><head><style>"
-        print >>o, css
-        print >>o, "</style></head><body>"
+        print >>o, "<html><body>"
         print >>o, renderassembly(a)
         print >>o, "</body></html>"
 

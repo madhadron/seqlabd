@@ -8,12 +8,17 @@ import collections
 import Bio.Blast.NCBIWWW
 import Bio.Blast.NCBIXML
 
-
-import tracks
+import assembly
 import ab1
 import contig
 
 def blast_seq(seq, save_path, ncbi_db='nr'):
+    """Submit *seq* to NCBI BLAST.
+
+    *seq* should be a string or SeqRecord object. *ncbi_db* is the
+    database to BLAST against. *save_path* is a path to save the XML
+    returned by NCBI to.
+    """
     h = Bio.Blast.NCBIWWW.qblast("blastn", ncbi_db, seq, alignments=700, descriptions=700)
     res = h.read()
     h.close()
@@ -24,6 +29,7 @@ def blast_seq(seq, save_path, ncbi_db='nr'):
         return records[0]
 
 
+# Pattern to filter out ill classified BLAST results
 unclassified_regex = re.compile(r'' + r'|'.join(['-like',
                                               'Taxon',
                                               'saltmarsh',
@@ -63,6 +69,7 @@ unclassified_regex = re.compile(r'' + r'|'.join(['-like',
 
 
 def is_unclassified(s):
+    """Is string *s* containining and organism description ill posed?"""
     return re.search(unclassified_regex, s) and True or False
 
 
@@ -74,16 +81,16 @@ def generate_report(lookup_fun, assembled_render, strandwise_render):
     def f((workup, read1path, read2path)):
         read1 = ab1.read(read1path)
         read2 = ab1.read(read2path)
-        assembly = contig.contig(read1['sequence'], read1['confidences'],
-                                 tracks.revcomp(read2['sequence']), tracks.revcomp(read2['confidences']))
-        if assembly['reference'] != None:
-            v = lookup_fun(assembly['reference'][1], save_path=workup['path'])
-            body = assembled_render(workup, read1, read2, assembly, v)
+        assembly = contig.assemble(read1['sequence'], read1['confidences'], read1['traces'],
+                                   read2['sequence'], read2['confidences'], read2['traces'])
+        if 'contig' in assembly:
+            v = lookup_fun(''.join(assembly['contig'].values), save_path=workup['path'])
+            body = assembled_render(workup, assembly, v)
             return ('assembled', body)
         else:
-            v1 = lookup_fun(read1['sequence'], save_path=workup['path'])
-            v2 = lookup_fun(read2['sequence'], save_path=workup['path'])
-            body = strandwise_render(workup, read1, read2, v1, v2)
+            v1 = lookup_fun(''.join(assembly['bases 1'].values), save_path=workup['path'])
+            v2 = lookup_fun(''.join(assembly['bases 2'].values), save_path=workup['path'])
+            body = strandwise_render(workup, assembly, v1, v2)
             return ('strandwise', body)
     return f
 
@@ -100,22 +107,6 @@ def tabbed_page(title, additional_css, additional_javascript, tabs):
     """
     <html><head>
     <title>$title</title>
-    <script type="text/javascript">
-    function map_children(fn,tgt){
-        var arr=document.getElementById(tgt).childNodes;
-        var l=arr.length;
-        for(var i=0;i<l;i++){fn(arr[i]);}
-    }
-    function show_tab(to_show) {
-        map_children(function(n) {
-                         n.className = n.id==to_show ? "visibletab" : "hiddentab";
-                     }, "pane_container");
-        map_children(function(n) {
-                         n.className = n.id==to_show ? "active" : "";
-                     }, "tab_container");
-    }
-    $additional_javascript
-    </script>
     <style>
     $additional_css
     * { margin: 0; padding: 0; }
@@ -144,20 +135,28 @@ def tabbed_page(title, additional_css, additional_javascript, tabs):
 
     <ul id="tab_container">${[tab_li(i,k) for i,k in enumerate(tabs.keys())]}</ul>
     <div id="pane_container">${[pane_div(i,v) for i,v in enumerate(tabs.values())]}</div>
+    <script type="text/javascript">
+    function map_children(fn,tgt){
+        var arr=document.getElementById(tgt).childNodes;
+        var l=arr.length;
+        for(var i=0;i<l;i++){fn(arr[i]);}
+    }
+    function show_tab(to_show) {
+        map_children(function(n) {
+                         n.className = n.id==to_show ? "visibletab" : "hiddentab";
+                     }, "pane_container");
+        map_children(function(n) {
+                         n.className = n.id==to_show ? "active" : "";
+                     }, "tab_container");
+    }
+    $additional_javascript
+    </script>
     </body></html>
     """
 
-def render_ab1(ab1_dict):
-    """*ab1_dict* should be a dict containing keys ``'sequence'``, ``'traces'``, and ``'confidences'``."""
-    t = tracks.TrackSet()
-    t.extend([tracks.TrackEntry('traces', 0, ab1_dict['traces']),
-              tracks.TrackEntry('confidences', 0, ab1_dict['confidences']),
-              tracks.TrackEntry('sequence', 0, ab1_dict['sequence'])])
-    return tracks.render(t)
-
 
 def alignment_css():
-    return tracks.stylesheet
+    return assembly.css
 
 def pprint_seq(seq, container=True, matches=None):
     if not(matches):
@@ -165,9 +164,9 @@ def pprint_seq(seq, container=True, matches=None):
     body = ""
     for x,m in zip(seq,matches):
         if not(m):
-            wrapper = """<span class="mismatch">%s</span>\n"""
+            wrapper = """<span class="mismatch">%s</span>"""
         else:
-            wrapper = """<span class="match">%s</span>\n"""
+            wrapper = """<span class="match">%s</span>"""
         if x == ' ':
             bclass = 'gap'
             btxt = '&nbsp'
@@ -190,8 +189,8 @@ def pprint_seq_css():
     word-wrap: break-word;
     padding: 0.25em;
     }
-    span.mismatch {}
-    span.match {}
+    span.mismatch { background-color: #ffaaaa; }
+    span.match { background-color: #fff; }
 
     span.A { color: green; }
     span.T { color: red; }
@@ -240,29 +239,6 @@ updateCSS = function(selector, styles) {
     }
 """
 
-def render_alignment(assembly, ab1dict1, ab1dict2):
-    t = tracks.TrackSet()
-
-    read1_offset, read1_sequence = assembly['read1']
-    read2_offset, read2_sequence = assembly['read2']
-    read1_confs = tracks.regap(read1_sequence, ab1dict1['confidences'])
-    read2_confs = tracks.regap(read2_sequence, tracks.revcomp(ab1dict2['confidences']))
-    read1_traces = tracks.regap(read1_sequence, ab1dict1['traces'])
-    read2_traces = tracks.regap(read2_sequence, tracks.revcomp(ab1dict2['traces']))
-
-    t.extend([
-              tracks.TrackEntry('read 1 traces', read1_offset, read1_traces),
-              tracks.TrackEntry('read 1 confidences', read1_offset, read1_confs),
-              tracks.TrackEntry('read 1 bases', read1_offset, read1_sequence),
-              tracks.TrackEntry('read 2 traces', read2_offset, read2_traces),
-              tracks.TrackEntry('read 2 confidences', read2_offset, read2_confs),
-              tracks.TrackEntry('read 2 bases', read2_offset, read2_sequence)])
-
-    assert assembly['reference'] != None
-    reference_offset, reference_sequence = assembly['reference']
-    t.append(tracks.TrackEntry('reference', reference_offset, reference_sequence))
-
-    return tracks.render(t)
 
 # NCBI BLAST returns a closed interval for start and end, not a half open one, so end-start = length-1
 def overlap_bar(hsp, query_length):
@@ -408,35 +384,35 @@ def blast_javascript():
 
 
 @templet.stringfunction
-def assembly_tab(assembly, read1, read2):
+def assembly_tab(assem):
     """
     <h2>Assembly aligned to reads</h2>
-    ${render_alignment(assembly, read1, read2)}
+    ${assembly.renderassembly(assem)}
     <h2>Assembled sequence</h2>
-    ${pprint_seq(assembly['reference'][1])}
+    ${pprint_seq(''.join([x for x in assem['contig']]))}
     """
 
-def render_assembled(workup, read1, read2, assembly, blast_result):
+def render_assembled(workup, assembly, blast_result):
     title = "%s %s (%s)" % (workup['accession'], workup['pat_name'], workup['amp_name'])
-    tabs =  collections.OrderedDict([('Assembly', assembly_tab(assembly, read1, read2)),
+    tabs =  collections.OrderedDict([('Assembly', assembly_tab(assembly)),
                                      ('BLAST', render_blast(blast_result, 'assembled'))])
 
     return tabbed_page(title, alignment_css() + pprint_seq_css() + blast_css(), pprint_seq_javascript() + blast_javascript(), tabs)
 
 @templet.stringfunction
-def strandwise_tab(read1, read2):
+def strandwise_tab(assem):
     """
+    <h2>Unassembled strands</h2>
+    ${assembly.renderassembly(assem)}
     <h2>Strand 1</h2>
-    ${render_ab1(read1)}
-    ${pprint_seq(read1['sequence'])}
-    <h2>Strand 2</h2>
-    ${render_ab1(read2)}
-    ${pprint_seq(read2['sequence'])}
+    ${pprint_seq(''.join([x for x in assem['bases 1']]))}
+    <h2> Strand 2</h2>
+    ${pprint_seq(''.join([x for x in assem['bases 2']]))}
     """
 
-def render_strandwise(workup, read1, read2, blast_result1, blast_result2):
+def render_strandwise(workup, assembly, blast_result1, blast_result2):
     title = "%s %s (%s)" % (workup['accession'], workup['pat_name'], workup['amp_name'])
-    tabs =  collections.OrderedDict([('Assembly', strandwise_tab(read1, read2)),
+    tabs =  collections.OrderedDict([('Assembly', strandwise_tab(assembly)),
                                      ('Strand 1 BLAST', render_blast(blast_result1, 'strand1')),
                                      ('Strand 2 BLAST', render_blast(blast_result2, 'strand2'))])
     return tabbed_page(title, alignment_css() + pprint_seq_css() + blast_css(), pprint_seq_javascript() + blast_javascript(), tabs)

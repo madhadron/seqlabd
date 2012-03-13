@@ -759,6 +759,7 @@ def rendercolumn(assembly, i):
 def renderassembly(assembly):
         """
 <div class="assembly">
+  <style>${css}</style>
   <div class="label-column">
     <div class="label"><span>Position</span></div>
     ${['<div class="label %s"><span>%s</span></div>' % (v.metadata.get('trackclass',''), k)
@@ -769,16 +770,13 @@ def renderassembly(assembly):
   </div>
 </div>"""
 
-
 def ab1tohtml(ab1filename):
     r = ab1.read(ab1filename)
     a = Assembly([('traces', aflist(0, r['traces'], trackclass='svg')),
                   ('confidences', aflist(0, r['confidences'], trackclass='integer')),
                   ('bases', aflist(0, r['sequence'], trackclass='nucleotide'))])
     s = ""
-    s += "<html><head><style>"
-    s += css
-    s += "</style></head><body>"
+    s += "<html><body>"
     s += renderassembly(a)
     s += "</body></html>"
     return s

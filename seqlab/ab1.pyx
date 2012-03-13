@@ -1,8 +1,6 @@
 # cython: profile=True
 from libc.stdio cimport fopen, fclose, fseek, fread, FILE, SEEK_SET, ftell
 
-import tracks
-
 import numpy
 cimport numpy
 
