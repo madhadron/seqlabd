@@ -78,19 +78,25 @@ def is_unclassified(s):
 # workups view of the database. In production, it will be found in a
 # JSON file written in the directory.
 def generate_report(lookup_fun, assembled_render, strandwise_render):
-    def f((workup, read1path, read2path)):
+    def f((workup, read1path, read2path), omit_blast=False):
         read1 = ab1.read(read1path)
         read2 = ab1.read(read2path)
         assembly = contig.assemble(read1['sequence'], read1['confidences'], read1['traces'],
                                    read2['sequence'], read2['confidences'], read2['traces'])
         if 'contig' in assembly:
-            v = lookup_fun(''.join(assembly['contig'].values), save_path=workup['path'])
-            body = assembled_render(workup, assembly, v)
+            if not omit_blast:
+                v = lookup_fun(''.join(assembly['contig'].values), save_path=workup['path'])
+                body = assembled_render(workup, assembly, v, omit_blast=False)
+            else:
+                body = assembled_render(workup, assembly, None, omit_blast=True)
             return ('assembled', body)
         else:
-            v1 = lookup_fun(''.join(assembly['bases 1'].values), save_path=workup['path'])
-            v2 = lookup_fun(''.join(assembly['bases 2'].values), save_path=workup['path'])
-            body = strandwise_render(workup, assembly, v1, v2)
+            if not omit_blast:
+                v1 = lookup_fun(''.join(assembly['bases 1'].values), save_path=workup['path'])
+                v2 = lookup_fun(''.join(assembly['bases 2'].values), save_path=workup['path'])
+                body = strandwise_render(workup, assembly, v1, v2, omit_blast=False)
+            else:
+                body = strandwise_render(workup, assembly, None, None, omit_blast=True)
             return ('strandwise', body)
     return f
 
@@ -393,12 +399,15 @@ def assembly_tab(assem):
     ${pprint_seq(''.join([x for x in assem['contig']]))}
     """
 
-def render_assembled(workup, assembly, blast_result):
+def render_assembled(workup, assembly, blast_result, omit_blast=False):
     title = "%s %s (%s)" % (workup['accession'], workup['pat_name'], workup['amp_name'])
-    tabs =  collections.OrderedDict([('Assembly', assembly_tab(assembly)),
-                                     ('BLAST', render_blast(blast_result, 'assembled'))])
-
-    return tabbed_page(title, alignment_css() + pprint_seq_css() + blast_css(), pprint_seq_javascript() + blast_javascript(), tabs)
+    if omit_blast:
+        tabs =  collections.OrderedDict([('Assembly', assembly_tab(assembly))])
+    else:
+        tabs =  collections.OrderedDict([('Assembly', assembly_tab(assembly)),
+                                         ('BLAST', render_blast(blast_result, 'assembled'))])
+    return tabbed_page(title, alignment_css() + pprint_seq_css() + ("" if omit_blast else blast_css()),
+                       pprint_seq_javascript() + ("" if omit_blast else blast_javascript()), tabs)
 
 @templet.stringfunction
 def strandwise_tab(assem):
@@ -411,12 +420,16 @@ def strandwise_tab(assem):
     ${pprint_seq(''.join([x for x in assem['bases 2']]))}
     """
 
-def render_strandwise(workup, assembly, blast_result1, blast_result2):
+def render_strandwise(workup, assembly, blast_result1, blast_result2, omit_blast=False):
     title = "%s %s (%s)" % (workup['accession'], workup['pat_name'], workup['amp_name'])
-    tabs =  collections.OrderedDict([('Assembly', strandwise_tab(assembly)),
-                                     ('Strand 1 BLAST', render_blast(blast_result1, 'strand1')),
-                                     ('Strand 2 BLAST', render_blast(blast_result2, 'strand2'))])
-    return tabbed_page(title, alignment_css() + pprint_seq_css() + blast_css(), pprint_seq_javascript() + blast_javascript(), tabs)
+    if not omit_blast:
+        tabs =  collections.OrderedDict([('Assembly', strandwise_tab(assembly)),
+                                         ('Strand 1 BLAST', render_blast(blast_result1, 'strand1')),
+                                         ('Strand 2 BLAST', render_blast(blast_result2, 'strand2'))])
+    else:
+        tabs =  collections.OrderedDict([('Assembly', strandwise_tab(assembly))])
+    return tabbed_page(title, alignment_css() + pprint_seq_css() + (blast_css() if render_blast else ""),
+                       pprint_seq_javascript() + (blast_javascript() if render_blast else ""), tabs)
     
 
 sequence_report = generate_report(blast_seq, render_assembled, render_strandwise)

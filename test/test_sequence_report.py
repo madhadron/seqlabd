@@ -30,8 +30,8 @@ def test_render_blast():
         print >>output, "</body></html>"
 
 def test_generate_report():
-    assembled_fun = lambda w, a, searchres: searchres
-    strandwise_fun = lambda w, a, searchres1, searchres2: searchres1+searchres2
+    assembled_fun = lambda w, a, searchres, omit_blast=False: searchres
+    strandwise_fun = lambda w, a, searchres1, searchres2, omit_blast=False: searchres1+searchres2
     f = generate_report(lambda x, save_path: 'alpha', assembled_fun, strandwise_fun)
     assert f(({'accession':'W01', 'workup':'F22501', 'pat_name':'Jenkins, John H.',
                'amp_name':'rpoB', 'path':'data/workups/2011-06-11/W01_JENKINS'},
@@ -66,4 +66,21 @@ def test_render_strandwise():
     with open('data/render_strandwise.html', 'w') as h:
         print >>h, body
 
-test_render_strandwise()    
+
+def test_render_noblast():
+    import cPickle
+    w = {'accession':'F2521', 'workup':'F22501', 'pat_name':'MOZART, WOLFGANG A.', 'amp_name':'rpoB', 'path':'data/workups/2011-06-11/W01_JENKINS'}
+    def pseudoblast(seq, save_path):
+        raise Exception("Should not call lookup!")
+    body = generate_report(pseudoblast, lambda *args: None, render_strandwise)((w, 'data/10h9BE-1.ab1', 'data/10h9BE-2.ab1'), omit_blast=True)
+    assert body[0] == 'strandwise'
+    assert body[1] is not None
+    with open('data/render_strandwise_noblast.html', 'w') as h:
+        print >>h, body[1]
+
+    w = {'accession':'W01325', 'workup':'F22501', 'pat_name':'JENKINS, JOHN H.', 'amp_name':'rpoB', 'path':'data/workups/2011-06-11/W01_JENKINS'}
+    with open('data/render_assembled_noblast.html', 'w') as h:
+        print >>h, generate_report(pseudoblast, render_assembled, lambda *args: None )((w, 'data/tmpzRpKiy-1.ab1', 'data/tmpzRpKiy-2.ab1'), omit_blast=True)[1]
+
+
+
