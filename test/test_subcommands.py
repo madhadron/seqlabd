@@ -1,3 +1,4 @@
+import py.test
 import json
 import time
 import shutil
@@ -93,5 +94,24 @@ def test_renderab1():
         output = 'data/renderedab1.html'
     assert renderab1.action(Args()) == 0
 
-if __name__ == '__main__':
-    test_renderab1()
+
+
+from seqlab.subcommands import sequencereport
+
+def test_workup_files(tmpdir):
+    f = tmpdir.join('a')
+    f.ensure('workup.json')
+    f.ensure('asdf.ab1')
+    f.ensure('pqrs.ab1')
+    assert sequencereport.workup_files(str(f)) == (str(f.join('workup.json')),
+                                                   str(f.join('asdf.ab1')),
+                                                   str(f.join('pqrs.ab1')))
+    f = tmpdir.join('b')
+    with py.test.raises(ValueError):
+        sequencereport.workup_files(str(f))
+    f = tmpdir.join('c')
+    f.ensure('workup.json')
+    with py.test.raises(ValueError):
+        sequencereport.workup_files(str(f))
+    
+    
