@@ -837,16 +837,16 @@ def almap(f, xs, start=None, end=None):
 
     
 css = """
-* { margin: 0; padding: 0; }
+* { margin: 0; padding: 0; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
 
 .scrolling-container { position: relative; width: auto; right: 0; max-width: 100%; }
 
 .label-column { float: left; max-width: 10em; overflow: hidden; white-space: nowrap; border-right: 0.2em solid black; }
-.label-column div { display: block; font-family: Optima, Myriad, sans-serif; vertical-align: middle; color: #fff; border-top: 0.01em solid #eee; background-color: #111; padding-right: 0.1em; padding-left: 0.2em; padding-top: 0.2em; padding-bottom: 0.2em; height: 0.59em; text-align: right; }
-div.label-column div span { font-size: 0.6em; }
+.label-column div { display: block; font-family: Optima, Myriad, sans-serif; vertical-align: middle; color: #fff; border-top: 0.01em solid #eee; background-color: #111; padding-right: 0.1em; padding-left: 0.2em; padding-top: 0.2em; padding-bottom: 0.2em; height: 1.2em; text-align: right; }
+div.label-column div span { font-size: 0.6em; display: block; vertical-align: middle; }
 div.label-column div:first-child { border-top: none; }
-div.label-column div.svg { height: 3.6em !important; }
-div.label-column div.svg span { height: 6em !important; vertical-align: middle; line-height: 6em; }
+div.label-column div.svg { height: 4em !important; }
+div.label-column div.svg span { height: 6em !important; line-height: 6em !important; }
 
 div.scrolling-container div { display: inline-block; width: 1.9em; vertical-align: top; text-align: center; }
 div.scrolling-container div div { display: block; position: relative; }

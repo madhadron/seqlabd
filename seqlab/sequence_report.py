@@ -105,6 +105,7 @@ def pane_div(i, text):
 @templet.stringfunction
 def tabbed_page(title, additional_css, additional_javascript, tabs):
     """
+    <!DOCTYPE html>
     <html><head>
     <title>$title</title>
     <style>
