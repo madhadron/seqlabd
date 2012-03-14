@@ -114,4 +114,13 @@ def test_workup_files(tmpdir):
     with py.test.raises(ValueError):
         sequencereport.workup_files(str(f))
     
+def test_sequencereport():
+    class Args:
+        path_or_json='data/workup.json'
+        read1='data/tmpzRpKiy-1.ab1'
+        read2='data/tmpzRpKiy-2.ab1'
+        verbose=False
+        omit_blast=True
+        output='data/sequencereport_command_output.html'
+    assert sequencereport.action(Args()) == 0
     

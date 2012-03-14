@@ -5,6 +5,8 @@ import tempfile
 import logging
 import shutil
 import os
+import json
+import sys
 
 import seqlab.sequence_report
 
@@ -43,6 +45,10 @@ def workup_files(path):
                 os.path.abspath(os.path.join(path, ab1files[0])),
                 os.path.abspath(os.path.join(path, ab1files[1])))
 
+import contextlib
+@contextlib.contextmanager
+def lift(v):
+    yield v
 
 def action(args):
     if not(os.path.exists(args.path_or_json)):
@@ -52,7 +58,22 @@ def action(args):
     else:
         if args.read1 is None or args.read2 is None:
             raise ValueError("Must specify path to AB1 files if path is not a directory.")
-        workup = args.path_or_json
-        ab1file1 = args.read1
-        ab1file2 = args.read2
+        workup = os.path.abspath(args.path_or_json)
+        ab1file1 = os.path.abspath(args.read1)
+        ab1file2 = os.path.abspath(args.read2)
+        if not(os.path.exists(workup)):
+            raise ValueError("Workup %s does not exist" % (workup,))
+        if not(os.path.exists(ab1file1)):
+            raise ValueError("Argument to -1 %s does not exist" % (ab1file1,))
+        if not(os.path.exists(ab1file2)):
+            raise ValueError("Argument to -2 %s does not exist" % (ab1file2,))
+
+    with open(workup) as workuph:
+        w = json.load(workuph)
+        fate, body = \
+            seqlab.sequence_report.sequence_report((w, ab1file1, ab1file2),
+                                                   args.omit_blast)
+        with open(args.output, 'w') if args.output else lift(sys.stdout) as output:
+            print >>output, body
+    return 0
         
