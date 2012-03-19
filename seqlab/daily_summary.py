@@ -1,15 +1,47 @@
 import templet
 import os
 import time
+import pprint
 import locale
 import math
 import collections
 import syslog
 import json
 
-import tracks
 import ab1
 import contig
+
+def subdirs(path):
+    return [os.path.join(path,p) for p in os.listdir(path) if os.path.isdir(os.path.join(path, p))]
+
+def usable_workup(path):
+    json_path = os.path.join(path, 'workup.json')
+    assembly_path = os.path.join(path, 'assembly_report.html')
+    strandwise_path = os.path.join(path, 'strandwise_report.html')
+
+    if not(os.path.exists(json_path)):
+        return (path, False, "No workup.json in path.")
+    with open(os.path.join(json_path)) as h:
+        workup = json.load(h)
+    if os.path.exists(os.path.join(path, 'assembly_report.html')):
+        ctime = os.stat(os.path.join(path,'assembly_report.html')).st_ctime
+        return (path, True, "assembled", ctime, workup)
+    if os.path.exists(os.path.join(path, 'strandwise_report.html')):
+        ctime = os.stat(os.path.join(path,'strandwise_report.html')).st_ctime
+        return (path, True, "strandwise", ctime, workup)
+    return (path, False, "No report found.")
+
+def summarize_workups(workups):
+    usable = sorted([w for w in workups if w[1]], key=lambda x: x[3])
+    unusable = [w for w in workups if not w[1]]
+    txt = ""
+    for w in usable:
+        path, usable, status, time, workup = w
+        txt += "%s - %s: %s\n" % (status, path, pprint.pformat(workup))
+    for w in unusable:
+        path, usable, reason = w
+        txt += "unusable - %s: %s\n" % (path, reason)
+    return txt
 
 def subdirs_for_summary(path):
     paths = []
