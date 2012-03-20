@@ -12,7 +12,6 @@ import subprocess
 import contextlib
 import Bio.SeqIO
 import Bio.Seq
-import assembly
 
 @contextlib.contextmanager
 def as_fasta(seq, tmpdir=None, label='sequence'):

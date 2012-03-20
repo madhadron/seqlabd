@@ -19,6 +19,7 @@ except:
 import bz2
 import templet
 import ab1
+import align
 
 # Utility methods
 def max(a, b):
@@ -651,6 +652,19 @@ class Assembly(OrderedDict, Affine):
         else:
             with bz2.BZ2File(filename, 'w') as out:
                 json.dump(d, out, cls=AffineEncoder)
+    def add_sequence(self, label, seq, try_aligning=True):
+        """Append another sequence, aligned to the sequence 'contig' if it exists.
+
+        If there is no 'contig', then it starts at 0."""
+        if not try_aligning or 'contig' not in self:
+            self[label] = AffineList(0, seq)
+            return self
+        ((contig_offset, aligned_contig), 
+         (seq_offset, aligned_seq)) = align.ssearch36(contig, seq)
+        # Combine gaps from contig and aligned contig: gaps from
+        # contig inserted into aligned contig and seq; gaps from
+        # contig put back into rest of assembly
+        # Add an AffineList of aligned seq
 
 
         
