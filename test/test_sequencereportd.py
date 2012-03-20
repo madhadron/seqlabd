@@ -1,7 +1,7 @@
 import common
-import seqlab.daemons.placed
+import seqlab.daemons.sequencereportd
 
-seqlab.daemons.placed.daemonaction('data/seqlab.conf')
+seqlab.daemons.sequencereportd.SequenceReportDaemon(config_path='data/seqlab.conf', detach=False, pidfilepath=None, omit_blast=True)
 
 
 # def test_placed(tmpdir):

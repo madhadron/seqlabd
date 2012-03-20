@@ -11,6 +11,7 @@ import tempfile
 import subprocess
 import contextlib
 import Bio.SeqIO
+import Bio.Seq
 import assembly
 
 @contextlib.contextmanager
@@ -24,7 +25,7 @@ def as_fasta(seq, tmpdir=None, label='sequence'):
     """
     (db_fd, db_name) = tempfile.mkstemp(text=True, dir=tmpdir)
     db_handle = os.fdopen(db_fd, 'w')
-    seqrecord = Bio.SeqIO.SeqRecord(id=label, seq=Bio.SeqIO.Seq(seq))
+    seqrecord = Bio.SeqIO.SeqRecord(id=label, seq=Bio.Seq.Seq(seq))
     Bio.SeqIO.write([seqrecord], db_handle, 'fasta')
     db_handle.close()
     try:

@@ -82,5 +82,15 @@ def test_render_noblast():
     with open('data/render_assembled_noblast.html', 'w') as h:
         print >>h, generate_report(pseudoblast, render_assembled, lambda *args: None )((w, 'data/tmpzRpKiy-1.ab1', 'data/tmpzRpKiy-2.ab1'), omit_blast=True)[1]
 
+@common.slow
+def test_blast_seq():
+    # H. pylori 16S fragment
+    s = "TAGGATCAACATGCGTTTCAGCAAACAACCCATCAATCCCCACCGCCGCCGCAGCTCTCGCTAAAATAGGGGCAAAAGAGCTGTCTCCTGAACTTTTCCCGTTCGCTCCCCCTGGCATTTGCACGCTATGGGTAGCGTCAAAAATCACAGGGGCAAATTCTCGCATGATTTTT"
+    path = 'data/pylori_blast.xml'
+    results = blast_seq(s, path)
+    r = results.alignments[0]
+    assert r.title.find('pylori') != -1
+
+
 
 
