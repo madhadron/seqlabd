@@ -1,4 +1,4 @@
-"""Template for a subcommand."""
+"""Create summary.html for a set of subdirectories containing workups."""
 
 import subprocess
 import tempfile
@@ -21,4 +21,6 @@ def action(args):
         raise ValueError("No such path: %s" % (args.path,))
     if args.nop:
         print summarize_workups(map(usable_workup, subdirs(args.path)))
-
+    else:
+        daily_summary(args.path)
+    return 0

@@ -1,3 +1,4 @@
+"""Extract the metadata of a workup from the lab database."""
 import logging
 import seqlab.config
 import seqlab.place

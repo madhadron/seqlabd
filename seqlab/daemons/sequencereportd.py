@@ -88,6 +88,6 @@ def main(args=None):
     parser.add_argument('--noblast', action='store_true',
         help="Don't run BLAST")
     parser.parse_args(args)
-    daemon = PlacementDaemon(config_path=parser.config, 
-                             omit_blast=parser.noblast)
+    daemon = SequenceReportDaemon(config_path=parser.config, 
+                                  omit_blast=parser.noblast)
     exit(0)

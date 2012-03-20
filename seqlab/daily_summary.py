@@ -95,7 +95,9 @@ def daily_summary(path):
     date = os.path.split(path)[1]
     entries = subdirs_for_summary(path)
     text = daily_summary_html(date, entries)
-    with open(os.path.join(path,'summary.html'), 'w') as h:
+    output_filename = os.path.join(path, 'summary.html')
+    with open(output_filename, 'w') as h:
         print >>h, text
+    return output_filename
 
 

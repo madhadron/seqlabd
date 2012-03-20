@@ -1,4 +1,4 @@
-"""Template for a subcommand."""
+"""Render an AB1 file to HTML for viewing."""
 
 import subprocess
 import tempfile

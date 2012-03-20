@@ -103,9 +103,10 @@ def test_workup_files(tmpdir):
     f.ensure('workup.json')
     f.ensure('asdf.ab1')
     f.ensure('pqrs.ab1')
-    assert sequencereport.workup_files(str(f)) == (str(f.join('workup.json')),
-                                                   str(f.join('asdf.ab1')),
-                                                   str(f.join('pqrs.ab1')))
+    result = sequencereport.workup_files(str(f))
+    assert result[0] == str(f.join('workup.json'))
+    assert set(result[1:]) == set([str(f.join('asdf.ab1')),
+                                   str(f.join('pqrs.ab1'))])
     f = tmpdir.join('b')
     with py.test.raises(ValueError):
         sequencereport.workup_files(str(f))
@@ -124,3 +125,11 @@ def test_sequencereport():
         output='data/sequencereport_command_output.html'
     assert sequencereport.action(Args()) == 0
     
+import seqlab.subcommands.dailysummary
+
+def test_dailysummary():
+    class Args:
+        path='data/target'
+        nop = False
+    assert seqlab.subcommands.dailysummary.action(Args()) == 0
+    assert os.path.exists('data/target/summary.html')

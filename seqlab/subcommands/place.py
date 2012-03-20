@@ -1,3 +1,4 @@
+"""Put an AB1 file into the proper location in the file hierarchy."""
 import logging
 import seqlab.config
 import seqlab.place

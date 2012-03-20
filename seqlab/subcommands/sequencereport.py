@@ -1,4 +1,4 @@
-"""Template for a subcommand."""
+"""Write a sequence report for a workup."""
 
 import subprocess
 import tempfile
