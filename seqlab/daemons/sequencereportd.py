@@ -81,3 +81,13 @@ class SequenceReportDaemon(pydaemonize.Daemon):
         notifier.loop()
 
 
+def main(args=None):
+    parser = argparse.ArgumentParser(description='Sequence report generation daemon')
+    parser.add_argument('-c','--config', default=None,
+        help="Config file to read (default: /etc/seqlab.conf")
+    parser.add_argument('--noblast', action='store_true',
+        help="Don't run BLAST")
+    parser.parse_args(args)
+    daemon = PlacementDaemon(config_path=parser.config, 
+                             omit_blast=parser.noblast)
+    exit(0)

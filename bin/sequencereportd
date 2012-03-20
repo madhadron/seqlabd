@@ -1,0 +1,4 @@
+#!python
+import seqlab.daemon.sequencereportd
+
+seqlab.daemon.sequencereportd.main()

@@ -16,4 +16,5 @@ setup(name='seqlabd',
       cmdclass = {'build_ext': build_ext},
       ext_modules = [Extension("seqlab.ab1", ["seqlab/ab1.pyx"])],
       include_dirs = [numpy.get_include(),],
+      scripts=['bin/sequencereportd']
      )
