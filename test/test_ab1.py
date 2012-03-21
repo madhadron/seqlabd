@@ -12,8 +12,8 @@ def test_sparsify():
 
 def test_cutoff():
     xs = numpy.arange(50)
-    assert pcutoff(xs) == 40
-    assert pcutoff(numpy.array([2]*5 + [10]*50 + [40]*4)) == 10
+    assert pcutoff(xs) == 45
+    assert pcutoff(numpy.array([2]*5 + [10]*50 + [40]*4)) == 40
 
 if __name__ == '__main__':
     test_cutoff()
