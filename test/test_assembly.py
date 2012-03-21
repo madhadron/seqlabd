@@ -261,5 +261,45 @@ def test_almap():
     assert almap((lambda i,x: x), a, start = 0, end = 7) == ProperList(0, [None,None,None,1,2,3,None])
 
 
+def test_insertgap():
+    a = ProperList(3, [1,2,3])
+    assert a.insertgap(0) == a
+    assert a.insertgap(12) == a
+    assert a.insertgap(3) == ProperList(4, [1,2,3])
+    assert a.insertgap(7) == ProperList(4, [1,2,3])
+    assert a.insertgap(5) == ProperList(4, [1,None,2,3])
+
+def test_conform_gaps():
+    assert conform_gaps(Assembly([('a', aflist(0, [], None))]), 'a',
+                     aflist(0, [], None), 
+                     aflist(0, [], None)) == \
+                     (Assembly([('a', aflist(0, [], None))]),
+                      aflist(0, [], None),
+                      aflist(0, [], None))
+    assert conform_gaps(Assembly([('a', aflist(0, [1], None))]), 'a',
+                     aflist(0, [1], None),
+                     aflist(-3, [3,2,1], None)) == \
+                     (Assembly([('a', aflist(0, [1], None))]),
+                      aflist(0, [1], None),
+                      aflist(-3, [3,2,1], None))
+    assert conform_gaps(Assembly([('a', aflist(0, [1,2,3,4,None,5,6], None)),
+                               ('b', aflist(2, [10,11,12,13,14,15,16,17,18,19,20], None))]), 'a',
+                     aflist(0, [1,2,None,3,4,5,6], None),
+                     aflist(0, [1,2,12,3,4,None,6], None)) == \
+                     (Assembly([('a', aflist(0, [1,2,None,3,4,None,5,6], None)),
+                                ('b', aflist(3, [10,11,12,13,14,15,16,17,18,19,20], None))]),
+                      aflist(0, [1,2,None,3,4,None,5,6], None),
+                      aflist(0, [1,2,12,  3,4,None,None,6], None))
+
+def test_add_sequence():
+    a = Assembly([('a', aflist(0, 'ATAG-CCTGACCCATG', '-')),
+                  ('b', aflist(2, 'AG-CCTAGGGA','-'))])
+    b = a.add_sequence('c', 'ATATCCTGACCCATG', align_to='a')
+    print b
+    assertassemblies(b,
+                     Assembly([('a', aflist(0, 'ATAG-CCTGACCCATG', '-')),
+                               ('b', aflist(2, 'AG-CCTAGGGA','-')),
+                               ('c', aflist(0, 'ATAT-CCTGACCCATG', '-'))]))
+
 if __name__=='__main__':
-    test_affinelist_narrowto()
+    test_add_sequence()

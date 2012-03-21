@@ -346,6 +346,9 @@ class AffineList(Affine):
 
 class EmptyList(AffineList):
     """Object representing an empty AffineList."""
+    def __init__(self, gap=None, **kwargs):
+        self.gap = None
+        self.metadata = kwargs
     def __getslice__(self, left, right):
         return self
     def __getitem__(self, i):
@@ -384,12 +387,13 @@ class ProperList(AffineList):
     ``enumerate()`` on a normal list, but returns the coordinates
     instead of the indices.
     """
-    def __init__(self, offset, values, **kwargs):
+    def __init__(self, offset, values, gap=None, **kwargs):
         if len(values) == 0:
             raise ValueError("Cannot create a ProperList with no contents.")
         self.metadata = kwargs
         self.offset = offset
         self.values = list(values)
+        self.gap = gap
     def isempty(self):
         return False
     def left(self):
@@ -397,12 +401,12 @@ class ProperList(AffineList):
     def right(self):
         return self.offset + len(self.values)
     def strip(self):
-        return AffineList(self.offset, self.values)
+        return AffineList(self.offset, self.values, self.gap)
     def __rshift__(self, n):
         newmetadata = self.metadata.copy()
         if 'features' in newmetadata:
             newmetadata['features'] = [f >> n for f in self.metadata['features']]
-        return ProperList(self.offset+n, self.values, **newmetadata)
+        return ProperList(self.offset+n, self.values, self.gap, **newmetadata)
     def __getitem__(self, i):
         if isinstance(i, int):
             if i < self.left():
@@ -414,21 +418,21 @@ class ProperList(AffineList):
         elif isinstance(i, slice):
             return self.__getitem__(i.start, i.stop)
         elif isinstance(i, EmptyInterval):
-            return EmptyList(**self.metadata)
+            return EmptyList(self.gap, **self.metadata)
         elif isinstance(i, ProperInterval):
             return self.__getslice__(i.left(), i.right())
     def __getslice__(self, left, right):
         assert left <= right
         if left == right:
-            return EmptyList(**self.metadata)
+            return EmptyList(self.gap, **self.metadata)
         offset = max(self.left(), left)
         i = offset - self.left()
         j = min(self.right(), right) - self.offset
         body = self.values[i:j]
         if len(body) == 0:
-            return EmptyList(**self.metadata)
+            return EmptyList(self.gap, **self.metadata)
         else:
-            return ProperList(offset, body, **self.metadata)
+            return ProperList(offset, body, self.gap, **self.metadata)
     def featureson(self, left=None, right=None):
         if 'features' not in self.metadata:
             return []
@@ -462,7 +466,7 @@ class ProperList(AffineList):
         for i in range(start, end):
             yield (i,self[i])
     def __repr__(self):
-        return 'ProperList(offset=%d, values=%s' % (self.offset, repr(self.values)) + \
+        return 'ProperList(offset=%d, values=%s, gap=%s' % (self.offset, repr(self.values), repr(self.gap)) + \
             "".join(", %s=%s" % (k, repr(v)) for k,v in self.metadata.iteritems()) + ")"
     def __len__(self):
         return len(self.values)
@@ -479,10 +483,16 @@ class ProperList(AffineList):
         if i in self.support():
             self.values.insert(i-self.offset, x)
         elif i < self.offset:
-            self.values = [x] + [None]*(self.offset-i-1) + self.values
+            self.values = [x] + [self.gap]*(self.offset-i-1) + self.values
             self.offset = i
         else: # i off to right of support
-            self.values = self.values + [None]*(i - (self.offset+len(self.values))) + [x]
+            self.values = self.values + [self.gap]*(i - (self.offset+len(self.values))) + [x]
+        return self
+    def insertgap(self, i):
+        if i == self.support().left():
+            self.offset += 1
+        elif i in self.support():
+            self.insert(i, self.gap)
         return self
     def extend(self, vals):
         """Append all items in *vals* to the end of the list."""
@@ -527,11 +537,11 @@ class ProperList(AffineList):
         return self.offset == other.offset and self.values == other.values and \
             self.metadata == other.metadata
 
-def aflist(offset, values, **metadata):
+def aflist(offset, values, gap, **metadata):
     if len(values) == 0:
-        return EmptyList(**metadata)
+        return EmptyList(gap, **metadata)
     else:
-        return ProperList(offset, values, **metadata)
+        return ProperList(offset, values, gap, **metadata)
 
 
 class Assembly(OrderedDict, Affine):
@@ -652,22 +662,52 @@ class Assembly(OrderedDict, Affine):
         else:
             with bz2.BZ2File(filename, 'w') as out:
                 json.dump(d, out, cls=AffineEncoder)
-    def add_sequence(self, label, seq, try_aligning=True):
+    def add_sequence(self, label, seq, align_to=None):
         """Append another sequence, aligned to the sequence 'contig' if it exists.
 
         If there is no 'contig', then it starts at 0."""
-        if not try_aligning or 'contig' not in self:
-            self[label] = AffineList(0, seq)
+        if align_to is None or align_to not in self:
+            self[label] = aflist(0, seq, '-')
             return self
+        template = ''.join(self[align_to].values)
         ((contig_offset, aligned_contig), 
-         (seq_offset, aligned_seq)) = align.ssearch36(contig, seq)
-        # Combine gaps from contig and aligned contig: gaps from
-        # contig inserted into aligned contig and seq; gaps from
-        # contig put back into rest of assembly
-        # Add an AffineList of aligned seq
+         (seq_offset, aligned_seq)) = align.ssearch36(template, seq)
+        aligned1 = aflist(self[align_to].offset, aligned_contig, gap='-')
+        aligned2 = aflist(self[align_to].offset + seq_offset - contig_offset,
+                          aligned_seq, '-')
+        assem, al1, al2 = conform_gaps(self, align_to, aligned1, aligned2)
+        assem[label] = al2
+        return assem
 
+def conform_gaps(assembly, label, aligned1, aligned2):
+    template = assembly[label]
+    start = min(min(template.left(), aligned1.left()), aligned2.left())
+    end = max(max(template.right(), aligned1.right()), aligned2.right())
+    it = start; ia1 = start; ia2 = start
+    while it < end and ia1 < end and ia2 < end:
+        tthis = template[it]
+        a1this = aligned1[ia1]
+        a2this = aligned2[ia2]
+        if tthis == template.gap and \
+                a1this != aligned1.gap:
+            aligned1.insertgap(ia1)
+            aligned2.insertgap(ia2)
+        elif (tthis == template.gap) == \
+                (a1this == aligned1.gap):
+            pass
+        elif tthis != template.gap and \
+                a1this == aligned1.gap and \
+                a2this != aligned2.gap:
+            for t in assembly.itervalues():
+                t.insertgap(it)
+        else:
+            raise ValueError("Unhandled case.")
+        it += 1; ia1 += 1; ia2 += 1
+        end = max(max(template.right(), aligned1.right()), aligned2.right())
 
-        
+    return (assembly, aligned1, aligned2)
+            
+    
 
 def affine_hooks(dct):
     classkeys = [k[2:] for k in dct if k.startswith('__')]
@@ -786,9 +826,11 @@ def renderassembly(assembly):
 
 def ab1tohtml(ab1filename):
     r = ab1.read(ab1filename)
-    a = Assembly([('traces', aflist(0, r['traces'], trackclass='svg')),
-                  ('confidences', aflist(0, r['confidences'], trackclass='integer')),
-                  ('bases', aflist(0, r['sequence'], trackclass='nucleotide'))])
+    a = Assembly([('traces', aflist(0, r['traces'], gap=None, trackclass='svg')),
+                  ('confidences', aflist(0, r['confidences'], gap=None,
+                                         trackclass='integer')),
+                  ('bases', aflist(0, r['sequence'], gap='-',
+                                   trackclass='nucleotide'))])
     s = ""
     s += "<html><body>"
     s += renderassembly(a)
@@ -816,7 +858,7 @@ def tracealong(target, template, targetgap=None, templategap='-'):
             j += 1
     if j < len(target):
         result.extend(target[j:])
-    return ProperList(template.left(), result)
+    return ProperList(template.left(), result, targetgap)
 
 def alzipinterval(interval, *als):
     """Zip AffineLists *als* over *interval*.
@@ -829,7 +871,7 @@ def alzipinterval(interval, *als):
     body = []
     for i in range(interval.left(), interval.right()):
         body.append(tuple(a[i] for a in als))
-    return ProperList(offset, body)
+    return ProperList(offset, body, gap=tuple())
 
 def alzipnarrow(*als):
     """Zip *als* over the intersection of their supports."""
@@ -847,7 +889,7 @@ def almap(f, xs, start=None, end=None):
         start = xs.left()
     if end is None:
         end = xs.right()
-    return ProperList(start, [f(i,x) for i,x in xs.itercoords(start=start,end=end)])
+    return ProperList(start, [f(i,x) for i,x in xs.itercoords(start=start,end=end)], xs.gap)
 
     
 css = """

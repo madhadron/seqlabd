@@ -77,9 +77,9 @@ def extend(segment, interval, template):
     offset = segment.left() - len(lefttail)
     body = lefttail + list(segment) + righttail
     if len(body) == 0:
-        return EmptyList()
+        return EmptyList(segment.gap)
     else:
-        return ProperList(offset, body, **dictunion(segment.metadata))
+        return ProperList(offset, body, segment.gap, **dictunion(segment.metadata))
 
 
 def combine(*tracks):
@@ -87,7 +87,7 @@ def combine(*tracks):
         return EmptyList()
     n = alzipsupport(*[alzipsupport(t[0],t[1]) for t in tracks])
     s = closure(*[t[0].support() for t in tracks])
-    return aflist(s.left(), [combinebase(*q) for q in n])
+    return aflist(s.left(), [combinebase(*q) for q in n], gap='-')
 
 
 def combinebase(*pairs):
@@ -123,12 +123,12 @@ def assemble(seq1, conf1, traces1, seq2, conf2, traces2):
     segment2 = seq2[hqint2.left():hqint2.right()] if hqint2.isproper() else ""
     # Align them
     (offset1, rawalsegment1), (offset2, rawalsegment2) = align.ssearch36(segment1, segment2)
-    alsegment1, alsegment2 = aflist(offset1, rawalsegment1, trackclass='nucleotide'), \
-        aflist(offset2, rawalsegment2, trackclass='nucleotide')
+    alsegment1, alsegment2 = aflist(offset1, rawalsegment1, gap='-', trackclass='nucleotide'), \
+        aflist(offset2, rawalsegment2, gap='-', trackclass='nucleotide')
     alhqint1 = ProperInterval(offset1, offset1+alsegment1.width())
     alhqint2 = ProperInterval(offset2, offset2+alsegment2.width())
-    alseq1, alseq2 = extend(alsegment1, hqint1, aflist(0,seq1)), \
-        extend(alsegment2, hqint2, aflist(0,seq2))
+    alseq1, alseq2 = extend(alsegment1, hqint1, aflist(0,seq1,'-')), \
+        extend(alsegment2, hqint2, aflist(0,seq2,'-'))
     alconf1, alconf2 = tracealong(conf1, alseq1), tracealong(conf2, alseq2)
     altraces1, altraces2 = tracealong(traces1, alseq1) if traces1 else None, \
         tracealong(traces2, alseq2) if traces2 else None
@@ -181,15 +181,19 @@ def assemble(seq1, conf1, traces1, seq2, conf2, traces2):
     elif alsegment1.width() != 0: # strand 1 only
         a = Assembly()
         if altraces2:
-            a['traces 2'] = ProperList(0, traces2, trackclass='svg', 
+            a['traces 2'] = ProperList(0, traces2, gap=None,
+                                       trackclass='svg', 
                                        features=[interval(neginf, posinf, 
                                                           name='unused', red=0, green=0,
                                                           blue=0, alpha=0.5)]) >> alconf1.left()
-        a['confidences 2'] = ProperList(0, conf2, trackclass='integer',
+        a['confidences 2'] = ProperList(0, conf2, 
+                                        gap=None,
+                                        trackclass='integer',
                                         features=[interval(neginf, posinf, 
                                                            name='unused', red=0, green=0,
                                                            blue=0, alpha=0.5)]) >> alconf1.left()
-        a['bases 2'] = ProperList(0, seq2, trackclass='nucleotide', 
+        a['bases 2'] = ProperList(0, seq2, gap='-',
+                                  trackclass='nucleotide', 
                                   features=[interval(neginf, posinf, name='unused', 
                                                      red=0, green=0, blue=0, alpha=0.5)]) >> alconf1.left()
         if altraces1:
@@ -201,13 +205,16 @@ def assemble(seq1, conf1, traces1, seq2, conf2, traces2):
     elif alsegment2.width() != 0: # strand 2 only
         a = Assembly()
         if altraces1:
-            a['traces 1'] = ProperList(0, traces1, trackclass='svg', 
+            a['traces 1'] = ProperList(0, traces1, gap=None,
+                                       trackclass='svg', 
                                        features=[interval(neginf, posinf, name='unused',
                                                           red=0, green=0, blue=0, alpha=0.5)]) >> alconf2.left()
-        a['confidences 1'] = ProperList(0, conf1, trackclass='integer',
+        a['confidences 1'] = ProperList(0, conf1, 
+                                        gap=None, trackclass='integer',
                                         features=[interval(neginf, posinf, name='unused',
                                                            red=0, green=0, blue=0, alpha=0.5)]) >> alconf2.left()
-        a['bases 1'] = ProperList(0, seq1, trackclass='nucleotide',
+        a['bases 1'] = ProperList(0, seq1, gap='-',
+                                  trackclass='nucleotide',
                                   features=[interval(neginf, posinf, name='unused', 
                                                      red=0, green=0, blue=0, alpha=0.5)]) >> alconf2.left()
         if altraces2:
@@ -219,18 +226,18 @@ def assemble(seq1, conf1, traces1, seq2, conf2, traces2):
     else:
         a = Assembly()
         if traces1:
-            a['traces 1'] = ProperList(0, traces1, trackclass='svg',
+            a['traces 1'] = ProperList(0, traces1, gap=None, trackclass='svg',
                                        features=[interval(neginf, posinf, name='unused', red=0, green=0, blue=0, alpha=0.5)])
-        a['confidences 1'] = ProperList(0, conf1, trackclass='integer', 
+        a['confidences 1'] = ProperList(0, conf1, gap=None, trackclass='integer', 
                                         features=[interval(neginf, posinf, name='unused', red=0, green=0, blue=0, alpha=0.5)])
-        a['bases 1'] = ProperList(0, seq1, trackclass='nucleotide',
+        a['bases 1'] = ProperList(0, seq1, gap='-', trackclass='nucleotide',
                                   features=[interval(neginf, posinf, name='unused', red=0, green=0, blue=0, alpha=0.5)])
         if traces2:
-            a['traces 2'] = ProperList(0, traces2, trackclass='svg',
+            a['traces 2'] = ProperList(0, traces2, gap=None, trackclass='svg',
                                        features=[interval(neginf, posinf, name='unused', red=0, green=0, blue=0, alpha=0.5)])
-        a['confidences 2'] = ProperList(0, conf2, trackclass='integer',
+        a['confidences 2'] = ProperList(0, conf2, gap=None, trackclass='integer',
                                         features=[interval(neginf, posinf, name='unused', red=0, green=0, blue=0, alpha=0.5)])
-        a['bases 2'] = ProperList(0, seq2, trackclass='nucleotide',
+        a['bases 2'] = ProperList(0, seq2, gap='-', trackclass='nucleotide',
                                   features=[interval(neginf, posinf, name='unused', red=0, green=0, blue=0, alpha=0.5)])
         return a
 
