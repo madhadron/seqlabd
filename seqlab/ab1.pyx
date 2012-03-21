@@ -139,7 +139,7 @@ def read(filename):
                      G=data[base_order['G']],
                      centers=centers)
     val = {'sequence': bases,
-           'confidences': confidences,
+           'confidences': [int(x) for x in confidences],
            'traces': traces}
     return val
 
