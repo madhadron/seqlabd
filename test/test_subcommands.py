@@ -133,3 +133,14 @@ def test_dailysummary():
         nop = False
     assert seqlab.subcommands.dailysummary.action(Args()) == 0
     assert os.path.exists('data/target/summary.html')
+
+import seqlab.subcommands.assemble
+def test_assemble():
+    class Args:
+        output = 'data/assembly.json.bz2'
+        first_ab1 = 'data/10h9BE-1.ab1'
+        second_ab1 = 'data/10h9BE-2.ab1'
+        metadata = 'data/workup.json'
+        additional_sequences = []
+    assert seqlab.subcommands.assemble.action(Args()) == 0
+    assert os.path.exists('data/assembly.json.bz2')
