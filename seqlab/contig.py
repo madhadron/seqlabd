@@ -22,6 +22,8 @@ iupac = {('A','C'): 'M',
          ('C','G','T'): 'B',
          ('A','C','G','T'): 'N'}
 
+pacui = dict([(y, set(x)) for x,y in iupac.iteritems()])
+
 def as_key(s):
     return tuple(sorted(set(s)))
 

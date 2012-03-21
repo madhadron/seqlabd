@@ -3,7 +3,7 @@ import json
 import time
 import shutil
 import os
-
+import csv
 import common
 
 try:
@@ -144,3 +144,41 @@ def test_assemble():
         additional_sequences = []
     assert seqlab.subcommands.assemble.action(Args()) == 0
     assert os.path.exists('data/assembly.json.bz2')
+
+import seqlab.subcommands.addsequence
+import seqlab.assembly as asm
+def test_addsequences(tmpdir):
+    a = asm.Assembly([('a', asm.aflist(0, 'ATGATGGA', '-'))])
+    a.serialize(str(tmpdir.join('asm.json.bz2')))
+    with open(str(tmpdir.join('a.fasta')), 'w') as h:
+        print >>h, '>alpha omega\nTGATGGA\n'
+    class Args:
+        assembly=str(tmpdir.join('asm.json.bz2'))
+        output=str(tmpdir.join('output.json.bz2'))
+        align_to='a'
+        fastas=[str(tmpdir.join('a.fasta'))]
+        no_alignment=False
+    assert seqlab.subcommands.addsequence.action(Args()) == 0
+    assert os.path.exists(str(tmpdir.join('output.json.bz2')))
+    asm2 = asm.deserialize(str(tmpdir.join('output.json.bz2')))
+    assert asm2 == asm.Assembly([('a', asm.aflist(0, 'ATGATGGA', '-')),
+                                 ('alpha omega', asm.aflist(1, 'TGATGGA', '-'))])
+
+import seqlab.subcommands.statistics
+
+def test_statistics(tmpdir):
+    a = asm.Assembly([('a', asm.aflist(0, 'ATGGNTGG-TC', '-')),
+                      ('b', asm.aflist(2,   'GGATCCATC', '-')),
+                      ('c', asm.aflist(0, 'AAA', '-'))])
+    a.serialize(str(tmpdir.join('asm.json.bz2')))
+    class Args:
+        assembly = str(tmpdir.join('asm.json.bz2'))
+        label1 = 'a'
+        label2 = 'b'
+        fields = ','.join(['identities','mismatches','fracoverlap'])
+        output = str(tmpdir.join('test.csv'))
+    assert seqlab.subcommands.statistics.action(Args()) == 0
+    with open(str(tmpdir.join('test.csv'))) as h:
+        cr = csv.reader(h)
+        assert cr.next() == ['5','3','0.9']
+
