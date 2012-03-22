@@ -63,15 +63,34 @@ def subdirs_for_summary(path):
         else:
             with open(os.path.join(path,p,'workup.json')) as h:
                 workup = json.load(h)
-        paths.append((ctime,workup,p,assembled))
+        if os.path.exists(os.path.join(path,p,'blast.json')):
+            with open(os.path.join(path,p,'blast.json')) as h:
+                blast = json.load(h)
+        else:
+            blast = None
+        paths.append((ctime,workup,p,assembled,blast))
     paths.sort(key=lambda a: a[0])
     return [x[1:] for x in paths]
 
+def blast_hit(blast):
+    if blast is None or len(blast) == 0:
+        return ""
+    else:
+        usable = [b for b in blast if not sequence_report.is_unclassified(b['hit_def'])]
+        if usable == []:
+            return "No well annotated BLAST hit found. Found %s" % (blast[0]['hit_def'],)
+        else:
+            b = usable[0]
+            return sequence_report.render_blast_alignment(b, 0, 0, b['query_length'], hidden=True)
+
 @templet.stringfunction
-def summary_entry((workup, path, assembled)):
+def summary_entry((workup, path, assembled, blast)):
     """<div class="${assembled and 'assembled' or 'strandwise'} workup"><a href="${os.path.join(path,assembled and 'assembly_report.html' or 'strandwise_report.html')}"><div class="entry">
        <h2>${workup['accession']} ${workup['pat_name']} (${workup['amp_name']}) - ${assembled and 'assembled' or 'no assembly'}</h2>
-       <p>${sequence_report.description(workup)}</p></div></a></div>"""
+       <p>${sequence_report.description(workup)}</p>
+       <p>Top hit:</p>
+       ${blast_hit(blast)}
+       </div></a></div>"""
 
 @templet.stringfunction    
 def daily_summary_html(date, entries):
@@ -84,12 +103,13 @@ def daily_summary_html(date, entries):
     h2 { font-size: 1.618em; line-height: 1.618em; }
     div.workup { font-size: 1.618em; line-height: 2.472em; vertical-align: middle; border: 1px solid black; }
     div.assembled { background-color: #37dd6f; color: #000; }
-    div.assembled:hover { background-color: #00bb3f; color: #fff; }
+    div.assembled:hover { background-color: #00bb3f; }
     div.strandwise { background-color: #ff2800; color: #000; }
-    div.strandwise:hover { background-color: #ff5d40; color: #fff; }
+    div.strandwise:hover { background-color: #ff5d40; }
     div.workup a { text-decoration: none; color: inherit; width: 100%; padding: 0; display: block; }
     div.entry { margin: 0.5em; line-height: 1.2; }
     li { margin-left: 1em; padding-left: 0.5em; list-style: dot; }
+    ${sequence_report.blast_css()}
     </style>
     </head><body>
     <h1>Daily summary: $date</h1>

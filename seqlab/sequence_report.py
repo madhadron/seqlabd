@@ -1,4 +1,5 @@
 import templet
+import json
 import os
 import re
 import time
@@ -49,7 +50,7 @@ def blast_seq(seq, save_path, ncbi_db='nr', json_path=None, json_limit=None):
         if json_path:
             with open(json_path, 'w') as jsonout:
                 json.dump(hits_for_json[:json_limit], jsonout)
-        return hits
+        return hits_for_json
 
 
 # Pattern to filter out ill classified BLAST results
@@ -108,15 +109,18 @@ def generate_report(lookup_fun, assembled_render, strandwise_render):
                                    read2['sequence'], read2['confidences'], read2['traces'])
         if 'contig' in assembly:
             if not omit_blast:
-                v = lookup_fun(''.join(assembly['contig'].values), save_path=os.path.join(workup['path'], 'blast.xml'))
+                v = lookup_fun(''.join(assembly['contig'].values), save_path=os.path.join(workup['path'], 'blast.xml'),
+                               save_json=os.path.join(workup['path'], 'blast.json'))
                 body = assembled_render(workup, assembly, v, omit_blast=False)
             else:
                 body = assembled_render(workup, assembly, None, omit_blast=True)
             return ('assembled', body)
         else:
             if not omit_blast:
-                v1 = lookup_fun(''.join(assembly['bases 1'].values), save_path=workup['path'])
-                v2 = lookup_fun(''.join(assembly['bases 2'].values), save_path=workup['path'])
+                v1 = lookup_fun(''.join(assembly['bases 1'].values), save_path=workup['path'],
+                                save_json=os.path.join(workup['path'], 'blast.json'))
+                v2 = lookup_fun(''.join(assembly['bases 2'].values), save_path=workup['path'],
+                                save_json=os.path.join(workup['path'], 'blast.json'))
                 body = strandwise_render(workup, assembly, v1, v2, omit_blast=False)
             else:
                 body = strandwise_render(workup, assembly, None, None, omit_blast=True)
@@ -134,7 +138,7 @@ def pane_div(i, text):
 def description(metadata):
     description = ""
     if metadata['specimen_description']:
-        description += " on %s" % metadata['specimen_description']
+        description += " on %s, ordered tests:" % metadata['specimen_description']
         if metadata['specimen_category']:
             description += " (%s)" % metadata['specimen_category']
         description += ":"
@@ -294,21 +298,21 @@ updateCSS = function(selector, styles) {
 # NCBI BLAST returns a closed interval for start and end, not a half open one, so end-start = length-1
 def overlap_bar(hsp, query_length):
     template = """<div style="background-color: %s; width: %s%%; margin-left: %s%%;">%s</div>"""
-    if hsp.score >= 200:
+    if hsp['score'] >= 200:
         color = "#f00"
-    elif hsp.score >= 80 and hsp.score < 200:
+    elif hsp['score'] >= 80 and hsp['score'] < 200:
         color = "#f0f"
-    elif hsp.score >= 50 and hsp.score < 80:
+    elif hsp['score'] >= 50 and hsp['score'] < 80:
         color = "#0f0"
-    elif hsp.score >= 40 and hsp.score < 50:
+    elif hsp['score'] >= 40 and hsp['score'] < 50:
         color = "#00f"
-    else: # hsp.XSscore < 40:
+    else: # hsp['score'] < 40:
         color = "#000"
-    percid = hsp.identities / float(hsp.align_length)
+    percid = hsp['identities'] / float(hsp['align_length'])
     # NCBI BLAST returns a closed interval for start and end, not a
     # half open one, so end-start = length-1
-    sbjct_right = hsp.query_end
-    sbjct_left = hsp.query_start
+    sbjct_right = hsp['query_end']
+    sbjct_left = hsp['query_start']
     width = 100*(sbjct_right - sbjct_left + 1)/float(query_length) # in percent
     offset = 100*sbjct_left / float(query_length)
     return template % (color, width, offset, pprint_percent(percid))
@@ -332,38 +336,38 @@ def pprint_percent(x):
 def render_hsp(hsp, query_length):
     """
     <ul class="stats">
-      <li><span class="label">Score</span><span class="value">${str(hsp.score)} (E=${pprint_sci(hsp.expect)})</span></li>
-      <li><span class="label">Coverage</span><span class="value">${str(hsp.align_length)}/${str(query_length)} query bases</span></li>
-      <li><span class="label">Identities</span><span class="value">${str(hsp.identities)}/${str(hsp.align_length)} (${pprint_percent(hsp.identities/float(hsp.align_length))}%)</span></li>
-      <li><span class="label">Gaps</span><span class="value">${hsp.gaps}/${hsp.align_length} (${pprint_percent(hsp.gaps/float(hsp.align_length))}%)</span></li>
+      <li><span class="label">Score</span><span class="value">${str(hsp['score'])} (E=${pprint_sci(hsp['expect'])})</span></li>
+      <li><span class="label">Coverage</span><span class="value">${str(hsp['align_length'])}/${str(query_length)} query bases</span></li>
+      <li><span class="label">Identities</span><span class="value">${str(hsp['identities'])}/${str(hsp['align_length'])} (${pprint_percent(hsp['identities']/float(hsp['align_length']))}%)</span></li>
+      <li><span class="label">Gaps</span><span class="value">${hsp['gaps']}/${hsp['align_length']} (${pprint_percent(hsp['gaps']/float(hsp['align_length']))}%)</span></li>
     </ul>
     <span><div class="alignment">
-      <p><span class="label">Query (${hsp.query_start}-${hsp.query_end})</span>
-         <span class="sequence">${pprint_seq(hsp.query, False, 
-                                             [x==y for x,y in zip(hsp.query, hsp.sbjct)])}</span></p>
+      <p><span class="label">Query (${hsp['query_start']}-${hsp['query_end']})</span>
+         <span class="sequence">${pprint_seq(hsp['query'], False, 
+                                             [x==y for x,y in zip(hsp['query'], hsp['sbjct'])])}</span></p>
       <p><span class="label">&nbsp;</span>
-         <span class="sequence">${pprint_seq(hsp.match, False,
-                                             [x==y for x,y in zip(hsp.query,hsp.sbjct)])}</span></p>
-      <p><span class="label">Sbjct (${hsp.sbjct_start}-${hsp.sbjct_end})</span>
-         <span class="sequence">${pprint_seq(hsp.sbjct, False, 
-                                             [x==y for x,y in zip(hsp.query,hsp.sbjct)])}</span></p>
+         <span class="sequence">${pprint_seq(hsp['match'], False,
+                                             [x==y for x,y in zip(hsp['query'],hsp['sbjct'])])}</span></p>
+      <p><span class="label">Sbjct (${hsp['sbjct_start']}-${hsp['sbjct_end']})</span>
+         <span class="sequence">${pprint_seq(hsp['sbjct'], False, 
+                                             [x==y for x,y in zip(hsp['query'],hsp['sbjct'])])}</span></p>
     </div></span>
     """
     
 @templet.stringfunction
-def render_blast_alignment(alignment, hsp_idx, position, query_length):
+def render_blast_alignment(alignment, hsp_idx, position, query_length, hidden=True):
     """
-    ${is_unclassified(alignment.hit_def) and '<div class="ill-annotated">' or ''}
+    ${is_unclassified(alignment['hit_def']) and '<div class="ill-annotated">' or ''}
     <div class="blast_result">
       <h3 onclick="toggle_visible('inner$position-$hsp_idx')"><div class="overlap_bars"><div></div>
-        ${overlap_bar(alignment.hsps[hsp_idx], query_length)}</div>
-        <tt>${alignment.hit_id}</tt> ${alignment.hit_def} (${pprint_int(alignment.length)}bp)
+        ${overlap_bar(alignment['hsps'][hsp_idx], alignment['query_length'])}</div>
+        <tt>${alignment['hit_id']}</tt> ${alignment['hit_def']} (${pprint_int(alignment['length'])}bp)
       </h3>
-      <div id="inner$position-$hsp_idx" class="hidden" onclick="toggle_visible('inner$position-$hsp_idx')">
-        ${render_hsp(alignment.hsps[hsp_idx], query_length)}
+      <div id="inner$position-$hsp_idx" class="${"hidden" if hidden else ""}" onclick="toggle_visible('inner$position-$hsp_idx')">
+        ${render_hsp(alignment['hsps'][hsp_idx], alignment['query_length'])}
       </div>
     </div>
-    ${is_unclassified(alignment.hit_def) and '</div>' or ''}
+    ${is_unclassified(alignment['hit_def']) and '</div>' or ''}
     """
 
 @templet.stringfunction
@@ -379,9 +383,9 @@ def control_bar(keyname):
 def render_blast(blast_result, keyname):
     txt = control_bar(keyname)
     txt += """<div id="%s" class="blast_tab">""" % (keyname,)
-    for i,a in enumerate(blast_result.alignments):
+    for i,a in enumerate(blast_result):
         # Only showing top HSP instead of all
-        txt += render_blast_alignment(a, 0, i, blast_result.query_length)
+        txt += render_blast_alignment(a, 0, i, a['query_length'])
         # for j,h in enumerate(a.hsps):
         #     txt += render_blast_alignment(a, j, i, blast_result.query_length)
     txt += "\n</div>"
@@ -390,7 +394,7 @@ def render_blast(blast_result, keyname):
 @templet.stringfunction
 def blast_css():
     """
-    div.blast_result { cursor: pointer; } 
+    div.blast_result { cursor: pointer; background-color: white; } 
     div.blast_result h3 { font-size: 100%; margin: 0; padding: 0; font-family: "Times New Roman", serif; white-space: nowrap; }
     tt { font-size: 140%; }
     ul.stats { display: block; width: 100%; list-style: none; margin: 0.25em; padding: 0; font-size: 1em; max-width: 60em; }
