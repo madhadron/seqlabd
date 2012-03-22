@@ -1,6 +1,9 @@
-{"accession": "W01325",
- "path": "data/target/subdir",
+{"accession": "F2521",
  "workup": null,
- "pat_name": "JENKINS, JOHN H.",
- "amp_name": "alt_16S",
- "seq_key": 22708}
+ "pat_name": "MOZART, WOLFGANG A.",
+ "amp_name": "rpoB",
+ "seq_key": 22708,
+ "date": "2011-06-23", "tests": [["BACTSEQ","Bacterial sequencing"]],
+ "specimen_description": "Gooey stuff",
+ "specimen_category": "Sputum"}
+

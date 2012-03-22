@@ -89,7 +89,7 @@ def daily_summary_html(date, entries):
     div.strandwise:hover { background-color: #ff5d40; color: #fff; }
     div.workup a { text-decoration: none; color: inherit; width: 100%; padding: 0; display: block; }
     div.entry { margin: 0.5em; line-height: 1.2; }
-    li { margin-left: 1em; padding-left: 0.5em; }
+    li { margin-left: 1em; padding-left: 0.5em; list-style: dot; }
     </style>
     </head><body>
     <h1>Daily summary: $date</h1>

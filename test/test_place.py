@@ -14,8 +14,8 @@ def test_place(tmpdir):
     targetdir = tmpdir.mkdir('target')
     sourcefile = tmpdir.join('source/280.22708_H02_016.ab1').ensure(dir=False)
     keyfun = seqkey
-    metadatafun = lambda k: {22708: {'to': 'boris/hilda'}, 22709: {'to': 'meep/vroom'}}[k]
-    pathgenfun = lambda basepath, metadata: basepath.join(metadata['to'])
+    metadatafun = lambda k, ct: {22708: {'to': 'boris/hilda'}, 22709: {'to': 'meep/vroom'}}[k]
+    pathgenfun = lambda basepath, metadata, currenttime: basepath.join(metadata['to'])
     postplacefun = lambda p, m: None
     finalpath, metadata = place(sourcefile, keyfun, metadatafun, pathgenfun, targetdir, postplacefun)
     assert finalpath.check(exists=1, file=1)
@@ -46,14 +46,9 @@ def test_seqkey_to_workup():
                           'liver', 'isolate',
                           'BAC1', 'bacterial sequencing',
                           'MUP1', 'muppet test', 123)""")
+    print metadata(db, 123)
     assert metadata(db, 123) == \
-        {'accession': u'H34908',
-         'amp_name': u'alt_16s',
-         'pat_name': u'JENKINS, JOHN',
-         'seq_key': 123,
-         'specimen_description': 'liver',
-         'specimen_category': 'isolate',
-         'tests': [('BAC1','bacterial sequencing'), ('MUP1', 'muppet test')]}
+        {'amp_name': u'alt_16s', 'specimen_description': u'liver', 'seq_key': 123, 'specimen_category': u'isolate', 'pat_name': u'JENKINS, JOHN', 'date': '2012_03_22', 'tests': [(u'BAC1', u'bacterial sequencing'), (u'MUP1', u'muppet test')], 'accession': u'H34908'}
     db.close()
 
 def test_genpath():

@@ -12,7 +12,7 @@ import assembly
 import ab1
 import contig
 
-def blast_seq(seq, save_path, ncbi_db='nr'):
+def blast_seq(seq, save_path, ncbi_db='nr', json_path=None, json_limit=None):
     """Submit *seq* to NCBI BLAST.
 
     *seq* should be a string or SeqRecord object. *ncbi_db* is the
@@ -26,7 +26,30 @@ def blast_seq(seq, save_path, ncbi_db='nr'):
         xh.write(res)
     with open(save_path, 'r') as xh:
         records = list(Bio.Blast.NCBIXML.parse(xh))
-        return records[0]
+        hits = records[0]
+        query_length = hits.query_length
+        hits_for_json = [{'hit_id': h.hit_id,
+                          'hit_def': h.hit_def,
+                          'length': h.length,
+                          'query_length': query_length,
+                          'hsps': [{'score': hs.score,
+                                    'expect': hs.expect,
+                                    'align_length': hs.align_length,
+                                    'identities': hs.identities,
+                                    'gaps': hs.gaps,
+                                    'query_start': hs.query_start,
+                                    'query_end': hs.query_end,
+                                    'sbjct_start': hs.sbjct_start,
+                                    'sbjct_end': hs.sbjct_end,
+                                    'query': hs.query,
+                                    'sbjct': hs.sbjct,
+                                    'match': hs.match}
+                                   for hs in h.hsps]}
+                         for h in hits.alignments]
+        if json_path:
+            with open(json_path, 'w') as jsonout:
+                json.dump(hits_for_json[:json_limit], jsonout)
+        return hits
 
 
 # Pattern to filter out ill classified BLAST results
@@ -85,7 +108,7 @@ def generate_report(lookup_fun, assembled_render, strandwise_render):
                                    read2['sequence'], read2['confidences'], read2['traces'])
         if 'contig' in assembly:
             if not omit_blast:
-                v = lookup_fun(''.join(assembly['contig'].values), save_path=workup['path'])
+                v = lookup_fun(''.join(assembly['contig'].values), save_path=os.path.join(workup['path'], 'blast.xml'))
                 body = assembled_render(workup, assembly, v, omit_blast=False)
             else:
                 body = assembled_render(workup, assembly, None, omit_blast=True)
@@ -136,6 +159,7 @@ def tabbed_page(metadata, additional_css, additional_javascript, tabs):
     $additional_css
     * { margin: 0; padding: 0; }
     div.tab { display: none; }
+    li { margin-left: 1em; padding-left: 0.5em; list-style: dot; }
     body { font-size: 100%; font-family: "Times New Roman", serif; }
 
     h1 { font-size: 2.617em; line-height: 1.146em; vertical-align: baseline; }
@@ -385,7 +409,7 @@ def blast_css():
     a { text-decoration: inherit; color: inherit; }
     div.ill-annotated { display: none; }
     div.visible-ill-annotated { display: block; }
-    div.controlbar { position: fixed; bottom: 0; left: 0; width: 100%; height: 1em; color: #fff; background-color: #444; padding: 0.5em; }
+    div.controlbar { position: fixed; bottom: 0; left: 0; width: 100%; height: 2em; color: #fff; background-color: #444; padding: 0.5em; }
     div.blast_tab { margin-bottom: 2em; }
     """
 

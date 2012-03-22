@@ -31,26 +31,5 @@ def action(args):
     else:
         xml_path = args.xml
 
-    hits = blast_seq(seq, xml_path)
-    query_length = hits.query_length
-    hits_for_json = [{'hit_id': h.hit_id,
-                      'hit_def': h.hit_def,
-                      'length': h.length,
-                      'query_length': query_length,
-                      'hsps': [{'score': hs.score,
-                                'expect': hs.expect,
-                                'align_length': hs.align_length,
-                                'identities': hs.identities,
-                                'gaps': hs.gaps,
-                                'query_start': hs.query_start,
-                                'query_end': hs.query_end,
-                                'sbjct_start': hs.sbjct_start,
-                                'sbjct_end': hs.sbjct_end,
-                                'query': hs.query,
-                                'sbjct': hs.sbjct,
-                                'match': hs.match}
-                               for hs in h.hsps]}
-                     for h in hits.alignments]
-    with open(args.json, 'w') as output:
-        json.dump(hits_for_json[:args.n], output)
+    hits = blast_seq(seq, xml_path, json_path=args.json, json_limit=args.n)
     return 0
