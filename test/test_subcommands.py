@@ -182,3 +182,18 @@ def test_statistics(tmpdir):
         cr = csv.reader(h)
         assert cr.next() == ['5','3','0.9']
 
+import seqlab.subcommands.render
+
+def test_render(tmpdir):
+    a = asm.Assembly([('a', asm.aflist(0, 'ATGGNTGG-TC', '-', trackclass='nucleotide')),
+                      ('b', asm.aflist(2,   'GGATCCATC', '-', trackclass='nucleotide')),
+                      ('c', asm.aflist(0, 'AAA', '-', trackclass='nucleotide'))])
+    a.serialize(str(tmpdir.join('asm.json.bz2')))
+    class Args:
+        assembly = str(tmpdir.join('asm.json.bz2'))
+        output = 'data/render_subcommand_test.html'
+    assert seqlab.subcommands.render.action(Args()) == 0
+    assert os.path.exists('data/render_subcommand_test.html')
+
+    
+
