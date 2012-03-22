@@ -18,7 +18,7 @@ def action(args):
     if not os.path.exists(args.assembly):
         raise ValueError("No such file: %s" % (args.assembly,))
     asm = deserialize(args.assembly)
-    s = renderassembly(asm)
+    s = "<!DOCTYPE html><html><body>" + renderassembly(asm) + "</body></html>"
     if args.output:
         with open(args.output, 'w') as out:
             print >>out, s

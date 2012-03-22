@@ -831,7 +831,7 @@ def ab1tohtml(ab1filename):
                                          trackclass='integer')),
                   ('bases', aflist(0, r['sequence'], gap='-',
                                    trackclass='nucleotide'))])
-    s = ""
+    s = "<!DOCTYPE html>"
     s += "<html><body>"
     s += renderassembly(a)
     s += "</body></html>"
