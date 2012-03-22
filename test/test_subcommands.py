@@ -195,5 +195,33 @@ def test_render(tmpdir):
     assert seqlab.subcommands.render.action(Args()) == 0
     assert os.path.exists('data/render_subcommand_test.html')
 
+import seqlab.subcommands.blast
+
+@common.slow
+def test_blast(tmpdir):
+    a = asm.Assembly([('aardvark', 
+                       asm.aflist(0,
+                                  ''.join(['tcatatctggcgttaatggagttcagtggtaatacaatgaccag',
+                                           'agatgcatccagagcagttctgcgttttgtcactgtcacagcag',
+                                           'aagccttacgcttcaggcagat']),
+                                  '-',
+                                  trackclass='nucleotide')),
+                      ('b', asm.aflist(2,   'GGATCCATC', '-', trackclass='nucleotide')),
+                      ('c', asm.aflist(0, 'AAA', '-', trackclass='nucleotide'))])
+    a.serialize(str(tmpdir.join('asm.json.bz2')))
+    class Args:
+        assembly = str(tmpdir.join('asm.json.bz2'))
+        label = 'aardvark'
+        json = 'data/blast_subcommand.json'
+        xml = 'data/blast_subcommand.xml'
+        n = 10
+    assert seqlab.subcommands.blast.action(Args()) == 0
+    assert os.path.exists('data/blast_subcommand.json')
+    assert os.path.exists('data/blast_subcommand.xml')
+    with open('data/blast_subcommand.json') as h:
+        j = json.load(h)
+        assert len(j) <= 10
+    
+
     
 
