@@ -20,8 +20,6 @@ def test_stats():
     assert indels(a, 'a', 'b') == 1
     assert insertions1(a, 'a', 'b') == 0
     assert insertions2(a, 'a', 'b') == 1
-    assert deletions1(a, 'a', 'b') == 1
-    assert deletions2(a, 'a', 'b') == 0
     assert ambiguities(a, 'a', 'b') == 1
     assert ambiguities1(a, 'a', 'b') == 1
     assert ambiguities2(a, 'a', 'b') == 0
