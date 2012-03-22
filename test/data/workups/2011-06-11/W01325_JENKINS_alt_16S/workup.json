@@ -2,4 +2,8 @@
  "workup": null,
  "pat_name": "JENKINS, JOHN H.",
  "amp_name": "alt_16S",
- "seq_key": 22708}
+ "seq_key": 22708,
+ "specimen_description": "Pure Culture Gram Variable Rods Sputum",
+ "specimen_category": "Sputum",
+ "date": "2011-06-21",
+ "tests": [["BCTSEQ", "Bacterial Sequencing"], ["TSEXAM-cryptococcus", "Tissue extract and amplify crypto specific primers"]]}

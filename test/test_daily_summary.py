@@ -23,13 +23,28 @@ def test_subdirs(tmpdir):
 
 
 def test_subdirs_for_summary():
-    assert subdirs_for_summary('data/workups/2011-06-11') == \
-        [({u'amp_name': u'rpoB', u'seq_key': 22708, u'accession': u'F2521',
-           u'workup': None, u'pat_name': u'MOZART, WOLFGANG A.'},
-          'F2521_MOZART_rpoB',False),
-         ({u'amp_name': u'alt_16S', u'seq_key': 22708, u'accession': u'W01325', 
-           u'workup': None, u'pat_name': u'JENKINS, JOHN H.'},
-          'W01325_JENKINS_alt_16S',True)]
+    vals = subdirs_for_summary('data/workups/2011-06-11')
+    expected = [({u'amp_name': u'rpoB', u'seq_key': 22708, u'accession': u'F2521',
+                  u'workup': None, u'pat_name': u'MOZART, WOLFGANG A.',
+                  'date': '2011-06-23', 'tests': [['BACTSEQ','Bacterial sequencing']],
+                  'specimen_description': 'Gooey stuff', 'specimen_category': 'Sputum'},
+                 'F2521_MOZART_rpoB',False),
+                ({u'amp_name': u'alt_16S', u'seq_key': 22708, u'accession': u'W01325', 
+                  u'workup': None, u'pat_name': u'JENKINS, JOHN H.',
+                  "specimen_description": "Pure Culture Gram Variable Rods Sputum",
+                  "specimen_category": "Sputum",
+                  "date": "2011-06-21",
+                  "tests": [["BCTSEQ", "Bacterial Sequencing"], 
+                            ["TSEXAM-cryptococcus", "Tissue extract and amplify crypto specific primers"]]},
+                 'W01325_JENKINS_alt_16S',True)]
+    for v,exp in zip(vals, expected):
+        print v
+        print exp
+        assert v[1] == exp[1]
+        assert v[2] == exp[2]
+        for k in v[0].keys():
+            assert (k,v[0][k]) == (k,exp[0][k]) 
+    
 
 
 def test_generate_daily_summary():

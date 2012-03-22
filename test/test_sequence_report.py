@@ -44,7 +44,9 @@ def test_generate_report():
 
 def test_render_assembled():
     import cPickle
-    w = {'accession':'W01325', 'workup':'F22501', 'pat_name':'JENKINS, JOHN H.', 'amp_name':'rpoB', 'path':'data/workups/2011-06-11/W01_JENKINS'}
+    w = {'accession':'W01325', 'workup':'F22501', 'pat_name':'JENKINS, JOHN H.', 'amp_name':'rpoB', 'path':'data/workups/2011-06-11/W01_JENKINS',
+         'date': '2011-06-23', 'tests': [['BACTSEQ','Bacterial sequencing']],
+         'specimen_description': 'Gooey stuff', 'specimen_category': 'Sputum'}
     with open('data/assembly_blast.pickle') as h:
         blast_res = cPickle.load(h)
     with open('data/render_assembled.html', 'w') as h:
@@ -52,7 +54,9 @@ def test_render_assembled():
 
 def test_render_strandwise():
     import cPickle
-    w = {'accession':'F2521', 'workup':'F22501', 'pat_name':'MOZART, WOLFGANG A.', 'amp_name':'rpoB', 'path':'data/workups/2011-06-11/W01_JENKINS'}
+    w = {'accession':'F2521', 'workup':'F22501', 'pat_name':'MOZART, WOLFGANG A.', 'amp_name':'rpoB', 'path':'data/workups/2011-06-11/W01_JENKINS',
+         'date': '2011-06-23', 'tests': [['BACTSEQ','Bacterial sequencing']],
+         'specimen_description': 'Gooey stuff', 'specimen_category': 'Sputum'}
     with open('data/strand1_blast.pickle') as h, open('data/strand2_blast.pickle') as h2:
         blast_res1 = cPickle.load(h)
         blast_res2 = cPickle.load(h2)
@@ -69,7 +73,9 @@ def test_render_strandwise():
 
 def test_render_noblast():
     import cPickle
-    w = {'accession':'F2521', 'workup':'F22501', 'pat_name':'MOZART, WOLFGANG A.', 'amp_name':'rpoB', 'path':'data/workups/2011-06-11/W01_JENKINS'}
+    w = {'accession':'F2521', 'workup':'F22501', 'pat_name':'MOZART, WOLFGANG A.', 'amp_name':'rpoB', 'path':'data/workups/2011-06-11/W01_JENKINS',
+         'date': '2011-06-23', 'tests': [['BACTSEQ','Bacterial sequencing']],
+         'specimen_description': 'Gooey stuff', 'specimen_category': 'Sputum'}
     def pseudoblast(seq, save_path):
         raise Exception("Should not call lookup!")
     body = generate_report(pseudoblast, lambda *args: None, render_strandwise)((w, 'data/10h9BE-1.ab1', 'data/10h9BE-2.ab1'), omit_blast=True)
@@ -78,7 +84,9 @@ def test_render_noblast():
     with open('data/render_strandwise_noblast.html', 'w') as h:
         print >>h, body[1]
 
-    w = {'accession':'W01325', 'workup':'F22501', 'pat_name':'JENKINS, JOHN H.', 'amp_name':'rpoB', 'path':'data/workups/2011-06-11/W01_JENKINS'}
+    w = {'accession':'W01325', 'workup':'F22501', 'pat_name':'JENKINS, JOHN H.', 'amp_name':'rpoB', 'path':'data/workups/2011-06-11/W01_JENKINS',
+         'date': '2011-06-23', 'tests': [['BACTSEQ','Bacterial sequencing']],
+         'specimen_description': 'Gooey stuff', 'specimen_category': 'Sputum'}
     with open('data/render_assembled_noblast.html', 'w') as h:
         print >>h, generate_report(pseudoblast, render_assembled, lambda *args: None )((w, 'data/tmpzRpKiy-1.ab1', 'data/tmpzRpKiy-2.ab1'), omit_blast=True)[1]
 

@@ -108,12 +108,30 @@ def tab_li(i, text):
 def pane_div(i, text):
     """<div class="hiddentab" id="tab$i">$text</div>"""
 
+def description(metadata):
+    description = ""
+    if metadata['specimen_description']:
+        description += " on %s" % metadata['specimen_description']
+        if metadata['specimen_category']:
+            description += " (%s)" % metadata['specimen_category']
+        description += ":"
+    description += "<ul>"
+    description += "".join(["<li>%s%s</li>" % (y if y is not None else "",
+                                               " (%s)" % x if x is not None else "?")
+                            for x,y in metadata['tests']])
+    description += "</ul>"
+    return description
+
+def title(workup):
+    return "%s %s (%s)" % (workup['accession'], workup['pat_name'], workup['amp_name'])
+
+
 @templet.stringfunction
-def tabbed_page(title, additional_css, additional_javascript, tabs):
+def tabbed_page(metadata, additional_css, additional_javascript, tabs):
     """
     <!DOCTYPE html>
     <html><head>
-    <title>$title</title>
+    <title>${title(metadata)}</title>
     <style>
     $additional_css
     * { margin: 0; padding: 0; }
@@ -138,7 +156,9 @@ def tabbed_page(title, additional_css, additional_javascript, tabs):
 
     </style>
     </head><body onload="show_tab('tab0')">
-    <h1>$title</h1>
+    <h1>${title(metadata)}</h1>
+
+    <p><b>${metadata['date']}</b>: ${description(metadata)}</p>
 
     <ul id="tab_container">${[tab_li(i,k) for i,k in enumerate(tabs.keys())]}</ul>
     <div id="pane_container">${[pane_div(i,v) for i,v in enumerate(tabs.values())]}</div>
@@ -400,13 +420,12 @@ def assembly_tab(assem):
     """
 
 def render_assembled(workup, assembly, blast_result, omit_blast=False):
-    title = "%s %s (%s)" % (workup['accession'], workup['pat_name'], workup['amp_name'])
     if omit_blast:
         tabs =  collections.OrderedDict([('Assembly', assembly_tab(assembly))])
     else:
         tabs =  collections.OrderedDict([('Assembly', assembly_tab(assembly)),
                                          ('BLAST', render_blast(blast_result, 'assembled'))])
-    return tabbed_page(title, alignment_css() + pprint_seq_css() + ("" if omit_blast else blast_css()),
+    return tabbed_page(workup, alignment_css() + pprint_seq_css() + ("" if omit_blast else blast_css()),
                        pprint_seq_javascript() + ("" if omit_blast else blast_javascript()), tabs)
 
 @templet.stringfunction
@@ -421,14 +440,13 @@ def strandwise_tab(assem):
     """
 
 def render_strandwise(workup, assembly, blast_result1, blast_result2, omit_blast=False):
-    title = "%s %s (%s)" % (workup['accession'], workup['pat_name'], workup['amp_name'])
     if not omit_blast:
         tabs =  collections.OrderedDict([('Assembly', strandwise_tab(assembly)),
                                          ('Strand 1 BLAST', render_blast(blast_result1, 'strand1')),
                                          ('Strand 2 BLAST', render_blast(blast_result2, 'strand2'))])
     else:
         tabs =  collections.OrderedDict([('Assembly', strandwise_tab(assembly))])
-    return tabbed_page(title, alignment_css() + pprint_seq_css() + (blast_css() if render_blast else ""),
+    return tabbed_page(workup, alignment_css() + pprint_seq_css() + (blast_css() if render_blast else ""),
                        pprint_seq_javascript() + (blast_javascript() if render_blast else ""), tabs)
     
 

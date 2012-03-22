@@ -57,8 +57,9 @@ def place(filepath, keyfun, metadatafun, pathgenfun, basepath, postplacefun):
     if not(filepath.check(file=1, exists=1)):
         raise ValueError("No regular file to place at %s" % filepath)
     key = keyfun(filepath)
-    metadata = metadatafun(key)
-    targetpath = pathgenfun(basepath, metadata)
+    current_time = time.localtime()
+    metadata = metadatafun(key, current_time)
+    targetpath = pathgenfun(basepath, metadata, current_time)
     targetpath.ensure(dir=True)
     finalpath = targetpath.join(filepath.basename)
     filepath.move(finalpath)
@@ -87,7 +88,7 @@ def seqkey(filepath):
         raise ValueError("Could not find a sequence key in filepath %s" % filepath)
     
 
-def metadata(db, key):
+def metadata(db, key, current_time=time.localtime()):
     """Fetch metadata from database *db* with seq_key *key*.
 
     The result is returned as a dictionary.
@@ -122,7 +123,8 @@ def metadata(db, key):
              'seq_key': key,
              'specimen_description': specimen_description,
              'specimen_category': specimen_category,
-             'tests': []}
+             'tests': [],
+             'date': time.strftime('%Y_%m_%d', current_time)}
         for code,name in [(test1_code, test1_name),
                           (test2_code, test2_name), 
                           (test3_code, test3_name), 

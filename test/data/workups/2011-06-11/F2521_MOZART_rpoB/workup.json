@@ -2,4 +2,8 @@
  "workup": null,
  "pat_name": "MOZART, WOLFGANG A.",
  "amp_name": "rpoB",
- "seq_key": 22708}
+ "seq_key": 22708,
+ "date": "2011-06-23", "tests": [["BACTSEQ","Bacterial sequencing"]],
+ "specimen_description": "Gooey stuff",
+ "specimen_category": "Sputum"}
+
