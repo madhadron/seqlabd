@@ -29,8 +29,7 @@ class DailySummaryDaemon(pydaemonize.Daemon):
     def action(self):
         with open(self.config_path) as h:
             config = cf.read_configuration(h)
-        monitor_path = os.path.join(config['share_path'],
-                                    config['base_path'])
+        monitor_path = config['target_path']
         syslog.syslog(syslog.LOG_NOTICE, "dailysummaryd monitoring %s for reports to summarize." % monitor_path)
         class Handler(pyinotify.ProcessEvent):
             def process_IN_UNMOUNT(self, event):

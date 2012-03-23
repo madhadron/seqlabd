@@ -48,7 +48,7 @@ def test_seqkey_to_workup():
                           'MUP1', 'muppet test', 123)""")
     print metadata(db, 123)
     assert metadata(db, 123) == \
-        {'amp_name': u'alt_16s', 'specimen_description': u'liver', 'seq_key': 123, 'specimen_category': u'isolate', 'pat_name': u'JENKINS, JOHN', 'date': '2012_03_22', 'tests': [(u'BAC1', u'bacterial sequencing'), (u'MUP1', u'muppet test')], 'accession': u'H34908'}
+        {'amp_name': u'alt_16s', 'specimen_description': u'liver', 'seq_key': 123, 'specimen_category': u'isolate', 'pat_name': u'JENKINS, JOHN', 'date': '2012_03_23', 'tests': [(u'BAC1', u'bacterial sequencing'), (u'MUP1', u'muppet test')], 'accession': u'H34908'}
     db.close()
 
 def test_genpath():
