@@ -6,7 +6,7 @@ def read_configuration(handle):
         {'batch_timeout': '15', 'slurp_timeout': '600',
          'share_path': None, 'base_path': None, 'inbox_path': None,
          'db_server': None, 'db_username': None,
-         'max_retries': '3', 'db_port': '3306', 'db_credentials': None,
+         'db_port': '3306', 'db_credentials': None,
          'db_name': None, 'daemon_user': None, 'daemon_group': None}
 
     scp = ConfigParser.SafeConfigParser(default)
@@ -32,9 +32,6 @@ def read_configuration(handle):
     if conf['slurp_timeout'] < 1:
         raise ValueError("slurp_timeout must be a positive integer, found %d" \
                              % conf['slurp_timeout'])
-    if conf['max_retries'] < 1:
-        raise ValueError("max_retries must be a postive integer, found %d" \
-                             % conf['max_retries'])
     if not(os.path.isdir(target_path)):
         raise ValueError("No such path: %s" % target_path)
     if not(os.path.isdir(conf['inbox_path'])):
