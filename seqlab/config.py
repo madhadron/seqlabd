@@ -5,7 +5,7 @@ def read_configuration(handle):
     default = \
         {'batch_timeout': '15', 'slurp_timeout': '600',
          'share_path': None, 'base_path': None, 'inbox_path': None,
-         'unmatched_path': None, 'db_server': None, 'db_username': None,
+         'db_server': None, 'db_username': None,
          'max_retries': '3', 'db_port': '3306', 'db_credentials': None,
          'db_name': None, 'daemon_user': None, 'daemon_group': None}
 
@@ -39,8 +39,6 @@ def read_configuration(handle):
         raise ValueError("No such path: %s" % target_path)
     if not(os.path.isdir(conf['inbox_path'])):
         raise ValueError("No such path: %s" % conf['inbox_path'])
-    if not(os.path.isdir(conf['unmatched_path'])):
-        raise ValueError("No such path: %s" % conf['unmatched_path'])
     if not(os.path.exists(conf['db_credentials'])):
         raise ValueError("No such path: %s" % conf['db_credentials'])
     conf['target_path'] = os.path.abspath(os.path.join(conf['share_path'],conf['base_path']))
