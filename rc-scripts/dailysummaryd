@@ -1,0 +1,55 @@
+#!/bin/bash
+#
+#       /etc/rc.d/init.d/placed
+#
+#       placed connects to the molecular microbiology lab's database
+#       and uses it to place sequence files that appear in a monitored
+#       path in their proper place in the lab's long term storage
+#       hierarchy, along with a JSON file describing the metadata of
+#       the sequences.
+
+# Source function library.
+. /etc/init.d/functions
+
+SERVICE="dailysummaryd"
+DAEMONPATH="/usr/local/bin/dailysummaryd"
+DAEMONUSER="seqlab"
+DAEMONCONFIG="/etc/seqlab.conf"
+
+start() {
+        echo -n "Starting $SERVICE: "
+        daemon --user $DAEMONUSER $DAEMONPATH -c $DAEMONCONFIG
+        touch /var/lock/subsys/$SERVICE
+        return 0
+}       
+
+stop() {
+        echo -n "Shutting down $SERVICE: "
+        killproc $PLACED
+        rm -f /var/lock/subsys/$SERVICE
+        return 0
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status $SERVICE
+        ;;
+    restart|reload)
+        stop
+        start
+        ;;
+    condrestart)
+        [ -f "/var/lock/subsys/$SERVICE" ] && restart || :
+        ;;
+    *)
+        echo "Usage: $SERVICE {start|stop|status|reload|restart}"
+        exit 1
+        ;;
+esac
+exit $?

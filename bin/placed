@@ -1,0 +1,4 @@
+#!python
+import seqlab.daemons.placed
+
+seqlab.daemons.placed.main()
