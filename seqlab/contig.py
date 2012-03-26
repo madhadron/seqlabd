@@ -124,6 +124,17 @@ def assemble(seq1, conf1, traces1, seq2, conf2, traces2):
     segment1 = seq1[hqint1.left():hqint1.right()] if hqint1.isproper() else ""
     segment2 = seq2[hqint2.left():hqint2.right()] if hqint2.isproper() else ""
     # Align them
+    # If you were going to add assembly against a template, the major
+    # change would be to write a function that took segment1,
+    # segment2, and template, and returned a third argument
+    # (templateoffset, rawaltemplate), then called added the template
+    # in the Assembly lines below. The easiest path would probably be
+    # to make the template argument to assemble optional, defaulting
+    # to None, and call ssearch36 if it is None.
+    # The function to do the templated alignment would align both
+    # segments against the template, and then go through the two
+    # alignments to combine them (inserting -'s appropriately, etc.).
+    # For a very similar algorithm that may help in writing that, see assembly.conform_gaps.
     (offset1, rawalsegment1), (offset2, rawalsegment2) = align.ssearch36(segment1, segment2)
     alsegment1, alsegment2 = aflist(offset1, rawalsegment1, gap='-', trackclass='nucleotide'), \
         aflist(offset2, rawalsegment2, gap='-', trackclass='nucleotide')
